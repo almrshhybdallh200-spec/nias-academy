@@ -1,0 +1,59 @@
+---
+import Icon from './Icon.astro';
+
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  crumbs: Crumb[];
+}
+
+const { crumbs } = Astro.props;
+---
+
+<nav class="breadcrumb" aria-label="مسار التنقل">
+  <ol>
+    {crumbs.map((c, i) => (
+      <li class:list={[{ 'breadcrumb__current': i === crumbs.length - 1 }]}>
+        {c.href && i < crumbs.length - 1 ? (
+          <a href={c.href}>{c.label}</a>
+        ) : (
+          <span aria-current="page">{c.label}</span>
+        )}
+        {i < crumbs.length - 1 && <Icon name="chevron-left" size={16} />}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  .breadcrumb {
+    font-size: 0.9rem;
+  }
+  .breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-1);
+  }
+  .breadcrumb li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    color: var(--color-text-muted);
+  }
+  .breadcrumb a {
+    color: var(--color-primary);
+    font-weight: 600;
+    transition: color 0.2s ease;
+  }
+  .breadcrumb a:hover {
+    color: var(--color-accent-dark);
+  }
+  .breadcrumb__current {
+    color: var(--color-text);
+    font-weight: 700;
+  }
+</style>

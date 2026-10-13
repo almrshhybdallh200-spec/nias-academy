@@ -1,0 +1,1429 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { toArabicNumerals, formatDate } from '../lib/format';
+import {
+  siteConfig,
+  branches,
+  colleges,
+  programs,
+  newsItems,
+  announcements,
+  partners,
+  eServices,
+  trainingCourses,
+  getLatest,
+} from '../lib/data';
+
+const latestNews = getLatest(newsItems, 8);
+const homeStats = [
+  { value: siteConfig.stats.years, label: 'عامًا من العطاء' },
+  { value: siteConfig.stats.graduates, label: 'خريج شهادة' },
+  { value: siteConfig.stats.trainees, label: 'متدرب وملتحق' },
+  { value: siteConfig.stats.branches, label: 'فروع في اليمن' },
+];
+const services = eServices.slice(0, 6);
+const gradPrograms = programs.filter((p) => p.typeLabel === 'دبلوم عالي').slice(0, 3);
+const profPrograms = programs.filter((p) => p.typeLabel !== 'دبلوم عالي').slice(0, 3);
+const trainings = trainingCourses.slice(0, 3);
+const latestAnnouncements = announcements.slice(0, 3);
+
+const navItems = [
+  { id: 'path', label: 'ابدأ من هنا' },
+  { id: 'services', label: 'الخدمات' },
+  { id: 'programs', label: 'البرامج' },
+  { id: 'colleges', label: 'الكليات' },
+  { id: 'training', label: 'التدريب' },
+  { id: 'branches', label: 'الفروع' },
+  { id: 'media', label: 'الأخبار' },
+  { id: 'faq', label: 'الأسئلة' },
+];
+
+const audiences = [
+  { icon: 'graduation', title: 'طالب / متقدّم', text: 'التسجيل والملفات والنتائج الأكاديمية.', href: '/portal', cta: 'البوابة الأكاديمية' },
+  { icon: 'user', title: 'موظف حكومي', text: 'الدورات التخصصية وشؤون الموظفين.', href: '/training', cta: 'تصفّح التدريب' },
+  { icon: 'university', title: 'جهة / مؤسسة', text: 'برامج بناء القدرات والاستشارات.', href: '/about', cta: 'اطلب شراكة' },
+  { icon: 'book', title: 'باحث / أكاديمي', text: 'المكتبة الرقمية والأبحاث الإدارية.', href: '/about#library', cta: 'المكتبة الرقمية' },
+];
+
+const faqs = [
+  { q: 'ما شروط الالتحاق ببرامج الدبلوم العالي؟', a: 'مؤهل بكالوريوس، وخبرة لا تقل عن سنتين في الوظيفة العامة، واجتياز المقابلة الشخصية. تُعلن التفاصيل في صفحة كل برنامج.' },
+  { q: 'هل الدراسة صباحية أم مسائية؟', a: 'تتوفر أوضاع متعددة: صباحي، مسائي، وتنفيذي في نهاية الأسبوع بحسب البرنامج، وذلك لمراعاة التزامات الموظفين.' },
+  { q: 'كيف أحصل على شهادة معتمدة؟', a: 'عبر خدمة «طلب شهادة معتمدة» في البوابة الأكاديمية؛ تُصدر الشهادة موثّقة ومصدّقة بترميز QR للتحقق.' },
+  { q: 'هل يقدّم المعهد برامج للجهات والمؤسسات؟', a: 'نعم، يقدّم المعهد برامج بناء قدرات واستشارات مخصّصة للقطاعين العام والخاص عبر فروع المعهد السبعة.' },
+  { q: 'هل توفر خدمة تدريب عن بُعد؟', a: 'نعم، منصة التدريب عن بُعد تقدّم دورات أونلاين بشهادات معتمدة، مع إمكانية الحضور للفروع.' },
+];
+
+const designSystem = [
+  { n: '01', c: 'Accessibility · CRITICAL', d: 'تباين ≥ 4.5:1، رابط «تخطَّ إلى المحتوى»، حلقة تركيز 3px، إخفاء الأيقونات الزخرفية عن قارئ الشاشة، بنية عناوين متسلسلة.' },
+  { n: '02', c: 'Touch & Interaction · CRITICAL', d: 'كل هدف لمس ≥ 44px، تباعد ≥ 8px، حالات pressed/hover/focus، وبديل نقر للتمرير الأفقي.' },
+  { n: '03', c: 'Performance · HIGH', d: 'JS صفري في Astro، صور lazy، حجز أبعاد (CLS) عبر aspect-ratio، نصوص system-fallback مع font-display: swap.' },
+  { n: '04', c: 'Style Selection · HIGH', d: 'الأسلوب الموحّد: Minimalism & Swiss + Accessible & Ethical + Flat — أيقونات SVG متجهية بلا إيموجي.' },
+  { n: '05', c: 'Layout & Responsive · HIGH', d: 'Mobile-first، بلا تمرير أفقي، نقاط توقف 375/768/1024/1440، حدّ قراءة 65–75 حرفًا، Bento Grid حديث.' },
+  { n: '06', c: 'Typography & Color · MEDIUM', d: 'أساس 16px، line-height 1.5–1.8، text-wrap: balance للعناوين، رموز ألوان دلالية (CSS variables) لا hex مبعثر.' },
+  { n: '07', c: 'Animation · MEDIUM', d: 'انتقالات transform/opacity فقط بمدد 150–300ms، تركيز على عنصر أو عنصرين، احترام prefers-reduced-motion.' },
+  { n: '08', c: 'Forms & Feedback · MEDIUM', d: 'تسميات ظاهرة، أخطاء قرب الحقل (aria-describedby)، إفصاح تدريجي عبر <details> الأصلي.' },
+  { n: '09', c: 'Navigation Patterns · HIGH', d: 'تنقّل مرساة مع تتبّع القسم النشط (scroll-spy + aria-current)، موضع اتصال ثابت، عمق صفحة واحدة.' },
+  { n: '10', c: 'Charts & Data · LOW', d: 'عرض الأرقام كمؤشرات واضحة مع وصف نصّي بديل، وعدم الاعتماد على اللون وحده لنقل المعنى.' },
+];
+---
+
+<BaseLayout
+  title={`الصفحة الرئيسية — نسخة حديثة تجريبية · ${siteConfig.name}`}
+  description="نسخة حديثة تجريبية من الصفحة الرئيسية بتطبيق كامل لمهارة UI UX Pro Max: Bento Grid، بوابة أدوار، كاروسيل متاح، وأسئلة شائعة."
+>
+  <a class="dsx-skip" href="#main">تخطَّ إلى المحتوى الرئيسي</a>
+
+  <div class="dsx">
+    <div class="dsx-note" role="note">
+      <div class="container dsx-note__inner">
+        <span class="dsx-note__badge">تجريبي</span>
+        <span>نسخة حديثة بتطبيق كل مهارات <strong>UI UX Pro Max</strong> — الصفحة الأصلية لم تُمسّ.</span>
+        <a class="dsx-note__link" href="/">النسخة الأصلية <Icon name="arrow-left" size={14} /></a>
+      </div>
+    </div>
+
+    <main id="main">
+      <header class="dsx-hero">
+        <div class="container dsx-hero__grid">
+          <div class="dsx-hero__body">
+            <p class="dsx-kicker">المعهد الوطني للعلوم الإدارية · منذ {toArabicNumerals(siteConfig.established)}</p>
+            <h1>{siteConfig.tagline}</h1>
+            <p class="dsx-lead">{siteConfig.footerDescription}</p>
+            <div class="dsx-actions">
+              <a class="dsx-btn dsx-btn--solid" href={siteConfig.dates.registrationLink}>
+                سجّل الآن
+                <Icon name="arrow-left" size={18} />
+              </a>
+              <a class="dsx-btn dsx-btn--line" href="#programs">استكشف البرامج</a>
+            </div>
+            <p class="dsx-hero__trust">
+              <Icon name="shield" size={16} />
+              معتمد من وزارة الخدمة المدنية والتأمينات · تسجيل الدفعة {siteConfig.dates.academicYear}
+            </p>
+            <dl class="dsx-stats">
+              {homeStats.map((s) => (
+                <div>
+                  <dt>{toArabicNumerals(s.value)}</dt>
+                  <dd>{s.label}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <div class="dsx-hero__aside">
+            <figure class="dsx-hero__media">
+              <img src="/images/headquarters2.jpg" alt="مقر المعهد الوطني للعلوم الإدارية — صنعاء" loading="lazy" decoding="async" />
+            </figure>
+            <div class="dsx-cred">
+              <span class="dsx-cred__ic"><Icon name="award" size={20} /></span>
+              <div>
+                <strong>اعتماد رسمي</strong>
+                <span>مؤسسة وطنية لبناء القدرات الإدارية</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <nav class="dsx-jump" aria-label="أقسام الصفحة">
+        <div class="container dsx-jump__inner">
+          {navItems.map((n) => (
+            <a class="dsx-jump__link" href={`#${n.id}`} data-jump>
+              {n.label}
+            </a>
+          ))}
+        </div>
+      </nav>
+
+      <section class="dsx-section" id="path">
+        <div class="container">
+          <div class="dsx-head">
+            <span class="dsx-num">01</span>
+            <div>
+              <h2>ابدأ من هنا</h2>
+              <p>اختر هويتك لتصلك الخدمة المناسبة مباشرة.</p>
+            </div>
+          </div>
+          <div class="dsx-grid dsx-grid--paths">
+            {audiences.map((a) => (
+              <a class="dsx-path" href={a.href}>
+                <span class="dsx-path__ic"><Icon name={a.icon} size={24} /></span>
+                <strong>{a.title}</strong>
+                <small>{a.text}</small>
+                <span class="dsx-path__cta">
+                  {a.cta}
+                  <Icon name="arrow-left" size={15} />
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="dsx-section dsx-section--alt" id="services">
+        <div class="container">
+          <div class="dsx-head">
+            <span class="dsx-num">02</span>
+            <div>
+              <h2>الخدمات الإلكترونية</h2>
+              <p>خدمات رقمية موحّدة في شبكة حديثة (Bento Grid).</p>
+            </div>
+          </div>
+          <div class="dsx-bento">
+            {services.map((s, i) => (
+              <a class:list={['dsx-tile', i < 2 && 'dsx-tile--feature']} href={s.href}>
+                <span class="dsx-tile__ic"><Icon name={s.icon} size={26} /></span>
+                <strong>{s.name}</strong>
+                <small>{s.description}</small>
+                <span class="dsx-tile__go"><Icon name="arrow-left" size={16} /></span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="dsx-band" aria-label="أرقام المعهد">
+        <div class="container dsx-band__grid">
+          {homeStats.map((s) => (
+            <div>
+              <strong>{toArabicNumerals(s.value)}</strong>
+              <span>{s.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="dsx-section" id="programs">
+        <div class="container">
+          <div class="dsx-head">
+            <span class="dsx-num">03</span>
+            <div>
+              <h2>البرامج الأكاديمية</h2>
+              <p>مسار متدرّج: دبلومات عالية ثم دبلومات مهنية.</p>
+            </div>
+          </div>
+
+          <h3 class="dsx-sub">دبلومات عالية</h3>
+          <div class="dsx-grid dsx-grid--prog">
+            {gradPrograms.map((p) => (
+              <article class="dsx-pcard">
+                <span class="dsx-pcard__tag">{p.typeLabel}</span>
+                <h4>{p.name}</h4>
+                <p>{p.overview}</p>
+                <ul>
+                  <li><Icon name="clock" size={14} />{p.duration}</li>
+                  <li><Icon name="book" size={14} />{toArabicNumerals(p.hours)} ساعة</li>
+                  <li><Icon name="layers" size={14} />{p.mode}</li>
+                </ul>
+                <a class="dsx-pcard__more" href={`/media/programs/${p.slug}`}>
+                  التفاصيل
+                  <Icon name="arrow-left" size={15} />
+                </a>
+              </article>
+            ))}
+          </div>
+
+          <h3 class="dsx-sub">دبلومات مهنية</h3>
+          <div class="dsx-grid dsx-grid--prog">
+            {profPrograms.map((p) => (
+              <article class="dsx-pcard">
+                <span class="dsx-pcard__tag">{p.typeLabel}</span>
+                <h4>{p.name}</h4>
+                <p>{p.overview}</p>
+                <ul>
+                  <li><Icon name="clock" size={14} />{p.duration}</li>
+                  <li><Icon name="book" size={14} />{toArabicNumerals(p.hours)} ساعة</li>
+                  <li><Icon name="layers" size={14} />{p.mode}</li>
+                </ul>
+                <a class="dsx-pcard__more" href={`/media/programs/${p.slug}`}>
+                  التفاصيل
+                  <Icon name="arrow-left" size={15} />
+                </a>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="dsx-section dsx-section--alt" id="colleges">
+        <div class="container">
+          <div class="dsx-head">
+            <span class="dsx-num">04</span>
+            <div>
+              <h2>الكليات</h2>
+              <p>ثلاث كليات تغطي الإدارة العامة والمالية والمعلوماتية.</p>
+            </div>
+          </div>
+          <div class="dsx-grid dsx-grid--colleges">
+            {colleges.map((c) => (
+              <a class="dsx-ccard" href={`/colleges/${c.slug}`}>
+                <span class="dsx-ccard__ic"><Icon name={c.icon} size={24} /></span>
+                <strong>{c.name}</strong>
+                <small>{c.description}</small>
+                <ul>
+                  {c.goals.map((g) => (
+                    <li>{g}</li>
+                  ))}
+                </ul>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="dsx-section" id="training">
+        <div class="container">
+          <div class="dsx-head">
+            <span class="dsx-num">05</span>
+            <div>
+              <h2>البرامج التدريبية</h2>
+              <p>دورات تخصصية لكوادر القطاعين العام والخاص.</p>
+            </div>
+          </div>
+          <div class="dsx-grid dsx-grid--prog">
+            {trainings.map((t) => (
+              <article class="dsx-pcard">
+                <span class="dsx-pcard__tag">{t.category}</span>
+                <h4>{t.title}</h4>
+                <p>{t.summary}</p>
+                <ul>
+                  <li><Icon name="clock" size={14} />{t.duration}</li>
+                  <li><Icon name="book" size={14} />{toArabicNumerals(t.hours)} ساعة</li>
+                  <li><Icon name="user" size={14} />{t.instructor}</li>
+                </ul>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="dsx-section dsx-section--alt" id="branches">
+        <div class="container">
+          <div class="dsx-head">
+            <span class="dsx-num">06</span>
+            <div>
+              <h2>الفروع</h2>
+              <p>حضور وطني في {toArabicNumerals(siteConfig.stats.branches)} محافظات.</p>
+            </div>
+          </div>
+          <div class="dsx-chips">
+            {branches.map((b) => (
+              <a class="dsx-chip" href={`/branches/${b.slug}`}>
+                <span></span>
+                {b.name}
+                {b.isDefault && <em>المقر الرئيسي</em>}
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="dsx-section" id="media">
+        <div class="container">
+          <div class="dsx-carousel" data-carousel aria-roledescription="carousel" aria-label="آخر الأخبار">
+            <div class="dsx-carousel__head">
+              <div class="dsx-head dsx-head--sm">
+                <span class="dsx-num">07</span>
+                <div><h2>آخر الأخبار</h2></div>
+              </div>
+              <div class="dsx-carousel__ctrls">
+                <button type="button" class="dsx-round" data-carousel-prev aria-label="الخبر السابق">
+                  <Icon name="chevron-right" size={18} />
+                </button>
+                <button type="button" class="dsx-round" data-carousel-next aria-label="الخبر التالي">
+                  <Icon name="chevron-left" size={18} />
+                </button>
+              </div>
+            </div>
+            <ul class="dsx-carousel__track" data-carousel-track tabindex="0" aria-label="قائمة الأخبار — استخدم الأسهم للتنقل">
+              {latestNews.map((n, i) => (
+                <li class="dsx-slide" aria-label={`${toArabicNumerals(i + 1)} من ${toArabicNumerals(latestNews.length)}`}>
+                  <a href={`/media/news/${n.slug}`}>
+                    <span class="dsx-slide__cat">{n.category}</span>
+                    <strong>{n.title}</strong>
+                    <time>{formatDate(n.date)}</time>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="dsx-ann-wrap">
+            <div class="dsx-head dsx-head--sm">
+              <span class="dsx-num">08</span>
+              <div><h2>إعلانات</h2></div>
+            </div>
+            <ul class="dsx-ann">
+              {latestAnnouncements.map((a) => (
+                <li>
+                  <span>{a.code}</span>
+                  <strong>{a.title}</strong>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="dsx-trust" aria-label="جهات تثق بالمعهد">
+        <div class="container">
+          <p class="dsx-trust__label">جهات تثق بالمعهد</p>
+          <ul class="dsx-trust__list">
+            {partners.map((p) => (
+              <li><Icon name="landmark" size={14} />{p.name}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section class="dsx-section dsx-section--alt" id="faq">
+        <div class="container dsx-faq-wrap">
+          <div class="dsx-head">
+            <span class="dsx-num">09</span>
+            <div>
+              <h2>الأسئلة الشائعة</h2>
+              <p>إفصاح تدريجي عبر عناصر <code>&lt;details&gt;</code> أصلية تعمل دون JavaScript.</p>
+            </div>
+          </div>
+          <div class="dsx-faq">
+            {faqs.map((f) => (
+              <details class="dsx-faq__item">
+                <summary>
+                  <span>{f.q}</span>
+                  <Icon name="chevron-down" size={18} />
+                </summary>
+                <p>{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="dsx-cta">
+        <div class="container dsx-cta__inner">
+          <div>
+            <h2>انضم إلى أكثر من {toArabicNumerals(siteConfig.stats.graduates)} خريج</h2>
+            <p>تسجيل الدفعة {siteConfig.dates.academicYear} مستمر حتى {formatDate(siteConfig.dates.applicationDeadline)}.</p>
+          </div>
+          <div class="dsx-cta__actions">
+            <a class="dsx-btn dsx-btn--gold" href={siteConfig.dates.registrationLink}>
+              سجّل الآن
+              <Icon name="arrow-left" size={18} />
+            </a>
+            <a class="dsx-btn dsx-btn--outline" href="/contact">تواصل معنا</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="dsx-section" aria-label="نظام التصميم المطبّق">
+        <div class="container">
+          <h2 class="dsx-ds__title">نظام التصميم المطبّق <span>UI UX Pro Max</span></h2>
+          <ul class="dsx-ds__grid">
+            {designSystem.map((r) => (
+              <li>
+                <span class="dsx-ds__n">{r.n}</span>
+                <strong>{r.c}</strong>
+                <p>{r.d}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 96px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+</style>
+
+<style>
+  .dsx {
+    --g: #0F7A4A;
+    --g-d: #0A5C37;
+    --g-l: #E4F1E9;
+    --ink: #101418;
+    --navy: #26304D;
+    --gold: #C9A227;
+    --bg: #FBFAF7;
+    --surf: #ffffff;
+    --muted: #5B6470;
+    --line: #E4E4DE;
+    --focus: #1591B3;
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  /* ---------- Skip link ---------- */
+  .dsx-skip {
+    position: absolute;
+    inset-inline-start: 12px;
+    top: -56px;
+    z-index: 100;
+    background: var(--g-d, #0A5C37);
+    color: #fff;
+    font-weight: 800;
+    padding: 12px 18px;
+    border-radius: 8px;
+    transition: top 0.15s ease;
+  }
+  .dsx-skip:focus {
+    top: 12px;
+  }
+
+  /* ---------- Trial note ---------- */
+  .dsx-note {
+    background: var(--navy);
+    color: #fff;
+  }
+  .dsx-note__inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-block: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .dsx-note__badge {
+    background: var(--gold);
+    color: #1B1405;
+    font-weight: 800;
+    font-size: 0.72rem;
+    padding: 3px 12px;
+    border-radius: 999px;
+  }
+  .dsx-note__link {
+    margin-inline-start: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #fff;
+    font-weight: 700;
+    min-height: 32px;
+  }
+  .dsx-note__link:hover {
+    text-decoration: underline;
+  }
+
+  /* ---------- Kicker / headings ---------- */
+  .dsx-kicker {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--g-d);
+  }
+  .dsx-h2,
+  .dsx h1,
+  .dsx h2 {
+    font-weight: 900;
+    letter-spacing: -0.01em;
+  }
+
+  /* ---------- Hero ---------- */
+  .dsx-hero {
+    border-bottom: 1px solid var(--line);
+    background: var(--surf);
+  }
+  .dsx-hero__grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 48px;
+    align-items: center;
+    padding-block: 72px;
+  }
+  .dsx-hero h1 {
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    margin-top: 14px;
+    text-wrap: balance;
+    max-inline-size: 18ch;
+  }
+  .dsx-lead {
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.9;
+    margin-top: 18px;
+    max-width: 58ch;
+  }
+  .dsx-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+  }
+  .dsx-hero__trust {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 22px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--g-d);
+    background: var(--g-l);
+    border: 1px solid var(--g);
+    border-radius: 999px;
+    padding: 6px 14px;
+  }
+  .dsx-hero__aside {
+    position: relative;
+  }
+  .dsx-hero__media {
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    background: var(--g-l);
+  }
+  .dsx-hero__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .dsx-cred {
+    position: absolute;
+    inset-block-end: 16px;
+    inset-inline-start: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surf);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 14px;
+  }
+  .dsx-cred__ic {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--g-l);
+    color: var(--g-d);
+    flex-shrink: 0;
+  }
+  .dsx-cred strong {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 900;
+  }
+  .dsx-cred span {
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .dsx-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+  }
+  .dsx-stats dt {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--g-d);
+  }
+  .dsx-stats dd {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  /* ---------- Buttons ---------- */
+  .dsx-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 22px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    border: 1px solid transparent;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .dsx-btn--solid {
+    background: var(--g);
+    color: #fff;
+  }
+  .dsx-btn--solid:hover {
+    background: var(--g-d);
+  }
+  .dsx-btn--line {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  .dsx-btn--line:hover {
+    background: var(--ink);
+    color: #fff;
+  }
+  .dsx-btn--gold {
+    background: var(--gold);
+    color: #1B1405;
+  }
+  .dsx-btn--gold:hover {
+    background: #B08C1E;
+    color: #fff;
+  }
+  .dsx-btn--outline {
+    border-color: rgba(255, 255, 255, 0.7);
+    color: #fff;
+  }
+  .dsx-btn--outline:hover {
+    background: #fff;
+    color: var(--g-d);
+  }
+
+  /* ---------- Jump nav ---------- */
+  .dsx-jump {
+    background: var(--surf);
+    border-bottom: 1px solid var(--line);
+  }
+  .dsx-jump__inner {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding-block: 12px;
+  }
+  .dsx-jump__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--muted);
+    border: 1px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  .dsx-jump__link:hover {
+    color: var(--g-d);
+    border-color: var(--line);
+  }
+  .dsx-jump__link[aria-current='true'] {
+    color: var(--g-d);
+    background: var(--g-l);
+    border-color: var(--g);
+  }
+
+  /* ---------- Sections ---------- */
+  .dsx-section {
+    padding-block: 72px;
+  }
+  .dsx-section--alt {
+    background: var(--g-l);
+  }
+  .dsx-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 32px;
+  }
+  .dsx-num {
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--g);
+    border: 1px solid var(--g);
+    border-radius: 6px;
+    padding: 4px 10px;
+    line-height: 1.4;
+  }
+  .dsx-head h2 {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+  }
+  .dsx-head p {
+    color: var(--muted);
+    margin-top: 6px;
+    max-width: 60ch;
+    line-height: 1.8;
+  }
+  .dsx-head code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.82em;
+    background: var(--surf);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 6px;
+  }
+  .dsx-sub {
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: var(--g-d);
+    margin: 24px 0 14px;
+    padding-inline-start: 12px;
+    border-inline-start: 4px solid var(--g);
+  }
+
+  /* ---------- Grids ---------- */
+  .dsx-grid {
+    display: grid;
+    gap: 16px;
+  }
+  .dsx-grid--paths {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .dsx-grid--prog {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  .dsx-grid--colleges {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  /* ---------- Audience paths ---------- */
+  .dsx-path {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--surf);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .dsx-path:hover {
+    border-color: var(--g);
+    transform: translateY(-2px);
+  }
+  .dsx-path__ic {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: var(--navy);
+    color: #fff;
+  }
+  .dsx-path strong {
+    font-size: 1.05rem;
+    font-weight: 900;
+  }
+  .dsx-path small {
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+  .dsx-path__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--g);
+  }
+  .dsx-path:hover .dsx-path__cta {
+    gap: 10px;
+  }
+
+  /* ---------- Bento grid ---------- */
+  .dsx-bento {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .dsx-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--surf);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 24px;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .dsx-tile:hover {
+    border-color: var(--g);
+    transform: translateY(-2px);
+  }
+  .dsx-tile--feature {
+    grid-column: span 2;
+    background: var(--navy);
+    color: #fff;
+    border-color: var(--navy);
+  }
+  .dsx-tile--feature .dsx-tile__ic {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+  .dsx-tile--feature small {
+    color: #C9D2E0;
+  }
+  .dsx-tile--feature strong {
+    font-size: 1.15rem;
+  }
+  .dsx-tile__ic {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    background: var(--g-l);
+    color: var(--g-d);
+  }
+  .dsx-tile strong {
+    font-size: 1rem;
+    font-weight: 900;
+  }
+  .dsx-tile small {
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+  .dsx-tile__go {
+    margin-top: auto;
+    padding-top: 12px;
+    color: var(--g);
+  }
+  .dsx-tile--feature .dsx-tile__go {
+    color: var(--gold);
+  }
+
+  /* ---------- Navy band ---------- */
+  .dsx-band {
+    background: var(--navy);
+    color: #fff;
+    padding-block: 48px;
+  }
+  .dsx-band__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    text-align: center;
+  }
+  .dsx-band__grid strong {
+    display: block;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 900;
+  }
+  .dsx-band__grid span {
+    color: #C9D2E0;
+    font-size: 0.85rem;
+  }
+
+  /* ---------- Program / college cards ---------- */
+  .dsx-pcard,
+  .dsx-ccard {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--surf);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .dsx-pcard:hover,
+  .dsx-ccard:hover {
+    border-color: var(--g);
+    transform: translateY(-2px);
+  }
+  .dsx-pcard h4,
+  .dsx-ccard strong {
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--ink);
+  }
+  .dsx-ccard small {
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+  .dsx-ccard__ic {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: var(--g-l);
+    color: var(--g-d);
+  }
+  .dsx-pcard__tag {
+    align-self: flex-start;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--g-d);
+    background: var(--g-l);
+    border: 1px solid var(--g);
+    padding: 2px 10px;
+    border-radius: 999px;
+  }
+  .dsx-pcard p {
+    color: var(--muted);
+    font-size: 0.86rem;
+    line-height: 1.8;
+  }
+  .dsx-pcard ul,
+  .dsx-ccard ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 10px;
+    list-style: none;
+  }
+  .dsx-pcard ul li {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 4px 9px;
+    white-space: nowrap;
+  }
+  .dsx-ccard ul li {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--g-d);
+    background: var(--g-l);
+    border-radius: 6px;
+    padding: 4px 9px;
+  }
+  .dsx-pcard__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    min-height: 32px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--g);
+  }
+  .dsx-pcard__more:hover {
+    gap: 10px;
+  }
+
+  /* ---------- Chips ---------- */
+  .dsx-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .dsx-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 8px 16px;
+    background: var(--surf);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-weight: 800;
+    color: var(--ink);
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .dsx-chip:hover {
+    border-color: var(--g);
+    color: var(--g-d);
+  }
+  .dsx-chip > span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+  .dsx-chip em {
+    font-style: normal;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  /* ---------- Carousel ---------- */
+  .dsx-carousel {
+    margin-bottom: 40px;
+  }
+  .dsx-carousel__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .dsx-carousel__head .dsx-head {
+    margin-bottom: 0;
+  }
+  .dsx-carousel__ctrls {
+    display: flex;
+    gap: 8px;
+  }
+  .dsx-round {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--surf);
+    color: var(--ink);
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .dsx-round:hover {
+    border-color: var(--g);
+    color: var(--g-d);
+  }
+  .dsx-carousel__track {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 12px;
+    scrollbar-width: thin;
+    list-style: none;
+  }
+  .dsx-carousel__track:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
+  .dsx-slide {
+    scroll-snap-align: start;
+    flex: 0 0 min(340px, 82vw);
+  }
+  .dsx-slide a {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+    min-height: 190px;
+    background: var(--surf);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .dsx-slide a:hover {
+    border-color: var(--g);
+    transform: translateY(-2px);
+  }
+  .dsx-slide__cat {
+    align-self: flex-start;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--g-d);
+    background: var(--g-l);
+    border-radius: 6px;
+    padding: 3px 10px;
+  }
+  .dsx-slide strong {
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+  .dsx-slide time {
+    margin-top: auto;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  /* ---------- Announcements ---------- */
+  .dsx-ann-wrap .dsx-head--sm {
+    margin-bottom: 12px;
+  }
+  .dsx-ann {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+  }
+  .dsx-ann li {
+    display: flex;
+    gap: 12px;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+  }
+  .dsx-ann li span {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--g-d);
+    background: var(--g-l);
+    border-radius: 6px;
+    padding: 3px 8px;
+    height: fit-content;
+    white-space: nowrap;
+  }
+  .dsx-ann strong {
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  /* ---------- Trust strip ---------- */
+  .dsx-trust {
+    border-block: 1px solid var(--line);
+    padding-block: 36px;
+    background: var(--surf);
+  }
+  .dsx-trust__label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .dsx-trust__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 28px;
+    list-style: none;
+  }
+  .dsx-trust__list li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .dsx-trust__list svg {
+    color: var(--g);
+  }
+
+  /* ---------- FAQ ---------- */
+  .dsx-faq-wrap {
+    max-width: 900px;
+  }
+  .dsx-faq {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .dsx-faq__item {
+    background: var(--surf);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .dsx-faq__item[open] {
+    border-color: var(--g);
+  }
+  .dsx-faq__item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 56px;
+    padding: 16px 20px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.95rem;
+    list-style: none;
+  }
+  .dsx-faq__item summary::-webkit-details-marker {
+    display: none;
+  }
+  .dsx-faq__item summary svg {
+    flex-shrink: 0;
+    color: var(--g);
+    transition: transform 0.2s ease;
+  }
+  .dsx-faq__item[open] summary svg {
+    transform: rotate(180deg);
+  }
+  .dsx-faq__item p {
+    padding: 0 20px 18px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.9;
+    max-width: 68ch;
+  }
+
+  /* ---------- CTA ---------- */
+  .dsx-cta {
+    background: var(--g-d);
+    color: #fff;
+  }
+  .dsx-cta__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-block: 48px;
+  }
+  .dsx-cta h2 {
+    font-size: clamp(1.3rem, 3vw, 1.9rem);
+  }
+  .dsx-cta p {
+    color: #D7E8DE;
+    margin-top: 6px;
+  }
+  .dsx-cta__actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* ---------- Design system legend ---------- */
+  .dsx-ds__title {
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .dsx-ds__title span {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--g-d);
+    background: var(--g-l);
+    border: 1px solid var(--g);
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .dsx-ds__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    list-style: none;
+  }
+  .dsx-ds__grid li {
+    background: var(--surf);
+    border: 1px solid var(--line);
+    border-inline-start: 4px solid var(--g);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .dsx-ds__n {
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: var(--gold);
+  }
+  .dsx-ds__grid strong {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 900;
+    margin: 4px 0;
+  }
+  .dsx-ds__grid p {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  /* ---------- Accessibility ---------- */
+  .dsx a:focus-visible,
+  .dsx button:focus-visible,
+  .dsx summary:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dsx *,
+    .dsx *::before,
+    .dsx *::after {
+      transition: none !important;
+    }
+    .dsx-path:hover,
+    .dsx-tile:hover,
+    .dsx-pcard:hover,
+    .dsx-ccard:hover,
+    .dsx-slide a:hover {
+      transform: none;
+    }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1024px) {
+    .dsx-bento {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 960px) {
+    .dsx-hero__grid {
+      grid-template-columns: 1fr;
+      gap: 28px;
+      padding-block: 48px;
+    }
+    .dsx-stats,
+    .dsx-band__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 640px) {
+    .dsx-section {
+      padding-block: 48px;
+    }
+    .dsx-hero__grid {
+      padding-block: 36px;
+    }
+    .dsx-bento {
+      grid-template-columns: 1fr;
+    }
+    .dsx-tile--feature {
+      grid-column: auto;
+    }
+    .dsx-grid--paths,
+    .dsx-grid--prog,
+    .dsx-grid--colleges {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
+    const track = root.querySelector<HTMLElement>('[data-carousel-track]');
+    const prev = root.querySelector<HTMLButtonElement>('[data-carousel-prev]');
+    const next = root.querySelector<HTMLButtonElement>('[data-carousel-next]');
+    if (!track) return;
+
+    const step = () => {
+      const first = track.querySelector<HTMLElement>('.dsx-slide');
+      return first ? first.offsetWidth + 16 : track.clientWidth;
+    };
+    const rtlSign = getComputedStyle(track).direction === 'rtl' ? -1 : 1;
+
+    prev?.addEventListener('click', () => {
+      track.scrollBy({ left: -step() * rtlSign, behavior: prefersReduced.matches ? 'auto' : 'smooth' });
+    });
+    next?.addEventListener('click', () => {
+      track.scrollBy({ left: step() * rtlSign, behavior: prefersReduced.matches ? 'auto' : 'smooth' });
+    });
+  });
+
+  const jumpLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-jump]'));
+  const sections = jumpLinks
+    .map((link) => document.getElementById(link.getAttribute('href')!.slice(1)))
+    .filter((el): el is HTMLElement => Boolean(el));
+
+  if (sections.length) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const id = entry.target.id;
+          jumpLinks.forEach((link) => {
+            const active = link.getAttribute('href') === `#${id}`;
+            if (active) link.setAttribute('aria-current', 'true');
+            else link.removeAttribute('aria-current');
+          });
+        });
+      },
+      { rootMargin: '-96px 0px -60% 0px', threshold: 0 },
+    );
+    sections.forEach((section) => observer.observe(section));
+  }
+</script>

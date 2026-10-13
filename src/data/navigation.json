@@ -1,0 +1,99 @@
+[
+  {
+    "label": "الرئيسية",
+    "href": "/",
+    "icon": "home"
+  },
+  {
+    "label": "عن المعهد",
+    "href": "/about",
+    "icon": "landmark",
+    "children": [
+      { "label": "رسالتنا وأهدافنا", "href": "/about#mission" },
+      { "label": "كلمة عميد المعهد", "href": "/about#director" },
+      { "label": "الهيكل الإداري", "href": "/about#structure" },
+      { "label": "الكليات والأقسام", "href": "/about#colleges" },
+      { "label": "الشراكات العلمية", "href": "/about#partners" },
+      { "label": "اللائحة التنظيمية", "href": "/about#regulations" }
+    ]
+  },
+  {
+    "label": "الكليات",
+    "href": "/colleges",
+    "icon": "university",
+    "children": [
+      { "label": "كل الكليات", "href": "/colleges" },
+      { "label": "كلية العلوم الإدارية", "href": "/colleges/administrative-sciences" },
+      { "label": "كلية تكنولوجيا المعلومات", "href": "/colleges/information-technology" },
+      { "label": "مركز الدبلومات المتوسطة", "href": "/colleges/intermediate-diplomas" },
+      { "label": "كلية الدراسات العليا", "href": "/colleges/postgraduate-studies" }
+    ]
+  },
+  {
+    "label": "المراكز",
+    "href": "/centers",
+    "icon": "layers",
+    "children": [
+      { "label": "جميع المراكز", "href": "/centers" },
+      { "label": "مركز التدريب والتأهيل", "href": "/training" },
+      { "label": "مركز الاستشارات والبحوث", "href": "/centers#research" },
+      { "label": "المركز الإعلامي", "href": "/media" },
+      { "label": "المكتبة الرقمية", "href": "/about#library" },
+      { "label": "البوابة الإلكترونية", "href": "/portal" }
+    ]
+  },
+  {
+    "label": "التسجيل والقبول",
+    "href": "/portal",
+    "icon": "user",
+    "children": [
+      { "label": "بوابة التسجيل والقبول", "href": "https://oasyemen.net/", "external": true },
+      { "label": "الاستعلام عن النتائج", "href": "https://oasyemen.net/results", "external": true },
+      { "label": "التقديم على البرامج", "href": "/portal" },
+      { "label": "الشهادات والتحقق", "href": "/portal" },
+      { "label": "الدليل الطلابي", "href": "/about#regulations" }
+    ]
+  },
+  {
+    "label": "التدريب",
+    "href": "/training",
+    "icon": "layers",
+    "children": [
+      { "label": "البرامج التدريبية", "href": "/training#courses" },
+      { "label": "الدورات التأهيلية", "href": "/training#qualifying" },
+      { "label": "الندوات والأنشطة", "href": "/training#seminars" }
+    ]
+  },
+  {
+    "label": "الفروع",
+    "href": "/branches",
+    "icon": "map-pin",
+    "children": [
+      { "label": "فرع صنعاء", "href": "/branches/sanaa" },
+      { "label": "فرع عدن", "href": "/branches/aden" },
+      { "label": "فرع تعز", "href": "/branches/taiz" },
+      { "label": "فرع الحديدة", "href": "/branches/hodeidah" },
+      { "label": "فرع حضرموت", "href": "/branches/hadhramaut" },
+      { "label": "فرع إب", "href": "/branches/ibb" },
+      { "label": "فرع ذمار", "href": "/branches/dhamar" }
+    ]
+  },
+  {
+    "label": "الإعلام",
+    "href": "/media",
+    "icon": "newspaper",
+    "children": [
+      { "label": "الأخبار", "href": "/media#news" },
+      { "label": "الإعلانات", "href": "/media#announcements" },
+      { "label": "الفعاليات", "href": "/media#events" },
+      { "label": "المعرض والفيديو", "href": "/media#gallery" },
+      { "label": "المركز الإعلامي", "href": "/media#press" }
+    ]
+  },
+  {
+    "label": "تواصل معنا",
+    "href": "/contact",
+    "icon": "send",
+    "navId": "contact"
+  }
+]

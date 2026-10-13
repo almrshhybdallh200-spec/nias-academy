@@ -1,0 +1,122 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+
+const links = [
+  { label: 'الرئيسية', href: '/', icon: 'home' },
+  { label: 'عن المعهد', href: '/about', icon: 'landmark' },
+  { label: 'الفروع', href: '/branches', icon: 'map-pin' },
+  { label: 'الإعلام', href: '/media', icon: 'newspaper' },
+  { label: 'البرامج', href: '/media/programs', icon: 'graduation' },
+  { label: 'البوابة', href: '/portal', icon: 'document' },
+];
+---
+
+<BaseLayout title="الصفحة غير موجودة" description="عذرًا، الصفحة التي تبحث عنها غير متاحة.">
+  <section class="nf">
+    <div class="container nf__inner">
+      <div class="nf__code">404</div>
+      <div class="nf__icon">
+        <Icon name="search" size={40} />
+      </div>
+      <h1>عذرًا! الصفحة التي تبحث عنها غير موجودة</h1>
+      <p>
+        ربما تكون الروابط قد تغيرت أو انتقلت الصفحة إلى مكان آخر. جرّب أحد المسارات أدناه أو استخدم البحث.
+      </p>
+      <nav class="nf__links" aria-label="روابط بديلة">
+        {links.map((l) => (
+          <a href={l.href}>
+            <Icon name={l.icon} size={18} />
+            {l.label}
+          </a>
+        ))}
+      </nav>
+      <a class="nf__home" href="/">
+        العودة إلى الرئيسية
+        <Icon name="arrow-left" size={18} />
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    padding-block: var(--spacing-8) var(--spacing-9);
+    text-align: center;
+  }
+  .nf__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-4);
+    max-width: 720px;
+  }
+  .nf__code {
+    font-size: clamp(5rem, 20vw, 9rem);
+    font-weight: 900;
+    font-family: 'Cairo', sans-serif;
+    line-height: 1;
+    background: linear-gradient(120deg, var(--color-primary) 30%, var(--color-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .nf__icon {
+    width: 84px;
+    height: 84px;
+    border-radius: 22px;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    display: grid;
+    place-items: center;
+  }
+  .nf h1 {
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    font-weight: 900;
+    color: var(--color-primary-dark);
+  }
+  .nf p {
+    color: var(--color-text-secondary);
+    max-width: 52ch;
+    line-height: 1.9;
+  }
+  .nf__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-2);
+  }
+  .nf__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-weight: 700;
+    color: var(--color-text);
+    transition: all 0.2s ease;
+  }
+  .nf__links a:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    transform: translateY(-2px);
+  }
+  .nf__home {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 900;
+    padding: 13px 24px;
+    border-radius: 12px;
+    margin-top: var(--spacing-2);
+    transition: background 0.2s ease;
+  }
+  .nf__home:hover {
+    background: var(--color-accent-dark);
+  }
+</style>

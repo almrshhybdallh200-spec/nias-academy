@@ -1,0 +1,963 @@
+---
+// ============================================================
+// مساعد NIAS الذكي — واجهة + قاعدة معرفة grounding من محتوى الموقع
+// الوضع الحالي: محرك محلي (offline) يجيب من المحتوى الرسمي فقط.
+// وضع الربط المستقبلي: عند وضع PUBLIC_AI_ENDPOINT في بيئة الخادم
+// يُستدعى أخد endpoint آمن (مفتاح الجلسة) — ولا تُكشف المفاتيح للعميل.
+// ============================================================
+import Icon from './Icon.astro';
+import type { AIEntry } from '../lib/assistant';
+import {
+  siteConfig,
+  programs,
+  branches,
+  eServices,
+  colleges,
+  announcements,
+  getUpcomingEvents,
+} from '../lib/data';
+import { toArabicNumerals } from '../lib/format';
+
+const established = toArabicNumerals(siteConfig.established);
+const kb: AIEntry[] = [];
+const push = (e: AIEntry) => kb.push(e);
+
+// ---------- لمحة عامة ----------
+push({
+  id: 'about',
+  group: 'المعهد',
+  title: 'عن المعهد الوطني للعلوم الإدارية',
+  keywords: ['معهد', 'تاريخ', 'تاسس', 'مؤسسه', 'نشاه', 'تاسست', '1963', 'لمريكي'],
+  text: `المعهد الوطني للعلوم الإدارية (NIAS) مؤسسة وطنية حكومية متخصصة في التدريب والتأهيل الإداري منذ عام ${established}. ` +
+    `يمنح دبلومات عالية ومهنية ودورات تخصصية، ويعمل عبر ${siteConfig.stats.branches} فروع في عموم اليمن.`,
+  href: '/about',
+  blurb: 'لمحة عن المعهد وعمله',
+});
+
+// ---------- التسجيل والقبول ----------
+push({
+  id: 'apply',
+  group: 'القبول',
+  title: 'التسجيل والقبول',
+  keywords: ['تسجيل', 'تسجل', 'قبول', 'تقديم', 'دفعه', 'التحاق', 'سجل', 'استقبال', 'تطبيق', 'التسجيل'],
+  text: `يتم التقديم إلكترونيًا عبر زر «سجّل الآن» في الموقع (بوابة التسجيل). ` +
+    `الدفعة الحالية ${siteConfig.dates.academicYear} تُعقد وفق المواعيد المعلنة في صفحات الموقع. ` +
+    `التسجيل متاح للجميع، مع أولوية قبول للموظفين الحاليين في الجهات الحكومية وتمييز للخريجين الجدد.`,
+  href: '/portal#auth',
+  blurb: 'بوابة التسجيل والدخول',
+});
+
+// ---------- البرامج ----------
+programs.forEach((p) => {
+  push({
+    id: `prg-${p.slug}`,
+    group: 'البرامج',
+    title: p.name,
+    keywords: [p.name, p.typeLabel, p.department || ''],
+    text: `${p.name} (${p.typeLabel}): ${p.overview} المدة ${p.duration}، نمط ${p.mode}، ${p.hours} ساعة تدريبية. ` +
+      `الفئة المستهدفة: ${p.target}. شروط القبول: ${p.requirements.join('، ')}. ` +
+      (p.status === 'مفتوح للتسجيل' ? 'التسجيل مفتوح حاليًا.' : `حالة البرنامج: ${p.status}.`),
+    href: `/media/programs/${p.slug}`,
+    blurb: 'صفحة البرنامج على الموقع',
+  });
+});
+push({
+  id: 'prg-all',
+  group: 'البرامج',
+  title: 'الدبلومات والبرامج المتاحة',
+  keywords: ['برنامج', 'برامج', 'دبلومات', 'دبلومات', 'دورات', 'مناهج', 'تخصصات', 'دراسه', 'محتوي'],
+  text: `يقدم المعهد ${siteConfig.stats.programs} برنامجًا بين دبلومات عالية ومهنية ودورات تخصصية تغطي الإدارة والموارد البشرية والمالية والحوكمة والتحول الرقمي والذكاء الاصطناعي. ` +
+    `تصفح القائمة الكاملة في صفحة البرامج وجميع الدبلومات، وكل برنامج له صفحة تفصيلية بالشروط والمدة والمستهدفين.`,
+  href: '/media/programs',
+  blurb: 'قائمة كل البرامج والدبلومات',
+});
+
+// ---------- الكليات ----------
+colleges.forEach((c) => {
+  push({
+    id: `col-${c.slug}`,
+    group: 'الكليات',
+    title: c.name,
+    keywords: [c.name, 'كلية', 'كليات', 'شعب', c.slug],
+    text: `${c.name}: ${c.description}`,
+    href: '/about#colleges',
+    blurb: 'الكليات والأقسام',
+  });
+});
+
+// ---------- الخدمات الإلكترونية ----------
+eServices.forEach((s) => {
+  push({
+    id: `svc-${s.id}`,
+    group: 'الخدمات',
+    title: s.name,
+    keywords: [s.name, ...s.name.split(' ').filter((w) => w.length > 2)],
+    text: `${s.name} — ${s.description}.`,
+    href: s.href,
+    blurb: 'خدمة إلكترونية',
+  });
+});
+push({
+  id: 'svc-all',
+  group: 'الخدمات',
+  title: 'الخدمات الإلكترونية',
+  keywords: ['خدمات', 'خدمه', 'رقميه', 'الكترونيه', 'بوابه', 'استعلام', 'صرف', 'تجديد', 'جواز'],
+  text: `تتوفر ${eServices.length} خدمة رقمية عبر بوابة واحدة: التسجيل، الاستعلامات، الشهادات والتحقق، المكتبة، ومنصة التدريب. ` +
+    `كل خدمة في صفحة الخدمات الإلكترونية وتصلك مباشرة بعد تسجيل الدخول أو عبر الصفحة العامة حسب طبيعة الخدمة.`,
+  href: eServices[0]?.href || '/portal',
+  blurb: 'الخدمات المتاحة',
+});
+
+// ---------- الفروع ----------
+branches.forEach((b) => {
+  push({
+    id: `br-${b.slug}`,
+    group: 'الفروع',
+    title: `${b.name} (${b.city})`,
+    keywords: [b.city, b.name, b.nameEn, 'فرع'],
+    text: `${b.name} — فرع ${b.city} (${b.typeLabel}). ${b.description}`,
+    href: `/branches/${b.slug}`,
+    blurb: b.address || b.city,
+  });
+});
+push({
+  id: 'br-all',
+  group: 'الفروع',
+  title: 'فروع المعهد في المحافظات',
+  keywords: ['فرع', 'فروع', 'مكان', 'مواقع', 'محافظات', 'اقرب فرع', 'عنوان الفرض'],
+  text: `يعمل المعهد عبر ${branches.length} فروع: ${branches.map((b) => b.city).join('، ')}. ` +
+    `صفحة الفروع تعرض بيانات التواصل والعنوان لكل فرع، مع خدمة تحديد أقرب فرع حسب موقعك.`,
+  href: '/branches',
+  blurb: 'دليل الفروع والمواقع',
+});
+
+// ---------- الإعلانات والفعاليات ----------
+const recentAnn = announcements.slice(0, 4);
+push({
+  id: 'ann',
+  group: 'الإعلام',
+  title: 'أحدث الإعلانات',
+  keywords: ['اعلان', 'اعلانات', 'بيان', 'نشرات', 'بالفعاليات', 'تعميم'],
+  text: recentAnn.length
+    ? `من أحدث إعلانات المعهد: ${recentAnn.map((a) => `${a.code} — ${a.title}`).join(' · ')}. تظهر التفاصيل الكاملة في مركز الإعلانات.`
+    : 'تُنشر إعلانات المعهد في المركز الإعلامي.',
+  href: '/media#announcements',
+  blurb: 'مركز الإعلانات',
+});
+const upcomingEv = getUpcomingEvents().slice(0, 4);
+push({
+  id: 'ev',
+  group: 'الإعلام',
+  title: 'الفعاليات القادمة',
+  keywords: ['فعاليات', 'فعاليه', 'مؤتمر', 'ورشه', 'ندوه', 'موعد', 'جدول'],
+  text: upcomingEv.length
+    ? `الفعاليات القادمة في المعهد: ${upcomingEv.map((e) => e.title).join(' · ')}. القائمة الكاملة في صفحة الفعاليات.`
+    : 'لا توجد فعاليات قادمة معلنة حاليًا على الموقع.',
+  href: '/media#events',
+  blurb: 'صفحة الفعاليات',
+});
+
+// ---------- بوابة الطالب ----------
+push({
+  id: 'portal',
+  group: 'البوابة',
+  title: 'بوابة الطالب',
+  keywords: ['بوابه', 'بوابة', 'طالب', 'حساب', 'دخول', 'تسجيل دخول', 'النظم', 'جلسه', 'متابعه'], 
+  text: `بوابة الطالب تجمع في مكان واحد: التسجيل الإلكتروني، متابعة الطلبات والاستعلامات، النتائج، الشهادات القابلة للتحقق، والمكتبة الرقمية. ` +
+    `تسجيل الدخول عبر رقم البطاقة وكلمة المرور. حاليًا تعمل البوابة كواجهة تجريبية محلية للمعاينة وترتبط لاحقًا بالأنظمة الخلفية.`,
+  href: '/portal',
+  blurb: 'دخول بوابة الطالب',
+});
+
+// ---------- الشهادات ----------
+push({
+  id: 'cert',
+  group: 'الثقة',
+  title: 'اعتماد الشهادات والتحقق',
+  keywords: ['شهادات', 'شهاده', 'معتمد', 'توثيق', 'تحقق', 'qr', 'رمز', 'مزور', 'اعتراف'],
+  text: 'جميع شهادات المعهد معتمدة من الجهات الحكومية على مستوى الجمهورية، وموثقة برمز QR للتحقق الإلكتروني ضد التزوير.',
+  href: '/about#certificates',
+  blurb: 'الصفحة الرسمية للمعهد',
+});
+
+// ---------- التسجيل لغير الموظفين ----------
+push({
+  id: 'nonemp',
+  group: 'القبول',
+  title: 'هل التسجيل متاح لغير الموظفين؟',
+  keywords: ['غير موظف', 'موظف', 'خريج', 'خريجين', 'اولويه', 'شروط', 'يستطيع', 'من يستطيع'],
+  text: 'التسجيل متاح للجميع؛ أولوية القبول للموظفين الحاليين في الجهات الحكومية، ويُمنح التمييز للخريجين الجدد.',
+  href: '/about#faq',
+  blurb: 'الأسئلة الشائعة',
+});
+
+// ---------- البرامج عن بُعد ----------
+push({
+  id: 'remote',
+  group: 'البرامج',
+  title: 'التعليم عن بُعد والمدمج',
+  keywords: ['عن بعد', 'عنعد', 'مدمج', 'اونلاين', 'افتراضي', 'منصه تدريب', 'حضوري', 'حضور'],
+  text: 'يوفّر المعهد عددًا من الدورات التدريبية بنمط التعليم المدمج (حضوري وعن بُعد) عبر منصة التدريب الإلكترونية.',
+  href: '/media/programs',
+  blurb: 'أنماط البرامج',
+});
+
+// ---------- التواصل ----------
+push({
+  id: 'contact',
+  group: 'التواصل',
+  title: 'تواصل مع المعهد',
+  keywords: ['اتصال', 'تواصل', 'هاتف', 'رقم', 'بريد', 'ايميل', 'مراسله', 'عنوان', 'شكوي', 'سؤال'],
+  text: `يمكنك التواصل مع المعهد عبر: الهاتف ${siteConfig.phone}، البريد ${siteConfig.email}، وقبول: ${siteConfig.emailAdmissions}. العنوان: ${siteConfig.address}.`,
+  href: '/contact',
+  blurb: 'صفحة التواصل',
+});
+
+const AI_ENDPOINT = import.meta.env.PUBLIC_AI_ENDPOINT || '';
+
+const quickActions = [
+  { q: 'ما البرامج والدبلومات المتاحة؟', label: '🎓 أريد معرفة البرامج' },
+  { q: 'كيف أسجل في المعهد؟', label: '📝 أريد التسجيل' },
+  { q: 'أين توجد فروع المعهد؟', label: '🏫 أبحث عن فرع' },
+  { q: 'ما الخدمات الإلكترونية المتاحة؟', label: '💻 الخدمات الإلكترونية' },
+  { q: 'ما هي بوابة الطالب؟', label: '👨‍🎓 بوابة الطالب' },
+  { q: 'هل الشهادات معتمدة؟', label: '❓ لدي سؤال عن المعهد' },
+];
+---
+
+<div class="ai-root" data-ai>
+  <button
+    class="ai-fab"
+    type="button"
+    data-ai-open
+    aria-label="فتح مساعد NIAS الذكي"
+    aria-haspopup="dialog"
+    aria-controls="ai-panel"
+    aria-expanded="false"
+  >
+    <span class="ai-fab__dot" aria-hidden="true"></span>
+    <Icon name="sparkles" size={21} />
+    <span class="ai-fab__label">مساعد NIAS</span>
+  </button>
+
+  <div class="ai-panel" id="ai-panel" data-ai-panel role="dialog" aria-modal="false" aria-label="مساعد NIAS الذكي" hidden>
+    <header class="ai-panel__head">
+      <span class="ai-panel__handle" aria-hidden="true"></span>
+      <span class="ai-panel__av">
+        <Icon name="sparkles" size={18} />
+      </span>
+      <span class="ai-panel__who">
+        <strong>مساعد NIAS الذكي</strong>
+        <small><i aria-hidden="true"></i> يرد من محتوى الموقع الرسمي</small>
+      </span>
+      <button class="ai-panel__clear" type="button" data-ai-clear aria-label="مسح المحادثة" title="مسح المحادثة">
+        <Icon name="rotate-ccw" size={16} />
+      </button>
+      <button class="ai-panel__close" type="button" data-ai-close aria-label="إغلاق المساعد">
+        <Icon name="x" size={18} />
+      </button>
+    </header>
+
+    <div class="ai-panel__body" data-ai-body>
+      <div class="ai-msg ai-msg--assistant">
+        <span class="ai-avatar"><Icon name="sparkles" size={14} /></span>
+        <div class="ai-msg__bubble">
+          <p>مرحبًا 👋 أنا مساعد NIAS الذكي، كيف يمكنني مساعدتك؟</p>
+          <p class="ai-msg__hint">أسألني عن البرامج، التسجيل، الفروع، الخدمات، الشهادات، أو أي شيء عن المعهد — وأجيبك من مصادر الموقع الرسمية ولا أُخمّن معلومات.</p>
+        </div>
+      </div>
+
+      <div class="ai-actions" data-ai-actions>
+        {quickActions.map((a) => (
+          <button class="ai-chip" type="button" data-ai-action data-q={a.q}>{a.label}</button>
+        ))}
+      </div>
+      <button class="ai-chip ai-chip--ctx" type="button" data-ai-ctx hidden>{''}</button>
+    </div>
+
+    <form class="ai-panel__form" data-ai-form>
+      <input class="ai-panel__input" type="text" data-ai-input placeholder="اكتب سؤالك هنا..." autocomplete="off" aria-label="سؤالك لمساعد NIAS" />
+      <button class="ai-panel__send" type="submit" aria-label="إرسال السؤال">
+        <Icon name="send" size={17} />
+      </button>
+    </form>
+    <p class="ai-panel__foot">إجابات مستندة إلى المحتوى الرسمي لموقع المعهد.</p>
+  </div>
+</div>
+
+<script is:inline define:vars={{ kbJson: JSON.stringify(kb), endpoint: AI_ENDPOINT }}>
+  window.__AI_KB = JSON.parse(kbJson);
+  window.__AI_ENDPOINT = endpoint;
+</script>
+<script>
+  import { answerQuestion, normalizeAr } from '../lib/assistant';
+
+  const KB = window.__AI_KB || [];
+  const AI_ENDPOINT = window.__AI_ENDPOINT || '';
+
+  const root = document.querySelector('[data-ai]');
+  if (!root) throw new Error('ai root missing');
+
+  const fab = root.querySelector('[data-ai-open]');
+  const panel = root.querySelector('[data-ai-panel]');
+  const closeBtn = root.querySelector('[data-ai-close]');
+  const body = root.querySelector('[data-ai-body]');
+  const form = root.querySelector('[data-ai-form]');
+  const input = root.querySelector('[data-ai-input]');
+  const actions = root.querySelector('[data-ai-actions]');
+  const ctxChip = root.querySelector('[data-ai-ctx]');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let lastFocus = null;
+  const tpl = document.createElement('template');
+
+  function open() {
+    lastFocus = document.activeElement;
+    panel.removeAttribute('hidden');
+    requestAnimationFrame(() => panel.classList.add('is-open'));
+    fab.setAttribute('aria-expanded', 'true');
+    fab.classList.add('ai-fab--hide');
+    if (!reduced) requestAnimationFrame(() => input.focus());
+  }
+  function close() {
+    panel.classList.remove('is-open');
+    fab.setAttribute('aria-expanded', 'false');
+    fab.classList.remove('ai-fab--hide');
+    setTimeout(() => panel.setAttribute('hidden', ''), 200);
+    if (lastFocus) lastFocus.focus();
+  }
+
+  fab.addEventListener('click', () => {
+    const isOpen = panel.classList.contains('is-open');
+    isOpen ? close() : open();
+  });
+  closeBtn.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && panel.classList.contains('is-open')) close();
+  });
+  document.addEventListener('click', (e) => {
+    if (panel.classList.contains('is-open') && !root.contains(e.target)) close();
+  });
+
+  function scrollBottom() {
+    try {
+      body.scrollTo({ top: body.scrollHeight, behavior: reduced ? 'auto' : 'smooth' });
+    } catch (_e) {
+      body.scrollTop = body.scrollHeight;
+    }
+  }
+
+  function addAssistantMsg(htmlOrText) {
+    const wrap = document.createElement('div');
+    wrap.className = 'ai-msg ai-msg--assistant';
+    wrap.innerHTML = `<span class="ai-avatar"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="m6.3 6.3 2.4 2.4M15.3 15.3l2.4 2.4M17.7 6.3l-2.4 2.4M8.7 15.3l-2.4 2.4"/></svg></span><div class="ai-msg__bubble">${htmlOrText}</div>`;
+    body.appendChild(wrap);
+    scrollBottom();
+    return wrap;
+  }
+
+  function addUserMsg(text) {
+    const wrap = document.createElement('div');
+    wrap.className = 'ai-msg ai-msg--user';
+    const b = document.createElement('div');
+    b.className = 'ai-msg__bubble';
+    b.textContent = text;
+    wrap.appendChild(b);
+    body.appendChild(wrap);
+    scrollBottom();
+    return wrap;
+  }
+
+  function typing(on) {
+    let t = body.querySelector('[data-typing]');
+    if (on && !t) {
+      t = addAssistantMsg('<i class="ai-typing" data-typing aria-hidden="true"><span></span><span></span><span></span></i><span class="ai-sr" style="position:absolute;width:1px;height:1px;overflow:hidden">المساعد يكتب...</span>');
+      t.classList.add('ai-msg--pending');
+    } else if (!on && t) {
+      t.remove();
+    }
+  }
+
+  function inlineBold(text) {
+    return text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  }
+
+  function renderAnswer(text, sources, matched) {
+    const frag = tpl.content.cloneNode(true);
+    const html = document.createElement('div');
+    html.className = 'ai-text';
+    text.split('\n').forEach((ln) => {
+      if (/^[-•*]\s+/.test(ln) || /^\d+[.)]\s+/.test(ln)) {
+        const li = document.createElement('div');
+        li.className = 'ai-li';
+        li.innerHTML = inlineBold(ln.replace(/^[-•*]\s+/, '').replace(/^\d+[.)]\s+/, ''));
+        html.appendChild(li);
+      } else {
+        const p = document.createElement('p');
+        p.innerHTML = inlineBold(ln || ' ');
+        html.appendChild(p);
+      }
+    });
+    let out = html.outerHTML;
+    if (sources && sources.length) {
+      out += `<div class="ai-sources"><span class="ai-sources__label">${sources.length > 1 ? 'المصادر' : 'المصدر'}</span>` + sources.map((s) => `<a class="ai-source" href="${s.href}">${s.label}</a>`).join('') + '</div>';
+    }
+    if (!matched) {
+      out = `<div class="ai-msg__fallback"><span class="ai-msg__fallback-ico">ℹ️</span>${out}</div>`;
+    }
+    addAssistantMsg(out);
+  }
+
+  async function ask(raw) {
+    const q = (raw || '').trim();
+    if (!normalizeAr(q)) return;
+    addUserMsg(q);
+    typing(true);
+    const start = Date.now();
+
+    let answer;
+    if (AI_ENDPOINT) {
+      try {
+        const res = await fetch(AI_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: q }),
+        });
+        if (!res.ok) throw new Error('ai endpoint error');
+        const data = await res.json();
+        answer = { text: data.text || '', sources: data.sources || [], matched: !!data.matched };
+      } catch (_e) {
+        answer = null;
+      }
+    }
+    if (!answer) answer = answerQuestion(q, KB);
+
+    const wait = Math.max(0, 460 - (Date.now() - start));
+    if (!reduced) {
+      setTimeout(() => {
+        typing(false);
+        renderAnswer(answer.text, answer.sources, answer.matched);
+      }, wait);
+    } else {
+      typing(false);
+      renderAnswer(answer.text, answer.sources, answer.matched);
+    }
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const v = input.value;
+    input.value = '';
+    ask(v);
+  });
+
+  actions.addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-ai-action]');
+    if (!chip) return;
+    ask(chip.getAttribute('data-q'));
+  });
+
+  const ctx = document.body.getAttribute('data-ai-context') || '';
+  const setupContextChip = () => {
+    if (!ctxChip || !ctx) return;
+    ctxChip.textContent = `معلومة عن: ${ctx}`;
+    ctxChip.hidden = false;
+    ctxChip.onclick = () => ask(ctx);
+  };
+  setupContextChip();
+
+  if (window.visualViewport) {
+    const adaptToKeyboard = () => {
+      if (!panel.classList.contains('is-open')) return;
+      const vh = window.visualViewport.height;
+      panel.style.maxHeight = `min(${vh - 16}px, 640px)`;
+      if (vh < 560) {
+        panel.style.minHeight = '0';
+      } else {
+        panel.style.removeProperty('min-height');
+      }
+    };
+    window.visualViewport.addEventListener('resize', adaptToKeyboard);
+    window.visualViewport.addEventListener('scroll', adaptToKeyboard);
+  }
+
+  const clearBtn = root.querySelector('[data-ai-clear]');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      Array.from(body.children).forEach((child) => {
+        const isWelcome =
+          child.matches('.ai-msg--assistant') && !child.previousElementSibling;
+        const isStatic = child.matches('.ai-actions') || child.matches('.ai-chip--ctx');
+        if (!isWelcome && !isStatic) child.remove();
+      });
+      setupContextChip();
+      input.focus();
+    });
+  }
+</script>
+
+<style>
+  .ai-root {
+    position: fixed;
+    z-index: 95;
+  }
+  .ai-fab {
+    position: fixed;
+    bottom: 84px;
+    inset-inline-start: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 56px;
+    padding: 0 18px 0 16px;
+    border-radius: 999px;
+    background: linear-gradient(120deg, var(--color-primary), var(--color-primary-dark));
+    color: #fff;
+    box-shadow: 0 14px 34px rgba(7, 123, 67, 0.38);
+    font-weight: 800;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+  .ai-fab:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+    box-shadow: 0 18px 40px rgba(7, 123, 67, 0.44);
+  }
+  .ai-fab__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--color-gold-light);
+    box-shadow: 0 0 0 0 rgba(245, 235, 211, 0.6);
+    animation: ai-dot 2.6s ease-out infinite;
+  }
+  .ai-fab--hide {
+    opacity: 0;
+    transform: translateY(96px);
+    pointer-events: none;
+  }
+  @keyframes ai-dot {
+    0%, 70%, 100% { box-shadow: 0 0 0 0 rgba(245, 235, 211, 0.55); }
+    35% { box-shadow: 0 0 0 7px rgba(245, 235, 211, 0); }
+  }
+
+  .ai-panel {
+    position: fixed;
+    bottom: 84px;
+    inset-inline-start: 16px;
+    width: min(400px, calc(100vw - 32px));
+    max-height: min(640px, calc(100vh - 130px));
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    box-shadow: 0 32px 70px rgba(27, 30, 39, 0.28);
+    overflow: hidden;
+    transform: translateY(18px) scale(0.98);
+    opacity: 0;
+    transition: transform 0.24s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.2s ease;
+    pointer-events: none;
+  }
+  .ai-panel[hidden] {
+    display: none;
+  }
+  .ai-panel.is-open {
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .ai-panel__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 16px;
+    background: linear-gradient(120deg, var(--color-primary), var(--color-primary-dark));
+    color: #fff;
+  }
+  .ai-panel__handle {
+    display: none;
+  }
+  .ai-panel__av {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.18);
+    display: grid;
+    place-items: center;
+  }
+  .ai-panel__who {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+  }
+  .ai-panel__who strong {
+    font-weight: 900;
+    font-size: 0.95rem;
+  }
+  .ai-panel__who small {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .ai-panel__who small i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #7FE3AF;
+    display: inline-block;
+  }
+  .ai-panel__close {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: transparent;
+    transition: background 0.2s ease;
+  }
+  .ai-panel__close:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+  .ai-panel__clear {
+    flex-shrink: 0;
+    width: 34px;
+    height: 38px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    color: rgba(255, 255, 255, 0.8);
+    background: transparent;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .ai-panel__clear:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+  }
+
+  .ai-panel__body {
+    flex: 1;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overscroll-behavior: contain;
+    background:
+      radial-gradient(560px 260px at 100% -12%, rgba(15, 122, 74, 0.06), transparent 60%),
+      var(--color-surface);
+  }
+  .ai-panel__body::-webkit-scrollbar {
+    width: 5px;
+  }
+  .ai-panel__body::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .ai-panel__body::-webkit-scrollbar-thumb {
+    background: rgba(15, 122, 74, 0.28);
+    border-radius: 999px;
+  }
+  .ai-msg {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    max-width: 92%;
+    animation: ai-msg-in 0.32s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+  @keyframes ai-msg-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+  .ai-msg--assistant {
+    align-self: flex-start;
+  }
+  .ai-msg--user {
+    align-self: flex-end;
+  }
+  .ai-avatar {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: #fff;
+    display: grid;
+    place-items: center;
+    margin-top: 2px;
+  }
+  .ai-msg__bubble {
+    color: var(--color-text);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 4px 14px 14px 14px;
+    padding: 9px 12px;
+    font-size: 0.88rem;
+    line-height: 1.85;
+    box-shadow: 0 1px 3px rgba(27, 30, 39, 0.05);
+  }
+  html[dir="rtl"] .ai-msg__bubble {
+    border-radius: 14px 4px 14px 14px;
+  }
+  .ai-msg--user .ai-msg__bubble {
+    color: #fff;
+    background: linear-gradient(120deg, var(--color-primary), var(--color-primary-dark));
+    border: none;
+    border-radius: 14px 14px 4px 14px;
+    box-shadow: 0 6px 18px rgba(7, 123, 67, 0.2);
+  }
+  html[dir="rtl"] .ai-msg--user .ai-msg__bubble {
+    border-radius: 14px 14px 14px 4px;
+  }
+  .ai-msg__hint {
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    margin-top: 6px;
+  }
+  .ai-msg__fallback {
+    border-inline-start: 3px solid var(--color-accent);
+    padding-inline-start: 10px;
+  }
+  .ai-text p {
+    margin: 2px 0;
+  }
+  .ai-li {
+    display: flex;
+    gap: 8px;
+    margin: 4px 0;
+    padding-inline-start: 2px;
+  }
+  .ai-li::before {
+    content: '';
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-gold);
+    margin-top: 0.55em;
+  }
+  .ai-sources {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .ai-sources__label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--color-text-muted);
+  }
+  .ai-source {
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--color-primary-dark);
+    background: var(--color-primary-light);
+    border: 1px solid rgba(15, 122, 74, 0.25);
+    padding: 3px 10px;
+    border-radius: 999px;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .ai-source:hover {
+    background: var(--color-primary);
+    color: #fff;
+  }
+
+  .ai-typing {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px 2px;
+  }
+  .ai-typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    animation: ai-bounce 1s ease-in-out infinite;
+  }
+  .ai-typing span:nth-child(2) { animation-delay: 0.14s; }
+  .ai-typing span:nth-child(3) { animation-delay: 0.28s; }
+  @keyframes ai-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+    30% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  .ai-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  .ai-chip {
+    font-family: inherit;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    background: var(--color-surface);
+    border: 1px solid rgba(15, 122, 74, 0.32);
+    padding: 8px 13px;
+    border-radius: 999px;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  }
+  .ai-chip:hover {
+    background: var(--color-primary);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  .ai-chip--ctx {
+    display: none;
+  }
+  .ai-chip--ctx:not([hidden]) {
+    display: inline-block;
+    width: 100%;
+    text-align: start;
+    background: var(--color-accent-light);
+    color: var(--color-accent-dark);
+    border-color: var(--color-accent);
+  }
+
+  .ai-panel__form {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+  .ai-panel__input {
+    flex: 1;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    background: var(--color-background);
+    border: 1px solid var(--color-border-dark);
+    border-radius: 12px;
+    padding: 11px 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .ai-panel__input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+  .ai-panel__send {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: linear-gradient(120deg, var(--color-primary), var(--color-primary-dark));
+    color: #fff;
+    display: grid;
+    place-items: center;
+    transition: filter 0.2s ease, transform 0.15s ease;
+  }
+  html[dir="rtl"] .ai-panel__send {
+    transform: scaleX(-1);
+  }
+  html[dir="rtl"] .ai-panel__send:hover {
+    transform: scaleX(-1) translateY(-1px);
+  }
+  .ai-panel__send:hover {
+    filter: brightness(1.08);
+  }
+  .ai-panel__foot {
+    padding: 8px 14px;
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    background: var(--color-surface-alt);
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 640px) {
+    .ai-fab {
+      bottom: 88px;
+      inset-inline-start: 12px;
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    .ai-fab__label {
+      display: none;
+    }
+    /* عند فتح اللوحة كنافذة سفلية لا نترك الزر العائم فوقها */
+    .ai-root:has(.ai-panel.is-open) .ai-fab {
+      opacity: 0;
+      transform: translateY(96px);
+      pointer-events: none;
+    }
+    .ai-panel {
+      bottom: 0;
+      inset-inline: 0;
+      width: 100%;
+      max-width: 100%;
+      max-height: min(78svh, 640px);
+      max-height: min(78vh, 640px);
+      min-height: 42svh;
+      min-height: 42vh;
+      border-radius: 22px 22px 0 0;
+      border-bottom: none;
+    }
+    .ai-panel__head {
+      border-radius: 18px 18px 0 0;
+      position: relative;
+      justify-content: center;
+      padding-top: 10px;
+    }
+    .ai-panel__handle {
+      display: block;
+      position: absolute;
+      top: 7px;
+      inset-inline: 0;
+      margin-inline: auto;
+      width: 40px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.45);
+    }
+    .ai-panel__who {
+      padding-inline-start: 4px;
+    }
+    .ai-msg {
+      max-width: 88%;
+    }
+    .ai-panel__body {
+      padding: 12px;
+    }
+    .ai-panel__form {
+      padding-block: 10px calc(10px + env(safe-area-inset-bottom));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ai-panel {
+      transition: none;
+      transform: none;
+    }
+    .ai-msg {
+      animation: none;
+    }
+    .ai-fab__dot,
+    .ai-typing span,
+    .ai-typing {
+      animation: none;
+    }
+    .ai-chip,
+    .ai-panel__send,
+    .ai-panel__close,
+    .ai-source,
+    .ai-fab {
+      transition: none;
+    }
+  }
+</style>

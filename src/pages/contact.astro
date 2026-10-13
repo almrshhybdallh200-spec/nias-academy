@@ -1,0 +1,286 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import Icon from '../components/Icon.astro';
+import { siteConfig, branches } from '../lib/data';
+
+const contacts = [
+  { icon: 'phone', label: 'الهاتف', value: siteConfig.phone, href: `tel:${siteConfig.phone.replace(/[^0-9+]/g, '')}` },
+  { icon: 'mail', label: 'البريد العام', value: siteConfig.email, href: `mailto:${siteConfig.email}` },
+  { icon: 'document', label: 'القبول والتسجيل', value: siteConfig.emailAdmissions, href: `mailto:${siteConfig.emailAdmissions}` },
+  { icon: 'map-pin', label: 'المقر الرئيسي', value: siteConfig.address },
+  { icon: 'clock', label: 'ساعات العمل', value: siteConfig.workingHours },
+];
+---
+
+<BaseLayout
+  title="تواصل معنا"
+  description="تواصل مع المعهد الوطني للعلوم الإدارية: الخط المباشر، العنوان، ساعات العمل، أو عبر فرعك الأقرب."
+>
+  <PageHero
+    title="تواصل معنا"
+    subtitle="نسعد بتواصلكم — سواء كنتم متدربين، باحثين، أو موفدين من جهة رسمية."
+    crumbs={[{ label: 'الرئيسية', href: '/' }, { label: 'تواصل معنا' }]}
+  />
+
+  <section class="section">
+    <div class="container">
+      <div class="contact-grid">
+        <div class="contact-col">
+          <SectionHeader icon="send" title="أرسل رسالة" subtitle="سيصلنا بريدك خلال 48 ساعة عمل." />
+          <form class="contact-form" data-contact-form>
+            <label>
+              <span>الاسم الكامل *</span>
+              <input type="text" name="name" required placeholder="أدخل اسمك الكامل" />
+            </label>
+            <label>
+              <span>البريد الإلكتروني *</span>
+              <input type="email" name="email" required placeholder="you@example.com" dir="ltr" style="text-align: right" />
+            </label>
+            <label>
+              <span>الموضوع</span>
+              <select name="topic">
+                <option>استفسار عن البرامج</option>
+                <option>التسجيل والقبول</option>
+                <option>الشهادات والتحقق</option>
+                <option>خدمات الفروع</option>
+                <option>خاص بالمعهد</option>
+                <option>أخرى</option>
+              </select>
+            </label>
+            <label>
+              <span>الرسالة *</span>
+              <textarea name="message" rows="5" required placeholder="اكتب رسالتك هنا"></textarea>
+            </label>
+            <button type="submit">
+              إرسال الرسالة
+              <Icon name="send" size={16} />
+            </button>
+            <p class="contact-form__hint">للاستفسارات العاجلة يفضّل الاتصال هاتفيًا على {siteConfig.phone}</p>
+          </form>
+          <p class="contact-form__sent" data-form-sent hidden>
+            <Icon name="check" size={18} />
+            تم استلام رسالتك بنجاح، سنرد عليك قريبًا على بريدك الإلكتروني.
+          </p>
+        </div>
+
+        <aside class="contact-col">
+          <SectionHeader icon="map-pin" title="معلومات التواصل" />
+          <ul class="contact-infos">
+            {contacts.map((c) => (
+              <li>
+                <span class="contact-infos__icon"><Icon name={c.icon} size={18} /></span>
+                <div>
+                  <strong>{c.label}</strong>
+                  {c.href ? (
+                    <a href={c.href}>{c.value}</a>
+                  ) : (
+                    <span>{c.value}</span>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div class="branches-mini">
+            <h3>فروعنا</h3>
+            <ul>
+              {branches.map((b) => (
+                <li>
+                  <a href={`/branches/${b.slug}`}>
+                    <Icon name="map-pin" size={14} />
+                    فرع {b.name}
+                  </a>
+                  <a href={`/branches/${b.slug}#contact`} class="branches-mini__tel" dir="ltr">
+                    {b.phone}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const form = document.querySelector('[data-contact-form]');
+  const sent = document.querySelector('[data-form-sent]');
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    form.setAttribute('hidden', '');
+    sent?.removeAttribute('hidden');
+  });
+</script>
+
+<style>
+  .section {
+    padding-block: var(--spacing-8);
+  }
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: var(--spacing-7);
+    align-items: start;
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: var(--spacing-6);
+  }
+  .contact-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .contact-form label span {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+  .contact-form input,
+  .contact-form select,
+  .contact-form textarea {
+    font-family: inherit;
+    font-size: 0.94rem;
+    color: var(--color-text);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .contact-form input:focus,
+  .contact-form select:focus,
+  .contact-form textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px var(--color-primary-light);
+  }
+  .contact-form button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--color-primary);
+    color: #fff;
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 0.96rem;
+    padding: 13px;
+    border-radius: 12px;
+    transition: background 0.2s ease;
+  }
+  .contact-form button:hover {
+    background: var(--color-primary-dark);
+  }
+  .contact-form__hint {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+  }
+  .contact-form__sent {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #EFF4F2;
+    color: var(--color-success);
+    font-weight: 700;
+    border: 1px solid var(--color-success);
+    border-radius: 12px;
+    padding: var(--spacing-4);
+  }
+
+  .contact-infos {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: var(--spacing-5);
+    margin-bottom: var(--spacing-5);
+  }
+  .contact-infos li {
+    display: flex;
+    gap: var(--spacing-4);
+    align-items: flex-start;
+  }
+  .contact-infos__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .contact-infos strong {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .contact-infos a,
+  .contact-infos span {
+    color: var(--color-text);
+    font-size: 0.92rem;
+  }
+  .contact-infos a:hover {
+    color: var(--color-primary);
+  }
+
+  .branches-mini {
+    background: var(--color-primary-dark);
+    color: #fff;
+    border-radius: 18px;
+    padding: var(--spacing-5);
+  }
+  .branches-mini h3 {
+    font-size: 1.05rem;
+    font-weight: 900;
+    margin-bottom: var(--spacing-3);
+  }
+  .branches-mini ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .branches-mini li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 8px;
+  }
+  .branches-mini a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #EAF4EE;
+  }
+  .branches-mini a:hover {
+    color: var(--color-accent-light);
+  }
+  .branches-mini .branches-mini__tel {
+    color: var(--color-accent-light);
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.82rem;
+  }
+
+  @media (max-width: 960px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

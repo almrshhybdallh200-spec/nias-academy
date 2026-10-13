@@ -1,0 +1,199 @@
+[
+  {
+    "slug": "sanaa",
+    "name": "صنعاء",
+    "nameEn": "Sana'a",
+    "type": "main",
+    "typeLabel": "المقر الرئيسي",
+    "established": "1963",
+    "city": "صنعاء",
+    "phone": "+967 1 222 537",
+    "email": "sanaa@nias-ye.academy",
+    "address": "شارع العدل، أمانة العاصمة، صنعاء",
+    "gps": { "lat": 15.3694, "lng": 44.191 },
+    "isDefault": true,
+    "description": "المقر الرئيسي للمعهد الوطني للعلوم الإدارية وقلبه النابض، يضم الإدارة العامة والعمادة والكليات الثلاث بالإضافة إلى المركز الإعلامي ووحدة البحث والتطوير.",
+    "featuredPrograms": [
+      "dp-admin-1",
+      "dp-admin-2",
+      "dp-leadership",
+      "dp-hr-1",
+      "dp-governance",
+      "dp-acc-1",
+      "dp-bank-1",
+      "dp-data",
+      "dp-ai",
+      "dp-cyber"
+    ],
+    "services": [
+      "كليات ومعامل تدريب حديثة",
+      "مركز أعمال وحاضنات",
+      "قاعة مؤتمرات دولية",
+      "مكتبة رقمية",
+      "وحدة الاستشارات"
+    ],
+    "extra": {
+      "head": "عميد المعهد: محمد ضيف الله القطابري",
+      "staffCount": 140,
+      "programCount": 25
+    }
+  },
+  {
+    "slug": "aden",
+    "name": "عدن",
+    "nameEn": "Aden",
+    "type": "regional",
+    "typeLabel": "فرع إقليمي",
+    "established": "1985",
+    "city": "عدن",
+    "phone": "+967 2 232 400",
+    "email": "aden@nias-ye.academy",
+    "address": "مديرية خور مكسر، شارع صيرة، عدن",
+    "gps": { "lat": 12.7855, "lng": 45.0187 },
+    "isDefault": false,
+    "description": "الفرع الإقليمي لمنطقة جنوب اليمن، يُقدم برامج الدبلوم والتدريب المهني لأقاليم عدن ولحج وأبين.",
+    "featuredPrograms": ["dp-admin-2", "dp-local", "dp-hr-1", "dp-acc-2", "dp-data", "dp-marketing"],
+    "services": [
+      "برامج دبلوم مهني",
+      "قاعة تدريب متعددة الأغراض",
+      "معمل حاسوب",
+      "وحدة البحوث الميدانية"
+    ],
+    "extra": {
+      "head": "مدير الفرع: د. عبدالله محرم",
+      "staffCount": 35,
+      "programCount": 12
+    }
+  },
+  {
+    "slug": "taiz",
+    "name": "تعز",
+    "nameEn": "Taiz",
+    "type": "regional",
+    "typeLabel": "فرع إقليمي",
+    "established": "1988",
+    "city": "تعز",
+    "phone": "+967 4 245 100",
+    "email": "taiz@nias-ye.academy",
+    "address": "حي الروضة، عمارة المعهد، مدينة تعز",
+    "gps": { "lat": 13.578, "lng": 44.0219 },
+    "isDefault": false,
+    "description": "أحد أقدم الفروع الإقليمية، يغطي محافظة تعز ويقدم برامج تدريبية متخصصة للقطاعين العام والخاص.",
+    "featuredPrograms": ["dp-admin-2", "dp-hr-2", "dp-acc-2", "dp-governance"],
+    "services": [
+      "دبلومات إدارية مسائية",
+      "برامج القيادة والتميز",
+      "قاعات تعلّم تفاعلية"
+    ],
+    "extra": {
+      "head": "مدير الفرع: أ. علي عبدالواحد",
+      "staffCount": 22,
+      "programCount": 9
+    }
+  },
+  {
+    "slug": "hodeidah",
+    "name": "الحديدة",
+    "nameEn": "Hodeidah",
+    "type": "regional",
+    "typeLabel": "فرع إقليمي",
+    "established": "1990",
+    "city": "الحديدة",
+    "phone": "+967 3 316 200",
+    "email": "hodeidah@nias-ye.academy",
+    "address": "مديرية الحوك، شارع الميناء، الحديدة",
+    "gps": { "lat": 14.786, "lng": 42.968 },
+    "isDefault": false,
+    "description": "فرع محافظة الحديدة يشكل نقطة إسناد تدريبية لمحافظات الساحل الغربي.",
+    "featuredPrograms": ["dp-acc-2", "dp-bank-2", "dp-local", "dp-insurance"],
+    "services": [
+      "دورات تجارة وميناء",
+      "تدريب الحوكمة المحلية",
+      "معمل حاسوب متكامل"
+    ],
+    "extra": {
+      "head": "مدير الفرع: أ. فتحي سالم",
+      "staffCount": 18,
+      "programCount": 8
+    }
+  },
+  {
+    "slug": "hadhramaut",
+    "name": "حضرموت",
+    "nameEn": "Hadhramaut",
+    "type": "regional",
+    "typeLabel": "فرع إقليمي",
+    "established": "1992",
+    "city": "المكلا",
+    "phone": "+967 5 338 700",
+    "email": "hadhramaut@nias-ye.academy",
+    "address": "مديرية المكلا، منطقة فوه، حضرموت",
+    "gps": { "lat": 14.531, "lng": 49.127 },
+    "isDefault": false,
+    "description": "فرع محافظات حضرموت والمهرة وسقطرى، يتخصص في إدارة الموارد المحلية وتنمية سواحل البحر العربي.",
+    "featuredPrograms": ["dp-local", "dp-governance", "dp-acc-1", "dp-hr-1"],
+    "services": [
+      "دبلوم إدارة الموارد المحلية",
+      "تدريب القيادات المحلية",
+      "برامج المناطق الساحلية"
+    ],
+    "extra": {
+      "head": "مدير الفرع: د. خالد بادويلان",
+      "staffCount": 25,
+      "programCount": 10
+    }
+  },
+  {
+    "slug": "ibb",
+    "name": "إب",
+    "nameEn": "Ibb",
+    "type": "regional",
+    "typeLabel": "فرع إقليمي",
+    "established": "1995",
+    "city": "إب",
+    "phone": "+967 4 225 500",
+    "email": "ibb@nias-ye.academy",
+    "address": "مديرية المشنة، شارع الجامعة، إب",
+    "gps": { "lat": 13.9729, "lng": 44.176 },
+    "isDefault": false,
+    "description": "فرع محافظة إب الذي يخدم المناطق الجبلية الوسطى ببرامج تدريبية مرنة تناسب طبيعة المحافظة المحورية.",
+    "image": "/images/مبنى فرع إب.jpg",
+    "featuredPrograms": ["dp-admin-2", "dp-acc-2", "dp-hr-2", "dp-urban"],
+    "services": [
+      "برامج تمكين الشباب",
+      "تدريب الجمعيات التعاونية",
+      "دورات المحاسبة والإدارة"
+    ],
+    "extra": {
+      "head": "مدير الفرع: أ. عدنان السقاف",
+      "staffCount": 15,
+      "programCount": 7
+    }
+  },
+  {
+    "slug": "dhamar",
+    "name": "ذمار",
+    "nameEn": "Dhamar",
+    "type": "regional",
+    "typeLabel": "فرع إقليمي",
+    "established": "1998",
+    "city": "ذمار",
+    "phone": "+967 6 222 800",
+    "email": "dhamar@nias-ye.academy",
+    "address": "شارع رداع، المنطقة المركزية، ذمار",
+    "gps": { "lat": 14.545, "lng": 44.405 },
+    "isDefault": false,
+    "description": "فرع محافظة ذمار يقدم برامج البعد الواحد في الإدارة المالية والمصرفية وتدريب موظفي الإدارة المحلية.",
+    "featuredPrograms": ["dp-acc-2", "dp-bank-1", "dp-local"],
+    "services": [
+      "دبلوم الإدارة المالية",
+      "تدريب القيادات الإدارية",
+      "دورات الإسعاف الإداري"
+    ],
+    "extra": {
+      "head": "مدير الفرع: د. يحيى الشامي",
+      "staffCount": 12,
+      "programCount": 6
+    }
+  }
+]

@@ -1,0 +1,221 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
+import ProgramCard from '../../components/ProgramCard.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import { colleges, programs, getProgramsByCollege } from '../../lib/data';
+
+const allByCollege = colleges.map((c) => {
+    return { college: c, items: getProgramsByCollege(c) };
+});
+const typeFilterLabels = ['الكل', 'بكالوريوس', 'دبلوم متوسط', 'ماجستير'];
+---
+
+<BaseLayout
+  title="البرامج والدبلومات"
+  description="تصفح جميع الدبلومات العالية والمهنية والدورات التخصصية التي يقدمها المعهد الوطني للعلوم الإدارية."
+>
+  <PageHero
+    title="البرامج والدبلومات"
+    subtitle="البرامج الأكاديمية والدبلومات المتوسطة وبرامج الدراسات العليا التي يقدمها المعهد، موزعة على كلياته وأقسامه."
+    crumbs={[{ label: 'الرئيسية', href: '/' }, { label: 'الإعلام', href: '/media' }, { label: 'البرامج' }]}
+  />
+
+  <section class="section">
+    <div class="container">
+      <nav class="programs-quicknav" aria-label="تصفح حسب المستوى">
+        <span class="programs-quicknav__label">تصفح حسب المستوى:</span>
+        <a class="programs-quicknav__link" href="#bachelor">برامج البكالوريوس</a>
+        <a class="programs-quicknav__link" href="#diploma">الدبلومات المتوسطة</a>
+        <a class="programs-quicknav__link" href="#master">الدراسات العليا</a>
+      </nav>
+
+      <div class="filters" data-programs-filters>
+          <div class="filters__colleges">
+            {allByCollege.map((entry) => (
+              <button class="filters__chip is-active" type="button" data-college={entry.college.slug}>
+                {entry.college.name}
+              </button>
+            ))}
+          </div>
+          <div class="filters__types">
+            {typeFilterLabels.map((label) => (
+              <button class="filters__type" type="button" data-type={label}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          {allByCollege.map((entry) => (
+            <div class="program-col" data-college-block={entry.college.slug}>
+              <SectionHeader icon={entry.college.icon} title={entry.college.name} subtitle={`${entry.items.length} برنامج متاح`} />
+              <div class="programs-grid">
+                {entry.items.length > 0 ? (
+                  entry.items.map((p) => <ProgramCard program={p} />)
+                ) : (
+                  <EmptyState title="لا توجد برامج معلنة" />
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const root = document.querySelector('[data-programs-filters]');
+  if (root) {
+    const collegeBtns = root.querySelectorAll('[data-college]');
+    const typeBtns = root.querySelectorAll('[data-type]');
+
+  const blocks = new Map();
+  document.querySelectorAll('[data-college-block]').forEach((b) => blocks.set(b.dataset.collegeBlock, b));
+
+  const apply = () => {
+    const college = root.querySelector('[data-college].is-active')?.getAttribute('data-college');
+    const type = root.querySelector('[data-type].is-active')?.getAttribute('data-type') ?? 'الكل';
+
+    blocks.forEach((block, slug) => {
+      const visible = !college || college === slug;
+      block.style.display = visible ? '' : 'none';
+      if (!visible) return;
+      block.querySelectorAll('.program-card').forEach((card) => {
+        const label = card.querySelector('.program-card__type')?.textContent?.trim() ?? '';
+        card.style.display = type === 'الكل' || label.includes(type) ? '' : 'none';
+      });
+      block.querySelector('.filters__none')?.remove();
+      const visibleCards = Array.from(block.querySelectorAll('.program-card')).filter((c) => c.style.display !== 'none');
+      if (visibleCards.length === 0) {
+        const note = document.createElement('p');
+        note.className = 'filters__none';
+        note.textContent = 'لا توجد برامج بهذا التصنيف حاليًا';
+        block.querySelector('.programs-grid').appendChild(note);
+      }
+    });
+  };
+
+  collegeBtns.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      collegeBtns.forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      apply();
+    }),
+  );
+  typeBtns.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      typeBtns.forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      apply();
+    }),
+  );
+  const levelHash = { '#bachelor': 'بكالوريوس', '#diploma': 'دبلوم متوسط', '#master': 'ماجستير' };
+  const jumpToLevel = () => {
+    const label = levelHash[location.hash];
+    if (!label) return;
+    const target = Array.from(typeBtns).find((b) => b.dataset.type === label);
+    if (!target) return;
+    typeBtns.forEach((b) => b.classList.remove('is-active'));
+    target.classList.add('is-active');
+    apply();
+  };
+  window.addEventListener('hashchange', jumpToLevel);
+  jumpToLevel();
+  apply();
+  }
+</script>
+
+<style>
+  .section {
+    padding-block: var(--spacing-8);
+  }
+  .filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
+  }
+  .filters__colleges,
+  .filters__types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+  .filters__chip {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+  }
+  .filters__chip.is-active {
+    background: var(--color-primary);
+    color: #fff;
+  }
+  .filters__type {
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-weight: 700;
+    font-size: 0.84rem;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    transition: all 0.2s ease;
+  }
+  .filters__type.is-active {
+    background: var(--color-accent);
+    color: #202022;
+    border-color: var(--color-accent);
+  }
+  .program-col {
+    margin-bottom: var(--spacing-7);
+  }
+  .programs-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .filters__none {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--color-text-muted);
+    font-weight: 600;
+  }
+  .programs-quicknav {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-4);
+  }
+  .programs-quicknav__label {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--color-text-muted);
+    margin-inline-end: 4px;
+  }
+  .programs-quicknav__link {
+    display: inline-flex;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-border);
+    padding: 7px 15px;
+    border-radius: 999px;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .programs-quicknav__link:hover {
+    background: var(--color-primary);
+    color: #fff;
+  }
+</style>

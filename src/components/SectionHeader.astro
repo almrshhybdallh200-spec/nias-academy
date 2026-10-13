@@ -1,0 +1,107 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  icon?: string;
+  kicker?: string;
+  more?: { href: string; label: string };
+  align?: 'start' | 'center';
+}
+
+const { title, kicker, more, align = 'start' } = Astro.props;
+const centered = align === 'center';
+---
+
+<div class:list={['section-head', centered && 'section-head--center']}>
+  {kicker && (
+    <span class="section-head__kicker">
+      <span class="section-head__rule" aria-hidden="true"></span>
+      {kicker}
+    </span>
+  )}
+  <h2 class="section-head__title">{title}</h2>
+  {more && (
+    <a class="section-head__more" href={more.href}>
+      {more.label}
+      <Icon name="arrow-left" size={18} />
+    </a>
+  )}
+</div>
+
+<style>
+  .section-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-7);
+  }
+  .section-head--center {
+    align-items: center;
+    text-align: center;
+  }
+  .section-head__kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-num);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--color-accent-dark);
+    direction: ltr;
+  }
+  .section-head__rule {
+    width: 32px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    border-radius: 2px;
+  }
+  .section-head--center .section-head__rule {
+    order: 1;
+  }
+  .section-head__title {
+    position: relative;
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 3.2vw, 2.1rem);
+    font-weight: 900;
+    color: var(--color-secondary);
+    line-height: 1.28;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+    padding-bottom: 14px;
+  }
+  .section-head__title::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    bottom: 0;
+    width: 58px;
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--color-gold), var(--color-primary));
+  }
+  .section-head--center .section-head__title::after {
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+  }
+  .section-head__more {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    color: var(--color-primary);
+    font-weight: 700;
+    margin-top: var(--spacing-2);
+    padding-bottom: 3px;
+    border-bottom: 1px solid var(--color-primary);
+    transition: gap 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .section-head__more:hover {
+    gap: 10px;
+    color: var(--color-accent-dark);
+    border-color: var(--color-accent);
+  }
+</style>

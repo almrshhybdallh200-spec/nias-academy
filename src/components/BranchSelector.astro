@@ -1,0 +1,317 @@
+---
+import Icon from './Icon.astro';
+import { branches } from '../lib/data';
+
+interface Props {
+  current: string;
+  variant?: 'header' | 'mobile';
+}
+
+const { current, variant = 'header' } = Astro.props;
+const currentBranch = branches.find((b) => b.slug === current) ?? branches[0];
+const gpsData = branches.map((b) => ({
+  slug: b.slug,
+  lat: b.gps.lat,
+  lng: b.gps.lng,
+  href: `/branches/${b.slug}`,
+}));
+---
+
+<div class="branch-select" data-component="branch-select" class:list={['branch-select', variant === 'mobile' && 'branch-select--mobile']}>
+  <button class="branch-select__trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+    <Icon name="map-pin" size={17} />
+    <span class="branch-select__label">{currentBranch.name}</span>
+    <Icon name="chevron-down" size={16} class="branch-select__chevron" />
+  </button>
+
+  <div class="branch-select__menu" role="listbox" tabindex="-1">
+    <div class="branch-select__heading">اختر فرعك</div>
+    <button class="branch-select__geo" data-geo type="button">
+      <Icon name="target" size={17} />
+      حدد أقرب فرع عبر موقعي
+      <span class="branch-select__spinner" data-spinner aria-hidden="true"></span>
+    </button>
+    <ul class="branch-select__list">
+      {branches.map((b) => (
+        <li>
+          <a
+            href={`/branches/${b.slug}`}
+            data-branch
+            class:list={['branch-select__item', b.slug === current && 'branch-select__item--active']}
+          >
+            <span>
+              <strong>فرع {b.name}</strong>
+              <small>{b.typeLabel === 'المقر الرئيسي' ? 'المقر الرئيسي' : `الفرع الإقليمي · ${b.city}`}</small>
+            </span>
+            {b.slug === current && <Icon name="check" size={17} />}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>
+
+<script is:inline define:vars={{ gpsData }}>
+  (() => {
+    class BranchSelect {
+      constructor(el) {
+        this.root = el;
+        this.trigger = el.querySelector('[aria-haspopup]');
+        this.menu = el.querySelector('[role="listbox"]');
+        this.geo = el.querySelector('[data-geo]');
+        this.spinner = this.menu.querySelector('[data-spinner]');
+
+        this.trigger.addEventListener('click', () => this.toggle());
+        this.menu.addEventListener('click', (e) => {
+          if (e.target.closest('[data-branch]')) {
+            const href = e.target.closest('[data-branch]').getAttribute('href');
+            try {
+              localStorage.setItem('nias:branch', href.split('/').pop());
+            } catch (_e) {}
+          }
+        });
+        this.geo.addEventListener('click', () => this.locate());
+        document.addEventListener('click', (e) => {
+          if (!this.root.contains(e.target)) this.close();
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') this.close();
+        });
+      }
+
+      toggle() {
+        const open = this.menu.classList.toggle('is-open');
+        this.trigger.setAttribute('aria-expanded', String(open));
+        if (open) this.menu.focus();
+      }
+
+      close() {
+        this.menu.classList.remove('is-open');
+        this.trigger.setAttribute('aria-expanded', 'false');
+      }
+
+      locate() {
+        if (!('geolocation' in navigator)) {
+          alert('المتصفح لا يدعم تحديد الموقع.');
+          return;
+        }
+        this.spinner.classList.add('is-active');
+        this.geo.setAttribute('disabled', 'true');
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const latitude = pos.coords.latitude;
+            const longitude = pos.coords.longitude;
+            const candidates = GPS;
+            let best = candidates[0];
+            let bestD = Infinity;
+            for (const c of candidates) {
+              const d = haversine(latitude, longitude, c.lat, c.lng);
+              if (d < bestD) {
+                bestD = d;
+                best = c;
+              }
+            }
+            if (best && best.href) {
+              try {
+                localStorage.setItem('nias:branch', best.slug);
+              } catch (_e) {}
+              window.location.href = best.href;
+            }
+          },
+          () => {
+            this.spinner.classList.remove('is-active');
+            this.geo.removeAttribute('disabled');
+            alert('تعذر تحديد موقعك. تأكد من تفعيل خدمة الموقع.');
+          },
+        );
+      }
+    }
+
+    function haversine(lat1, lng1, lat2, lng2) {
+      const R = 6371;
+      const toRad = (d) => (d * Math.PI) / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    const GPS = gpsData;
+
+    document.querySelectorAll('[data-component="branch-select"]').forEach((el) => new BranchSelect(el));
+  })();
+</script>
+
+<style>
+  .branch-select {
+    position: relative;
+  }
+  .branch-select__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    border-radius: 999px;
+    transition: background 0.2s ease;
+  }
+  .branch-select__trigger:hover {
+    background: var(--color-primary-dark);
+  }
+  .branch-select__chevron {
+    transition: transform 0.2s ease;
+  }
+  .branch-select:focus-within .branch-select__chevron {
+    transform: rotate(180deg);
+  }
+  .branch-select__menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    inset-inline-end: 0;
+    width: 280px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    box-shadow: 0 18px 40px rgba(7, 123, 67, 0.18);
+    padding: var(--spacing-3);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: all 0.22s ease;
+    z-index: 60;
+  }
+  .branch-select__menu.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .branch-select__heading {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--color-text-muted);
+    padding: var(--spacing-1) var(--spacing-2) var(--spacing-2);
+  }
+  .branch-select__geo {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    background: var(--color-accent-light);
+    color: var(--color-accent-dark);
+    font-weight: 700;
+    font-size: 0.86rem;
+    padding: 10px 12px;
+    border-radius: 12px;
+    margin-bottom: var(--spacing-2);
+  }
+  .branch-select__geo:disabled {
+    opacity: 0.6;
+  }
+  .branch-select__spinner {
+    width: 14px;
+    height: 14px;
+    margin-inline-start: auto;
+    border: 2px solid var(--color-accent);
+    border-top-color: transparent;
+    border-radius: 50%;
+    display: none;
+  }
+  .branch-select__spinner.is-active {
+    display: inline-block;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .branch-select__list {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .branch-select__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-2);
+    padding: 9px 12px;
+    border-radius: 10px;
+    transition: background 0.15s ease;
+  }
+  .branch-select__item:hover {
+    background: var(--color-surface-alt);
+  }
+  .branch-select__item--active {
+    background: var(--color-primary-light);
+  }
+  .branch-select__item strong {
+    display: block;
+    font-weight: 800;
+    color: var(--color-text);
+    font-size: 0.92rem;
+  }
+  .branch-select__item small {
+    color: var(--color-text-muted);
+    font-size: 0.76rem;
+  }
+  .branch-select__item svg {
+    color: var(--color-success);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 640px) {
+    .branch-select__menu {
+      position: fixed;
+      inset: auto 12px 12px 12px;
+      width: auto;
+    }
+    .branch-select__label,
+    .branch-select__chevron {
+      display: none;
+    }
+    .branch-select__trigger {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      justify-content: center;
+      border-radius: 10px;
+    }
+  }
+
+  /* نمط النسخة الجوالية داخل القائمة */
+  .branch-select--mobile {
+    width: 100%;
+  }
+  .branch-select--mobile .branch-select__trigger {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    justify-content: flex-start;
+    background: var(--color-surface);
+    border: 1.5px dashed var(--color-border-dark);
+    color: var(--color-primary-dark);
+    border-radius: 12px;
+    padding: 13px 14px;
+    font-size: 0.92rem;
+  }
+  .branch-select--mobile .branch-select__trigger svg:first-child {
+    color: var(--color-primary);
+  }
+  .branch-select--mobile .branch-select__label,
+  .branch-select--mobile .branch-select__chevron {
+    display: inline-flex;
+  }
+  .branch-select--mobile .branch-select__label {
+    flex: 1;
+    text-align: start;
+  }
+  .branch-select--mobile .branch-select__menu {
+    inset: auto 0 12px 0;
+  }
+</style>

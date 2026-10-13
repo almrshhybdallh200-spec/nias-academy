@@ -1,0 +1,55 @@
+---
+import { toArabicNumerals } from '../lib/format';
+
+interface Stat {
+  value: number;
+  suffix?: string;
+  label: string;
+  icon?: string;
+}
+
+interface Props {
+  stats: Stat[];
+}
+
+const { stats } = Astro.props;
+---
+
+<div class="stats-bar">
+  {stats.map((s) => (
+    <div class="stats-bar__item">
+      <div class="stats-bar__value">
+        {toArabicNumerals(s.value)}
+        {s.suffix}
+      </div>
+      <div class="stats-bar__label">{s.label}</div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .stats-bar__item {
+    text-align: center;
+    padding: var(--spacing-4) var(--spacing-2);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+  }
+  .stats-bar__value {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 900;
+    color: var(--color-primary);
+    font-family: 'Cairo', 'Segoe UI', sans-serif;
+  }
+  .stats-bar__label {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    margin-top: 4px;
+    font-weight: 600;
+  }
+</style>

@@ -1,0 +1,917 @@
+﻿---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import CollegeCard from '../components/CollegeCard.astro';
+import FacultyCard from '../components/FacultyCard.astro';
+import AuthGate from '../components/AuthGate.astro';
+import TestimonialCard from '../components/TestimonialCard.astro';
+import Icon from '../components/Icon.astro';
+import { toArabicNumerals } from '../lib/format';
+import { siteConfig, colleges, departments, faculty, testimonials, getCollege } from '../lib/data';
+
+const visionText =
+  'أن نكون المرجع الأول في اليمن للتعليم والتدريب الإداري، ومنصة إقليمية للخبرات والمعرفة الإدارية بحلول 2030.';
+
+const missionText =
+  'تأهيل وتدريب الكوادر الإدارية للقطاعين العام والخاص بمستوى عالمي، والمساهمة في بناء نظام إداري فاعل يخدم أهداف التنمية الوطنية.';
+
+const valuesText =
+  'النزاهة، التميز، الابتكار، الشفافية، والانتماء الوطني — هي سر نجاح علاقتنا بمتدربينا وشركائنا.';
+
+const aboutText =
+  'المعهد الوطني للعلوم الإدارية مؤسسة وطنية حكومية متخصصة في بناء القدرات الإدارية والتدريب والاستشارات، تأسس عام 1963 ليكون أول بيت خبرة وطني في الإعداد والتأهيل الإداري. وعلى مدى أكثر من ستة عقود ظل المعهد شريكاً رئيسياً للدولة في تأهيل كوادر الأجهزة العامة والقطاع الخاص، ويقدم اليوم برامج الدبلومات المتوسطة والبكالوريوس والدراسات العليا عبر كلياته ومراكزه المنتشرة في عموم محافظات الجمهورية.';
+
+const goals = [
+  'إعداد قيادات إدارية مؤهلة قادرة على خدمة الأجهزة العامة والقطاع الخاص.',
+  'تطوير البرامج الأكاديمية والتدريبية لتواكب التحول الرقمي والذكاء الاصطناعي.',
+  'رفع كفاءة الخدمة العامة عبر التدريب المستمر والتأهيل النوعي.',
+  'تعزيز الشراكات مع الجامعات والمؤسسات الوطنية والإقليمية والدولية.',
+  'دعم البحث العلمي الإداري وإنتاج المعرفة التطبيقية.',
+  'ترسيخ قيم النزاهة والشفافية والمسؤولية المؤسسية في كل برامجنا.',
+];
+
+const historyMilestones = [
+  { year: '1963', text: 'تأسيس المعهد كأول بيت خبرة وطني متخصص في التدريب والتأهيل الإداري.' },
+  { year: '1970', text: 'توسّع البرامج لتشمل الدبلومات العالية والمهنية والدراسات التخصصية.' },
+  { year: '1990', text: 'إنشاء الفروع الإقليمية لخدمة الكوادر الإدارية في عموم المحافظات.' },
+  { year: '2010', text: 'إدخال مناهج الحوكمة والتحول الرقمي وعلوم البيانات في المقررات.' },
+  { year: 'اليوم', text: 'منصة رقمية شاملة ومسار وطني راسخ في إعداد الكوادر الإدارية.' },
+];
+
+const structure = [
+  { title: 'العمادة والإدارة العليا', desc: 'قيادة استراتيجية ورؤية، إدارة اسمية ومتابعة', icon: 'settings' },
+  { title: 'النيابة الأكاديمية للدراسات', desc: 'الجودة الأكاديمية، تطوير المناهج، وضبط الجودة', icon: 'book' },
+  { title: 'النيابة الإدارية والتعليم المستمر', desc: 'إدارة فروع المعهد والتدريب المستمر', icon: 'users' },
+  { title: 'وحدة البحث والتطوير', desc: 'دراسات وأبحاث إدارية وسياسات', icon: 'trending' },
+  { title: 'المركز الإعلامي', desc: 'التواصل، العلاقات العامة، وتمثيل المعهد', icon: 'newspaper' },
+  { title: 'وحدات الدعم والخدمات', desc: 'المالية، الشؤون الإدارية، والتقنية', icon: 'settings' },
+];
+
+const faqs = [
+  {
+    q: 'ما هو المعهد الوطني للعلوم الإدارية؟',
+    a: 'مؤسسة وطنية حكومية متخصصة في التدريب والتأهيل الإداري منذ عام 1963، تُمنح الدبلومات العالية والمهنية والدورات التخصصية.',
+  },
+  {
+    q: 'هل الشهادات معتمدة؟',
+    a: 'نعم، جميع شهاداتنا معتمدة من التّواب الحكومية وعلى مستوى الجمهورية، وموثقة رمز QR للتحقق الإلكتروني.',
+  },
+  {
+    q: 'التسجيل متاح لغير الموظفين؟',
+    a: 'التسجيل متاح للجميع؛ أولوية القبول للموظفين الحاليين في الجهات الحكومية، ويُمنح التمييز للخريجين الجدد.',
+  },
+  {
+    q: 'هل هناك فروع في خارج العاصمة؟',
+    a: 'لدينا 6 فروع إقليمية تغطي عدن، تعز، الحديدة، حضرموت، إب، وذمار — تورّد لنفس البرامج والاعتماد.',
+  },
+  {
+    q: 'هل تتوفر البرامج عن بُعد؟',
+    a: 'نوفر عددًا من الدورات التدريبية بنمط التعليم المدمج (حضوري وعن بُعد) عبر منصة التدريب الإلكترونية.',
+  },
+];
+---
+
+<BaseLayout
+  title="عن المعهد"
+  description="تعرف على المعهد الوطني للعلوم الإدارية: لمحة تاريخية، رسالة ورؤية، الهيكل الإداري، الكليات والأقسام، والعالم."
+>
+  <PageHero
+    title="عن المعهد"
+    subtitle="أكثر من ستة عقود من بناء كوادر الغد — قصة وطنية في إعداد الكوادر الإدارية."
+    crumbs={[{ label: 'الرئيسية', href: '/' }, { label: 'عن المعهد' }]}
+  />
+
+  <section class="section section--intro" id="about-intro">
+    <div class="container">
+      <SectionHeader icon="landmark" kicker="من نحن" title="نبذة عن المعهد" />
+      <p class="statement statement--start" data-reveal>{aboutText}</p>
+    </div>
+  </section>
+
+  <section class="section section--vision" id="vision">
+    <div class="container">
+      <SectionHeader icon="eye" kicker="أساس كل ما نقوم به" title="رؤيتنا" align="center" />
+      <p class="statement" data-reveal>{visionText}</p>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="mission">
+    <div class="container">
+      <SectionHeader icon="target" kicker="رسالتنا وأهدافنا" title="رسالتنا" align="center" />
+      <p class="statement" data-reveal>{missionText}</p>
+      <p class="values-line" data-reveal><Icon name="sparkles" size={16} /> {valuesText}</p>
+    </div>
+  </section>
+
+  <section class="section" id="goals">
+    <div class="container">
+      <SectionHeader icon="check" title="أهدافنا" subtitle="أهداف استراتيجية توجه عمل المعهد وبرامجه." align="center" />
+      <ul class="goals-grid" data-reveal>
+        {goals.map((g) => (
+          <li class="goal-item">
+            <span class="goal-item__ico"><Icon name="check" size={15} /></span>
+            <span>{g}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="history">
+    <div class="container">
+      <SectionHeader
+        icon="clock"
+        kicker="مسيرة المعهد"
+        title="اللمحة التاريخية والمسيرة"
+        subtitle="أكثر من ستة عقود من البناء والتطوير في خدمة الإدارة الوطنية."
+      />
+      <div class="history-grid">
+        <div class="history-intro" data-reveal>
+          <p>
+            انطلق المعهد {toArabicNumerals(siteConfig.established)} كبيت خبرة إدارية، وظل طوال مسيرته يوسّع برامجه
+            وخدماته حتى بات حضورًا وطنيًا في التدريب والتأهيل الإداري، ويستكمل اليوم مساره بمنصة رقمية شاملة.
+          </p>
+          <ul class="history-stats">
+            <li><strong>{siteConfig.stats.years}</strong><span>عامًا من العطاء</span></li>
+            <li><strong>{siteConfig.stats.graduates}</strong><span>خريج شهادة</span></li>
+            <li><strong>{siteConfig.stats.trainees}</strong><span>متدرب وملتحق</span></li>
+            <li><strong>{siteConfig.stats.branches}</strong><span>فروع في اليمن</span></li>
+          </ul>
+        </div>
+        <ol class="timeline" data-reveal>
+          {historyMilestones.map((m) => (
+            <li class="timeline__item">
+              <span class="timeline__year">{toArabicNumerals(m.year)}</span>
+              <span class="timeline__text">{m.text}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="campus">
+    <div class="container">
+      <SectionHeader icon="landmark" title="مقر المعهد الرئيسي" subtitle="مبنى المعهد في قلب العاصمة صنعاء — بيت الخبرة الإدارية منذ عام 1963." />
+      <div class="campus-collage" data-reveal>
+        <figure class="img-frame">
+          <img src="/images/headquarters2.jpg" alt="المقر الرئيسي للمعهد الوطني للعلوم الإدارية - صنعاء" loading="lazy" decoding="async" width="836" height="472" />
+          <figcaption class="img-frame__caption">المقر الرئيسي للمعهد — صنعاء</figcaption>
+        </figure>
+        <figure class="img-frame campus-collage__secondary">
+          <img src="/images/صورة للميد ع بعض الاداريين يتمشون في الساحة2.jpg" alt="ساحة المعهد خلال يوم عمل" loading="lazy" decoding="async" width="520" height="360" />
+          <figcaption class="img-frame__caption">من يوميات الحرم الرئيسي</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="director">
+    <div class="container">
+      <SectionHeader icon="user" title="كلمة عميد المعهد" />
+      <div class="director-card" data-reveal>
+        <div class="director-card__avatar">
+          <Icon name="user" size={40} />
+        </div>
+        <div class="director-card__content">
+          <p>
+            بسم الله الرحمن الرحيم، يسعدني أن أرحب بكم في البوابة الرقمية للمعهد الوطني للعلوم الإدارية.
+            منذ تأسيسه في {toArabicNumerals(siteConfig.established)} ظل المعهد شريكاً رئيسياً للدولة في بناء
+            الكوادر الإدارية لجميع الأجهزة. واليوم، ونحن نرفع سقف الطموح، نعيد تصميم كل برامجنا لتواكب
+            التحول الرقمي وأدوات الذكاء الاصطناعي، دون التفريط في القيم الوطنية والإدارية الراسخة.
+            أهلاً بكم في بيت الخبرة الإدارية، وبالله التوفيق.
+          </p>
+          <div class="director-card__sign">
+            <strong>{siteConfig.director}</strong>
+            <span>{siteConfig.directorTitle}</span>
+          </div>
+        </div>
+        <figure class="img-frame director-card__photo">
+          <img src="/images/القاء العميد كلمة مع وجود جميع الكادر2.jpg" alt="عميد المعهد أثناء إلقاء كلمة افتتاح" loading="lazy" decoding="async" width="420" height="300" />
+          <figcaption class="img-frame__caption">افتتاحات المعهد بحضور قياداته</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="structure">
+    <div class="container">
+      <SectionHeader icon="landmark" title="الهيكل الإداري" subtitle="تنظيم يعمل بتناغم لخدمة متدربينا." align="center" />
+      <div class="structure-grid">
+        {structure.map((s) => (
+          <div class="structure-card">
+            <span class="structure-card__icon"><Icon name={s.icon} size={22} /></span>
+            <h3>{s.title}</h3>
+            <p>{s.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="colleges">
+    <div class="container">
+      <SectionHeader icon="graduation" title="الكليات والأقسام" subtitle="أربع كليات وتسعة أقسام علمية تغطي خرائط المعرفة الإدارية والتقنية والدراسات العليا." />
+      <div class="college-cards">
+        {colleges.map((c, i) => (
+          <CollegeCard slug={c.slug} name={c.name} description={c.description} icon={c.icon} image={c.image} index={i + 1} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="departments">
+    <div class="container">
+      {['administrative-sciences', 'information-technology', 'intermediate-diplomas', 'postgraduate-studies'].map((col) => {
+        const college = getCollege(col);
+        if (!college) return null;
+        const collegeDeps = departments.filter((d) => d.college === col);
+        return (
+          <div class="dept-block" id={col}>
+            <h2 class="dept-block__title">{college.name}</h2>
+            <p class="dept-block__desc">{college.description}</p>
+            <div class="dept-block__grid">
+              {collegeDeps.map((d) => {
+                return (
+                  <a class="dept-tile" href={`#dep-${d.slug}`} id={`dep-${d.slug}`}>
+                    <Icon name="book" size={18} />
+                    <span>
+                      <strong>{d.name}</strong>
+                      <small>رئيس القسم: {d.head}</small>
+                    </span>
+                    <Icon name="chevron-left" size={16} />
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </section>
+
+  <section class="section section--alt" id="stories">
+    <div class="container">
+      <SectionHeader
+        icon="quote"
+        title="قصص نجاح الخريجين"
+        subtitle="من كلام خريجينا الذين يشغلون اليوم مواقع القرار في الجهات العامة والخاصة."
+        align="center"
+      />
+      <div class="stories-strip">
+        {testimonials.map((t) => (
+          <div class="stories-cell">
+            <TestimonialCard name={t.name} role={t.role} workingAt={t.workingAt} quote={t.quote} branch={t.branch} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="faculty">
+    <div class="container">
+      <SectionHeader icon="users" title="نخبة الهيئة التدريسية" subtitle="كوكبة من الأكاديميين والممارسين بدرجات علمية عالية وخبرة عملية." more={{ href: '/about#faculty', label: 'عرض الكل' }} />
+      <AuthGate
+        title="الكادر التدريسي الكامل متاح بعد تسجيل بياناتك"
+        text="سجّل الدخول في البوابة الإلكترونية لعرض هيئة التدريس بتفاصيلها كاملة."
+        cta="تسجيل الدخول"
+      >
+        <div class="faculty-grid">
+          {faculty.slice(0, 6).map((f) => (
+            <FacultyCard slug={f.slug} name={f.name} department={f.department} title={f.title} degree={f.degree} specialty={f.specialty} image={f.image} />
+          ))}
+        </div>
+      </AuthGate>
+    </div>
+  </section>
+
+  <section class="section" id="library">
+    <div class="container">
+      <div class="library-card">
+        <div class="library-card__icon"><Icon name="library" size={34} /></div>
+        <div>
+          <h3>مكتبة المعهد الرقمية</h3>
+          <p>منصة معرفية تحتوي على الأبحاث والمذكرات والأرشيف الإداري، متاحة لأعضاء هيئة التدريس والمتدربين والباحثين.</p>
+        </div>
+        <a class="library-card__btn" href="/portal">
+          ادخل المكتبة
+          <Icon name="arrow-left" size={16} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="regulations">
+    <div class="container">
+      <SectionHeader icon="document" title="اللوائح والسياسات" subtitle="نظم وقواعد سير العمل الأكاديمي والتدريبي في المعهد." />
+      <div class="docs-grid">
+        {[
+          { t: 'اللائحة التنظيمية للمعهد', f: 'نسخة PDF' },
+          { t: 'لائحة القبول والتسجيل', f: 'نسخة PDF' },
+          { t: 'اللائحة المالية للدبلومات', f: 'نسخة PDF' },
+          { t: 'دليل المتدرب الأكاديمي', f: 'نسخة PDF' },
+        ].map((d) => (
+          <a class="doc-tile" href="#regulations">
+            <Icon name="document" size={22} />
+            <span>
+              <strong>{d.t}</strong>
+              <small>{d.f}</small>
+            </span>
+            <Icon name="download" size={16} />
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="faq">
+    <div class="container">
+      <SectionHeader icon="info" title="الأسئلة الشائعة" align="center" />
+      <div class="faq-list">
+        {faqs.map((f) => (
+          <details class="faq-item">
+            <summary>
+              {f.q}
+              <Icon name="chevron-down" size={18} />
+            </summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .section {
+    padding-block: var(--spacing-8);
+  }
+  .section--alt {
+    background: var(--color-surface-alt);
+  }
+
+  .mission-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .mission-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    text-align: center;
+    align-items: center;
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+  }
+  .mission-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(7, 123, 67, 0.12);
+  }
+  .mission-card__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: var(--color-accent-light);
+    color: var(--color-accent-dark);
+    display: grid;
+    place-items: center;
+  }
+  .mission-card h3 {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--color-primary-dark);
+  }
+  .mission-card p {
+    color: var(--color-text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.9;
+  }
+
+  /* أقسام الرؤية والرسالة والأهداف والمسيرة */
+  .section--vision {
+    background:
+      radial-gradient(700px 320px at 8% -8%, rgba(15, 122, 74, 0.05), transparent 60%),
+      var(--color-background);
+  }
+  .statement {
+    max-width: 860px;
+    margin-inline: auto;
+    text-align: center;
+    font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+    line-height: 2.1;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .statement--start {
+    max-width: 920px;
+    margin-inline: 0;
+    text-align: start;
+    font-size: 1rem;
+    line-height: 2.15;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+  }
+  .values-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    max-width: 800px;
+    margin: var(--spacing-5) auto 0;
+    text-align: center;
+    color: var(--color-primary-dark);
+    font-weight: 700;
+    font-size: 0.92rem;
+  }
+  .values-line :global(svg) {
+    color: var(--color-accent-dark);
+  }
+  .goals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-3);
+    max-width: 960px;
+    margin-inline: auto;
+  }
+  .goal-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: var(--spacing-4);
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.9;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .goal-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-primary);
+    box-shadow: 0 12px 28px rgba(7, 123, 67, 0.1);
+  }
+  .goal-item__ico {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+  }
+  .history-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: var(--spacing-6);
+    align-items: start;
+  }
+  .history-intro p {
+    color: var(--color-text-secondary);
+    line-height: 2;
+    font-size: 0.95rem;
+  }
+  .history-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: var(--spacing-5);
+  }
+  .history-stats li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: var(--spacing-4);
+  }
+  .history-stats strong {
+    font-family: var(--font-num);
+    font-size: 1.9rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--color-primary-dark);
+  }
+  .history-stats span {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    font-weight: 700;
+  }
+  .timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    padding-inline-start: var(--spacing-5);
+    border-inline-start: 2px solid var(--color-border);
+  }
+  .timeline__item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .timeline__item::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: calc(-1 * var(--spacing-5) - 7px);
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    box-shadow: 0 0 0 4px var(--color-primary-light);
+  }
+  .timeline__year {
+    font-family: var(--font-num);
+    font-weight: 900;
+    color: var(--color-primary-dark);
+    font-size: 0.95rem;
+  }
+  .timeline__text {
+    color: var(--color-text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.9;
+  }
+
+  .director-card {
+    display: flex;
+    gap: var(--spacing-5);
+    align-items: flex-start;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: var(--spacing-6);
+    box-shadow: 0 10px 30px rgba(7, 123, 67, 0.08);
+  }
+  .director-card__avatar {
+    flex-shrink: 0;
+    width: 88px;
+    height: 88px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: #fff;
+    display: grid;
+    place-items: center;
+  }
+  .director-card__content p {
+    color: var(--color-text);
+    line-height: 2.1;
+    max-width: 90ch;
+  }
+  .director-card__sign {
+    margin-top: var(--spacing-4);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .director-card__sign strong {
+    font-size: 1.05rem;
+    color: var(--color-primary-dark);
+  }
+  .director-card__sign span {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+  }
+  .director-card__photo {
+    flex-shrink: 0;
+    width: 300px;
+    height: 210px;
+    margin-inline-start: auto;
+  }
+
+  .campus-collage {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: var(--spacing-4);
+    align-items: stretch;
+  }
+  .campus-collage .img-frame img {
+    height: 100%;
+    aspect-ratio: unset;
+  }
+  .campus-collage .img-frame {
+    min-height: 300px;
+  }
+
+  .structure-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .structure-card {
+    background: var(--color-primary-dark);
+    color: #fff;
+    border-radius: 16px;
+    padding: var(--spacing-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    transition: transform 0.25s ease;
+  }
+  .structure-card:hover {
+    transform: translateY(-3px);
+  }
+  .structure-card__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--color-accent);
+    color: #202022;
+    display: grid;
+    place-items: center;
+  }
+  .structure-card h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .structure-card p {
+    color: #BFCBD3;
+    font-size: 0.85rem;
+  }
+
+  .college-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--spacing-4);
+  }
+
+  /* قصص نجاح الخريجين — شريط تمرير أفقي */
+  .stories-strip {
+    display: flex;
+    gap: var(--spacing-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 2px var(--spacing-4);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) transparent;
+  }
+  .stories-strip::-webkit-scrollbar {
+    height: 8px;
+  }
+  .stories-strip::-webkit-scrollbar-thumb {
+    background: var(--color-primary-light);
+    border-radius: 999px;
+  }
+  .stories-cell {
+    flex: 0 0 clamp(260px, 32%, 360px);
+    display: flex;
+    scroll-snap-align: start;
+  }
+  .stories-cell :global(.testimonial) {
+    flex: 1;
+  }
+  :global([id]) {
+    scroll-margin-top: 96px;
+  }
+
+  .dept-block {
+    margin-bottom: var(--spacing-7);
+  }
+  .dept-block__title {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--color-primary-dark);
+    border-inline-start: 5px solid var(--color-accent);
+    padding-inline-start: var(--spacing-3);
+  }
+  .dept-block__desc {
+    color: var(--color-text-secondary);
+    margin: var(--spacing-2) 0 var(--spacing-4);
+  }
+  .dept-block__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .dept-tile {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: var(--spacing-4);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .dept-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(7, 123, 67, 0.1);
+  }
+  .dept-tile > svg:first-child {
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+  .dept-tile > span {
+    flex: 1;
+    min-width: 0;
+  }
+  .dept-tile strong {
+    display: block;
+    color: var(--color-text);
+    font-size: 0.94rem;
+  }
+  .dept-tile small {
+    color: var(--color-text-muted);
+    font-size: 0.76rem;
+  }
+  .dept-tile > svg:last-child {
+    color: var(--color-text-muted);
+  }
+
+  .faculty-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--spacing-4);
+  }
+
+  .library-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-5);
+    background: linear-gradient(120deg, var(--color-primary), var(--color-primary-dark));
+    color: #fff;
+    border-radius: 20px;
+    padding: var(--spacing-6);
+    flex-wrap: wrap;
+  }
+  .library-card__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: var(--color-accent);
+    color: #202022;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .library-card > div:nth-child(2) {
+    flex: 1;
+    min-width: 240px;
+  }
+  .library-card h3 {
+    font-size: 1.25rem;
+    font-weight: 900;
+  }
+  .library-card p {
+    color: #BFCBD3;
+    font-size: 0.92rem;
+    margin-top: 4px;
+  }
+  .library-card__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #fff;
+    color: var(--color-primary-dark);
+    font-weight: 800;
+    padding: 11px 20px;
+    border-radius: 12px;
+  }
+
+  @media (max-width: 640px) {
+    .library-card {
+      padding: 18px 16px;
+      gap: 14px;
+      border-radius: 16px;
+    }
+    .library-card__icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 13px;
+    }
+    .library-card__icon :global(svg) {
+      width: 26px;
+      height: 26px;
+    }
+    .library-card > div:nth-child(2) {
+      min-width: 0;
+    }
+    .library-card h3 {
+      font-size: 1.08rem;
+    }
+    .library-card p {
+      font-size: 0.84rem;
+      line-height: 1.8;
+    }
+    .library-card__btn {
+      width: 100%;
+      justify-content: center;
+      padding: 11px 16px;
+    }
+  }
+
+  .docs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .doc-tile {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: var(--spacing-4);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .doc-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(7, 123, 67, 0.1);
+  }
+  .doc-tile > svg:first-child {
+    color: var(--color-error);
+  }
+  .doc-tile span {
+    flex: 1;
+  }
+  .doc-tile strong {
+    display: block;
+    font-size: 0.93rem;
+    color: var(--color-text);
+  }
+  .doc-tile small {
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+  }
+  .doc-tile > svg:last-child {
+    color: var(--color-text-muted);
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    max-width: 760px;
+    margin-inline: auto;
+  }
+  .faq-item {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: 0 var(--spacing-4);
+  }
+  .faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-2);
+    font-weight: 800;
+    color: var(--color-text);
+    padding: var(--spacing-4) 0;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-item summary svg {
+    color: var(--color-primary);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .faq-item[open] summary svg {
+    transform: rotate(180deg);
+  }
+  .faq-item p {
+    color: var(--color-text-secondary);
+    padding-bottom: var(--spacing-4);
+    line-height: 1.9;
+  }
+
+  @media (max-width: 640px) {
+    .director-card {
+      flex-direction: column;
+    }
+    .director-card__photo {
+      width: 100%;
+      height: auto;
+      margin-inline-start: 0;
+    }
+    .campus-collage {
+      grid-template-columns: 1fr;
+    }
+    .campus-collage .img-frame {
+      min-height: 230px;
+    }
+    .history-grid {
+      grid-template-columns: 1fr;
+    }
+    .history-stats {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

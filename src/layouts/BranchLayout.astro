@@ -1,0 +1,155 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import { siteConfig } from '../lib/data';
+import type { Branch } from '../lib/types';
+
+interface Props {
+  branch: Branch;
+  title?: string;
+  description?: string;
+  active?: 'home' | 'programs' | 'news' | 'contact';
+  hasNews?: boolean;
+}
+
+const { branch, title, description, active = 'home', hasNews = false } = Astro.props;
+
+const tabs = [
+  { id: 'home' as const, label: 'نبذة عن الفرع' },
+  { id: 'programs' as const, label: 'البرامج والدبلومات' },
+  ...(hasNews ? [{ id: 'news' as const, label: 'آخر أخبار الفرع' }] : []),
+  { id: 'contact' as const, label: 'التواصل والموقع' },
+];
+---
+
+<BaseLayout
+  title={title ?? `فرع ${branch.name} — ${siteConfig.name}`}
+  description={description ?? branch.description}
+  branchSlug={branch.slug}
+  canonicalPath={`/branches/${branch.slug}`}
+>
+  <PageHero
+    title={`فرع ${branch.name} — ${branch.typeLabel}`}
+    subtitle={branch.description}
+    crumbs={[
+      { label: 'الرئيسية', href: '/' },
+      { label: 'الفروع', href: '/branches' },
+      { label: `فرع ${branch.name}` },
+    ]}
+  >
+    <div class="branch-tabs" slot="extra" role="tablist" aria-label="تبويبات صفحة الفرع">
+      {tabs.map((t) => (
+        <button
+          type="button"
+          role="tab"
+          class:list={['branch-tabs__tab', t.id === active && 'is-active']}
+          data-tab={t.id}
+          aria-selected={t.id === active ? 'true' : 'false'}
+        >
+          {t.label}
+        </button>
+      ))}
+    </div>
+  </PageHero>
+
+  <div class="branch-ctx">
+    <div class="container branch-ctx__grid">
+      <div class="branch-ctx__main">
+        <slot />
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('.branch-tabs');
+    if (!root) return;
+
+    const tabEls = Array.from(root.querySelectorAll('[data-tab]'));
+    const views = Array.from(document.querySelectorAll('.branch-view'));
+    const names = tabEls.map((t) => t.dataset.tab);
+
+    function select(name, scroll) {
+      tabEls.forEach((t) => {
+        const on = t.dataset.tab === name;
+        t.classList.toggle('is-active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      views.forEach((v) => {
+        const match = v.dataset.view === name;
+        v.classList.toggle('is-hidden', !match);
+        v.hidden = !match;
+      });
+      const target = document.getElementById(name);
+      if (scroll && target) {
+        const top = target.getBoundingClientRect().top + window.pageYOffset - 110;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      }
+    }
+
+    tabEls.forEach((t) => {
+      t.addEventListener('click', () => {
+        const name = t.dataset.tab;
+        try {
+          history.replaceState(null, '', '#' + name);
+        } catch (_e) {}
+        select(name, true);
+      });
+    });
+
+    const hash = (window.location.hash || '').replace('#', '');
+    const initial = names.indexOf(hash) !== -1 ? hash : 'home';
+    select(initial, false);
+
+    window.addEventListener('hashchange', function () {
+      const h = (window.location.hash || '').replace('#', '');
+      if (names.indexOf(h) !== -1) {
+        select(h, false);
+      }
+    });
+  })();
+</script>
+
+<style>
+  .branch-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-5);
+  }
+  .branch-tabs__tab {
+    font-family: inherit;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #D6D9F2;
+    font-weight: 700;
+    font-size: 0.86rem;
+    padding: 8px 18px;
+    border-radius: 999px;
+    transition: all 0.2s ease;
+  }
+  .branch-tabs__tab:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+  .branch-tabs__tab.is-active {
+    background: var(--color-gold);
+    border-color: var(--color-gold);
+    color: #202022;
+  }
+  .branch-view.is-hidden {
+    display: none !important;
+  }
+  .branch-view {
+    scroll-margin-top: 120px;
+  }
+  .branch-ctx {
+    padding-block: var(--spacing-8);
+  }
+  .branch-ctx__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+</style>

@@ -1,0 +1,351 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import TrainingCard from '../components/TrainingCard.astro';
+import Icon from '../components/Icon.astro';
+import { trainingCourses, events, siteConfig } from '../lib/data';
+import { formatDate, toArabicNumerals } from '../lib/format';
+
+const sessionEvents = events.filter((e) => ['ندوة', 'ورشة', 'مؤتمر'].includes(e.type));
+const categories = [...new Set(trainingCourses.map((c) => c.category))];
+---
+
+<BaseLayout
+  title="البرامج التدريبية"
+  description="البرامج التدريبية للمعهد الوطني للعلوم الإدارية — دورات تدريبية، برامج تأهيلية، ندوات وأنشطة لكوادر الجهاز العام والقطاع الخاص."
+>
+  <PageHero
+    title="البرامج التدريبية"
+    subtitle="دورات تدريبية وتأهيلية وندوات وأنشطة عملية ترفع كفاءة الكوادر وتواكب التحول الرقمي في العمل الإداري."
+    crumbs={[{ label: 'الرئيسية', href: '/' }, { label: 'البرامج التدريبية' }]}
+  >
+    <div class="training-chips" slot="extra">
+      <span><Icon name="layers" size={16} /> {toArabicNumerals(trainingCourses.length)} دورة تدريبية</span>
+      <span><Icon name="users" size={16} /> {toArabicNumerals(categories.length)} مسارات متخصصة</span>
+      <span><Icon name="calendar" size={16} /> ندوات وورش على مدار العام</span>
+    </div>
+  </PageHero>
+
+  <nav class="quicknav" aria-label="تصفح حسب النوع">
+    <a class="quicknav__link" href="#courses">البرامج التدريبية</a>
+    <a class="quicknav__link" href="#qualifying">الدورات التأهيلية</a>
+    <a class="quicknav__link" href="#seminars">الندوات والأنشطة</a>
+  </nav>
+
+  <section class="section" id="courses">
+    <div class="container">
+      <SectionHeader
+        icon="layers"
+        title="البرامج التدريبية"
+        subtitle="دورات عملية يقدمها خبراء ممارسون بنمط حضوري وعن بُعد."
+      />
+      <div class="courses-list">
+        {trainingCourses.map((c) => (
+          <TrainingCard course={c} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="qualifying">
+    <div class="container">
+      <SectionHeader
+        icon="graduation"
+        title="الدورات التأهيلية"
+        subtitle="برامج تأهيلية لموظفي الأجهزة العامة وحديثي التخرج قبل الالتحاق بسوق العمل."
+      />
+      <div class="qualify">
+        <div class="qualify__intro">
+          <p>
+            تُقيم {siteConfig.name} دورات تأهيلية متخصصة لرفع كفاءة موظفي القطاعين العام والخاص، وتهيئة حديثي التخرج
+            لمتطلبات العمل الإداري الحديث، على مقاعد {toArabicNumerals(siteConfig.stats.branches)} فرعًا في عموم اليمن
+            وبالشراكة مع بيوت الخبرة الوطنية.
+          </p>
+          <a class="qualify__cta" href="/portal" data-register>
+            سجّل في الدفعة القادمة
+            <Icon name="arrow-left" size={16} />
+          </a>
+        </div>
+        <ul class="qualify__cats">
+          {categories.map((cat) => (
+            <li><Icon name="check" size={15} /> {cat}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="seminars">
+    <div class="container">
+      <SectionHeader
+        icon="users"
+        title="الندوات والأنشطة"
+        subtitle="فعّالات علمية وتدريبية على مدار العام بمشاركة المختصين."
+      />
+      {sessionEvents.length > 0 ? (
+        <ul class="seminars">
+          {sessionEvents.map((e, i) => (
+            <li>
+              <span class="seminars__badge"><Icon name={e.type === 'مؤتمر' ? 'trophy' : 'calendar'} size={15} /></span>
+              <div class="seminars__wrap">
+                <span class="seminars__type">{e.type}</span>
+                <h3>{e.title}</h3>
+                <small><Icon name="map-pin" size={13} /> {e.location}</small>
+              </div>
+              <time class="seminars__date" dir="rtl">{formatDate(e.date)}</time>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="seminars-empty">لا توجد ندوات معلنة حاليًا — تابع صفحة الفعاليات.</p>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .section {
+    padding-block: var(--spacing-8);
+  }
+  .section--alt {
+    background: var(--color-surface-alt);
+    border-block: 1px solid var(--color-border);
+  }
+  .training-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-4);
+  }
+  .training-chips span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #EAF4EE;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    border-radius: 999px;
+  }
+  .quicknav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    flex-wrap: wrap;
+    padding-block: var(--spacing-4);
+    background: var(--color-background);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 66px;
+    z-index: 40;
+  }
+  .quicknav__link {
+    display: inline-flex;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--color-primary-dark);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 9px 18px;
+    border-radius: 999px;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .quicknav__link:hover {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+  }
+  .courses-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-5);
+  }
+
+  .qualify {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: var(--spacing-6);
+    align-items: center;
+    margin-top: var(--spacing-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: clamp(22px, 4vw, 40px);
+  }
+  .qualify__intro p {
+    color: var(--color-text-secondary);
+    line-height: 2;
+    font-size: 0.94rem;
+  }
+  .qualify__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: var(--spacing-4);
+    background: linear-gradient(120deg, var(--color-primary), var(--color-primary-dark));
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.9rem;
+    padding: 12px 22px;
+    border-radius: 12px;
+    box-shadow: 0 12px 26px rgba(14, 157, 96, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .qualify__cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px rgba(14, 157, 96, 0.38);
+  }
+  .qualify__cats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    list-style: none;
+  }
+  .qualify__cats li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: var(--color-primary-dark);
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  .qualify__cats svg {
+    color: var(--color-primary);
+  }
+
+  .seminars {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    list-style: none;
+    margin-top: var(--spacing-5);
+  }
+  .seminars li {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: var(--spacing-4);
+    transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+  }
+  .seminars li:hover {
+    box-shadow: 0 14px 30px rgba(7, 123, 67, 0.1);
+    transform: translateY(-2px);
+    border-color: rgba(15, 122, 74, 0.35);
+  }
+  .seminars__badge {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+  }
+  .seminars__wrap {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .seminars__type {
+    align-self: flex-start;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-border);
+    padding: 2px 10px;
+    border-radius: 999px;
+  }
+  .seminars__wrap h3 {
+    font-size: 0.98rem;
+    font-weight: 900;
+    color: var(--color-text);
+    line-height: 1.5;
+  }
+  .seminars__wrap small {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+  }
+  .seminars__wrap small svg {
+    color: var(--color-primary);
+  }
+  .seminars__date {
+    flex-shrink: 0;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--color-primary-dark);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    padding: 7px 14px;
+    border-radius: 10px;
+  }
+  .seminars-empty {
+    color: var(--color-text-muted);
+    font-weight: 600;
+    margin-top: var(--spacing-4);
+  }
+
+  @media (max-width: 720px) {
+    .qualify {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-5);
+    }
+    .seminars li {
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .seminars__date {
+      margin-inline-start: 52px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .qualify {
+      padding: 18px 16px;
+      border-radius: 16px;
+      gap: var(--spacing-4);
+    }
+    .qualify__cats {
+      grid-template-columns: 1fr;
+    }
+    .qualify__cta {
+      width: 100%;
+      justify-content: center;
+    }
+    .seminars li {
+      gap: 12px;
+      padding: 13px;
+    }
+    .seminars__badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+    }
+    .seminars__wrap h3 {
+      font-size: 0.92rem;
+    }
+    .seminars__date {
+      margin-inline-start: 0;
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>

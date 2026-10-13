@@ -1,0 +1,237 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHero from '../../../components/PageHero.astro';
+import SectionHeader from '../../../components/SectionHeader.astro';
+import NewsCard from '../../../components/NewsCard.astro';
+import EmptyState from '../../../components/EmptyState.astro';
+import Icon from '../../../components/Icon.astro';
+import { newsItems, getBranch } from '../../../lib/data';
+import { formatDate } from '../../../lib/format';
+import { toArabicNumerals } from '../../../lib/format';
+
+export function getStaticPaths() {
+  return newsItems.map((n) => {
+    return { params: { slug: n.slug }, props: { item: n } };
+  });
+}
+
+const { item } = Astro.props;
+const branchName = getBranch(item.branch)?.name ?? '';
+const related = newsItems.filter((n) => n.slug !== item.slug).slice(0, 3);
+const paragraphs = item.body.split('\n').filter((p) => p.trim());
+---
+
+<BaseLayout
+  title={item.title}
+  description={item.summary}
+  canonicalPath={`/media/news/${item.slug}`}
+>
+  <PageHero
+    title={item.title}
+    subtitle={item.summary}
+    crumbs={[{ label: 'الرئيسية', href: '/' }, { label: 'الإعلام', href: '/media' }, { label: item.category }]}
+  >
+    <div class="news-hero-meta" slot="extra">
+      <span><Icon name="calendar" size={15} /> {formatDate(item.date)}</span>
+      <span><Icon name="clock" size={15} /> {toArabicNumerals(item.readingMinutes)} دقائق قراءة</span>
+      {branchName && <span><Icon name="map-pin" size={15} /> {branchName}</span>}
+    </div>
+  </PageHero>
+
+  <section class="section">
+    <div class="container">
+      <div class="article">
+        <div class="article__body">
+          <div class="article__media">
+            {item.image ? (
+              <img class="article__photo" src={item.image} alt={item.title} loading="lazy" decoding="async" />
+            ) : (
+              <Icon name="newspaper" size={54} />
+            )}
+            <span class="article__category">{item.category}</span>
+          </div>
+          {paragraphs.map((p) => (
+            <p class="article__paragraph">{p}</p>
+          ))}
+          {item.tags.length > 0 && (
+            <div class="article__tags">
+              {item.tags.map((t) => (
+                <span class="article__tag">#{t}</span>
+              ))}
+            </div>
+          )}
+        </div>
+        <aside class="article__side">
+          <div class="share-box">
+            <h3>شارك الخبر</h3>
+            <p>ساعد في نشر كل جديد يخدم المتدربين والمجتمع.</p>
+            <div class="share-box__social">
+              <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://nias-ye.academy' + Astro.url.pathname)}`} target="_blank" rel="noopener noreferrer" aria-label="مشاركة على فيسبوك">
+                <Icon name="globe" size={16} />
+              </a>
+              <a href={`https://t.me/share/url?url=${encodeURIComponent('https://nias-ye.academy' + Astro.url.pathname)}`} target="_blank" rel="noopener noreferrer" aria-label="مشاركة على تيليجرام">
+                <Icon name="send" size={16} />
+              </a>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="related">
+        <SectionHeader icon="newspaper" title="أخبار أخرى" more={{ href: '/media#news', label: 'كل الأخبار' }} />
+        <div class="related__grid">
+          {related.map((n) => (
+            <NewsCard title={n.title} date={n.date} category={n.category} summary={n.summary} slug={n.slug} readingMinutes={n.readingMinutes} image={n.image} />
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .news-hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-4);
+  }
+  .news-hero-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #EAF4EE;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    border-radius: 999px;
+  }
+  .section {
+    padding-block: var(--spacing-8);
+  }
+  .article {
+    display: grid;
+    grid-template-columns: 1.5fr 0.5fr;
+    gap: var(--spacing-6);
+    align-items: start;
+  }
+  .article__body {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+  .article__media {
+    position: relative;
+    aspect-ratio: 16 / 7;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--color-primary-light), var(--color-accent-light));
+    display: grid;
+    place-items: center;
+    color: var(--color-primary);
+    overflow: hidden;
+  }
+  .article__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  .article__media:hover .article__photo {
+    transform: scale(1.03);
+  }
+  .article__category {
+    position: absolute;
+    top: var(--spacing-3);
+    inset-inline-start: var(--spacing-3);
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 5px 14px;
+    border-radius: 999px;
+  }
+  .article__paragraph {
+    color: var(--color-text);
+    line-height: 2.1;
+    font-size: 1.02rem;
+  }
+  .article__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    border-top: 1px dashed var(--color-border);
+    padding-top: var(--spacing-4);
+  }
+  .article__tag {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+
+  .article__side {
+    position: sticky;
+    top: 120px;
+  }
+  .share-box {
+    background: var(--color-primary-dark);
+    color: #fff;
+    border-radius: 16px;
+    padding: var(--spacing-5);
+  }
+  .share-box h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .share-box p {
+    color: #BFCBD3;
+    font-size: 0.85rem;
+    margin-bottom: var(--spacing-3);
+  }
+  .share-box__social {
+    display: flex;
+    gap: var(--spacing-2);
+  }
+  .share-box__social a {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--color-accent);
+    color: #202022;
+    display: grid;
+    place-items: center;
+    transition: filter 0.2s ease;
+  }
+  .share-box__social a:hover {
+    filter: brightness(1.08);
+  }
+
+  .related {
+    margin-top: var(--spacing-7);
+  }
+  .related__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--spacing-4);
+  }
+
+  @media (max-width: 900px) {
+    .article {
+      grid-template-columns: 1fr;
+    }
+    .article__side {
+      position: static;
+    }
+  }
+</style>

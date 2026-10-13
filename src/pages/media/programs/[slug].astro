@@ -1,0 +1,424 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHero from '../../../components/PageHero.astro';
+import SectionHeader from '../../../components/SectionHeader.astro';
+import ProgramCard from '../../../components/ProgramCard.astro';
+import EmptyState from '../../../components/EmptyState.astro';
+import AuthGate from '../../../components/AuthGate.astro';
+import Icon from '../../../components/Icon.astro';
+import { programs, getDepartment, getCollege, getDepartmentFaculty, mediaOf } from '../../../lib/data';
+
+export function getStaticPaths() {
+  return programs.map((p) => {
+    return { params: { slug: p.slug }, props: { program: p } };
+  });
+}
+
+const { program } = Astro.props;
+const department = program.department ? getDepartment(program.department) : undefined;
+const college = department ? getCollege(department.college) : undefined;
+const relatedFaculty = program.department ? getDepartmentFaculty(program.department) : [];
+const related = programs.filter((p) => p.department === program.department && p.slug !== program.slug).slice(0, 3);
+const newton = {
+  types: {
+    bachelor: 'بكالوريوس',
+    diploma: 'دبلوم متوسط',
+    master_academic: 'ماجستير أكاديمي',
+    master_executive: 'ماجستير تنفيذي',
+    course: 'دورة متخصصة',
+  } as Record<string, string>,
+  modeBadge: program.mode.includes('عن بُعد') ? 'يحضر عن بعد' : 'حضوري',
+};
+---
+
+<BaseLayout
+  title={program.name}
+  description={program.overview}
+  canonicalPath={`/media/programs/${program.slug}`}
+  aiContext={program.name}
+>
+  <PageHero
+    title={program.name}
+    subtitle={program.overview}
+    crumbs={[{ label: 'الرئيسية', href: '/' }, { label: 'البرامج', href: '/media/programs' }, { label: program.typeLabel }]}
+  >
+    <div class="program-hero-meta" slot="extra">
+      <span><Icon name="clock" size={16} /> {program.duration}</span>
+      <span><Icon name="monitor" size={16} /> {program.mode}</span>
+      <span><Icon name="calendar" size={16} /> {program.hours} ساعة تدريبية</span>
+    </div>
+  </PageHero>
+
+  <section class="section">
+    <div class="container">
+      <div class="detail">
+        <div class="detail__main">
+          <div class="detail__card">
+            <figure class="detail__hero">
+              <img src={mediaOf(program.image)} alt={program.name} loading="lazy" />
+            </figure>
+            <SectionHeader icon="award" title="عن البرنامج" />
+            <p class="detail__lead">{program.overview}</p>
+
+            <div class="vm-mini">
+              <div class="vm-mini__card">
+                <h4><Icon name="eye" size={17} /> الرؤية</h4>
+                <p>{program.vision}</p>
+              </div>
+              <div class="vm-mini__card">
+                <h4><Icon name="target" size={17} /> الرسالة</h4>
+                <p>{program.mission}</p>
+              </div>
+            </div>
+
+            {program.goals?.length > 0 && (
+              <div class="goals-mini">
+                <h3 class="detail__subtitle">أهداف البرنامج</h3>
+                <ul class="detail__list">
+                  {program.goals.map((g) => (
+                    <li>
+                      <Icon name="check" size={18} />
+                      {g}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <h3 class="detail__subtitle">مخرجات التعلم</h3>
+            <ul class="detail__list">
+              {program.outcomes.map((o) => (
+                <li>
+                  <Icon name="check" size={18} />
+                  {o}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="detail__card">
+            <SectionHeader icon="users" title="من يمكنه التقدم؟" />
+            <ul class="detail__list">
+              {program.requirements.map((r) => (
+                <li>
+                  <Icon name="check" size={18} />
+                  {r}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {department && (
+            <div class="detail__card">
+              <SectionHeader icon="landmark" title="القسم المقدم للبرنامج" />
+              <p class="detail__lead">
+                {department.name} — {department.description}
+              </p>
+              <p class="detail__muted">
+                ضمن {college?.name ?? 'كليات المعهد'} · رئيس القسم: {department.head}
+              </p>
+            </div>
+          )}
+
+          {relatedFaculty.length > 0 && (
+            <div class="detail__card">
+              <SectionHeader icon="graduation" title="مدرّبون متخصصون" />
+              <AuthGate
+                compact
+                title="الكادر التدريسي متاح بعد تسجيل بياناتك"
+                text="سجّل الدخول لعرض أسماء المدرّبين وبياناتهم لكل برنامج."
+                cta="سجّل الدخول"
+              >
+                <ul class="detail__faculty">
+                  {relatedFaculty.map((f) => (
+                    <li>
+                      <strong>{f.name}</strong>
+                      <span>{f.title} — {f.degree}</span>
+                    </li>
+                  ))}
+                </ul>
+              </AuthGate>
+            </div>
+          )}
+        </div>
+
+        <aside class="detail__side">
+          <div class="apply-box">
+            <span class="apply-box__type">{newton.types[program.type] ?? program.typeLabel}</span>
+            <h3>{program.name}</h3>
+            <ul class="apply-box__rows">
+              <li>
+                <span>المدة</span>
+                <strong>{program.duration}</strong>
+              </li>
+              <li>
+                <span>نمط الحضور</span>
+                <strong>{program.mode}</strong>
+              </li>
+              <li>
+                <span>{newton.modeBadge}</span>
+                <strong>{program.hours} ساعة</strong>
+              </li>
+              <li>
+                <span>الرسوم</span>
+                <strong>{program.priceText}</strong>
+              </li>
+              <li>
+                <span>الحالة</span>
+                <strong class="apply-box__status">{program.status}</strong>
+              </li>
+            </ul>
+            <a class="apply-box__cta" href={program.applyLink} data-register>
+              قدّم الآن
+              <Icon name="arrow-left" size={17} />
+            </a>
+            <p class="apply-box__note">التقديم عبر البوابة الإلكترونية وتستغرق الخطوات أقل من 10 دقائق.</p>
+          </div>
+        </aside>
+      </div>
+
+      {related.length > 0 && (
+        <div class="related">
+          <SectionHeader icon="layers" title="برامج مشابهة" more={{ href: '/media/programs', label: 'كل البرامج' }} />
+          <div class="related__grid">
+            {related.map((p) => <ProgramCard program={p} />)}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .program-hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-4);
+  }
+  .program-hero-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #EAF4EE;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    border-radius: 999px;
+  }
+  .section {
+    padding-block: var(--spacing-8);
+  }
+  .detail {
+    display: grid;
+    grid-template-columns: 1.4fr 0.6fr;
+    gap: var(--spacing-6);
+    align-items: start;
+  }
+  .detail__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-5);
+  }
+  .detail__card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: var(--spacing-6);
+  }
+  .detail__lead {
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    line-height: 2;
+  }
+  .detail__hero {
+    margin: calc(var(--spacing-6) * -1) calc(var(--spacing-6) * -1) var(--spacing-4);
+  }
+  .detail__hero img {
+    width: 100%;
+    aspect-ratio: 16 / 7;
+    object-fit: cover;
+    border-radius: 18px 18px 0 0;
+  }
+  .vm-mini {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-3);
+    margin: var(--spacing-4) 0;
+  }
+  .vm-mini__card {
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: var(--spacing-4);
+  }
+  .vm-mini__card h4 {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--color-primary-dark);
+    font-size: .95rem;
+    margin: 0 0 var(--spacing-1);
+  }
+  .vm-mini__card h4 :global(svg) {
+    color: var(--color-primary);
+  }
+  .vm-mini__card p {
+    color: var(--color-text-secondary);
+    line-height: 1.85;
+    font-size: .88rem;
+    margin: 0;
+  }
+  .goals-mini {
+    margin: var(--spacing-4) 0;
+  }
+  .detail__subtitle {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--color-primary-dark);
+    margin-top: var(--spacing-3);
+    margin-bottom: var(--spacing-2);
+  }
+  .detail__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .detail__list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    color: var(--color-text);
+  }
+  .detail__list li svg {
+    color: var(--color-success);
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .detail__muted {
+    color: var(--color-text-muted);
+    font-size: 0.88rem;
+    margin-top: var(--spacing-2);
+  }
+  .detail__faculty {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+  .detail__faculty li {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-primary-light);
+    border-radius: 12px;
+    padding: var(--spacing-3) var(--spacing-4);
+  }
+  .detail__faculty strong {
+    color: var(--color-text);
+    font-size: 0.95rem;
+  }
+  .detail__faculty span {
+    color: var(--color-text-secondary);
+    font-size: 0.82rem;
+  }
+
+  .detail__side {
+    position: sticky;
+    top: 120px;
+  }
+  .apply-box {
+    background: var(--color-surface);
+    border: 2px solid var(--color-primary);
+    border-radius: 20px;
+    padding: var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    box-shadow: 0 18px 40px rgba(7, 123, 67, 0.12);
+  }
+  .apply-box__type {
+    align-self: flex-start;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-primary);
+    padding: 4px 14px;
+    border-radius: 999px;
+  }
+  .apply-box h3 {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: var(--color-text);
+    line-height: 1.5;
+  }
+  .apply-box__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 1px dashed var(--color-border);
+    padding-top: var(--spacing-3);
+  }
+  .apply-box__rows li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-2);
+    font-size: 0.88rem;
+  }
+  .apply-box__rows span {
+    color: var(--color-text-muted);
+  }
+  .apply-box__rows strong {
+    color: var(--color-text);
+    text-align: end;
+  }
+  .apply-box__rows .apply-box__status {
+    color: var(--color-success);
+    font-weight: 800;
+  }
+  .apply-box__cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 900;
+    font-size: 1rem;
+    padding: 14px;
+    border-radius: 12px;
+    transition: background 0.2s ease;
+  }
+  .apply-box__cta:hover {
+    background: var(--color-accent-dark);
+  }
+  .apply-box__note {
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+
+  .related {
+    margin-top: var(--spacing-7);
+  }
+  .related__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-4);
+  }
+
+  @media (max-width: 1000px) {
+    .detail {
+      grid-template-columns: 1fr;
+    }
+    .detail__side {
+      position: static;
+    }
+  }
+  @media (max-width: 560px) {
+    .vm-mini {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,1527 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { siteConfig } from '../lib/data';
+
+const studentCourses = [
+  { code: 'ADM101', name: 'مبادئ الإدارة العامة', hours: 3, grade: 'A', mark: 88, semester: 'الأول' },
+  { code: 'ACC101', name: 'المحاسبة المالية', hours: 3, grade: 'B', mark: 76, semester: 'الأول' },
+  { code: 'ECO101', name: 'مبادئ الاقتصاد', hours: 3, grade: 'A', mark: 91, semester: 'الأول' },
+  { code: 'IT201', name: 'التحول الرقمي', hours: 2, grade: 'A', mark: 94, semester: 'الثاني' },
+  { code: 'FIN202', name: 'الإدارة المالية', hours: 3, grade: 'B', mark: 79, semester: 'الثاني' },
+  { code: 'LAW110', name: 'قواعد الإدارة المحلية', hours: 2, grade: 'A', mark: 86, semester: 'الثاني' },
+];
+
+const scheduleDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس'];
+const schedulePeriods = [
+  { time: '8:00 - 9:30', label: 'المحاضرة الأولى' },
+  { time: '9:45 - 11:15', label: 'المحاضرة الثانية' },
+  { time: '11:30 - 1:00', label: 'المحاضرة الثالثة' },
+];
+
+const scheduleGrid = [
+  ['ADM101', '—', 'IT201', 'FL', 'ADM101'],
+  ['ACC101', 'ADM101', '—', 'ACC101', 'SP'],
+  ['ECO101', '—', 'ECO101', 'IT201', '—'],
+];
+
+const upcomingExams = [
+  { date: '2026-01-18', name: 'امتحان الإدارة المالية FIN202', time: '9:00 ص', hall: 'قاعة A3' },
+  { date: '2026-01-24', name: 'امتحان قواعد الإدارة المحلية LAW110', time: '9:00 ص', hall: 'قاعة B1' },
+];
+
+const announcements = [
+  { tag: 'أكاديمي', title: 'بدء رصد درجات الفصل الثاني عبر النظام', date: '2026-01-05' },
+  { tag: 'إداري', title: 'فتح باب طلب وثائق التخرج الإلكترونية', date: '2025-12-28' },
+  { tag: 'مهم', title: 'تحديث المناهج وإثراء المكتبة الرقمية', date: '2025-12-20' },
+];
+
+const adminStudents = [
+  { id: 'NIAS-26-0001', name: 'أحمد عبدالله الحميري', college: 'العلوم الإدارية', status: 'نشط', date: '2026-01-02' },
+  { id: 'NIAS-26-0002', name: 'فاطمة صالح النجار', college: 'المالية والمصرفية', status: 'نشط', date: '2026-01-02' },
+  { id: 'NIAS-26-0003', name: 'محمد علي الشرعبي', college: 'الإدارة العامة', status: 'تحت المراجعة', date: '2026-01-03' },
+  { id: 'NIAS-26-0004', name: 'سامي عبدالرحمن المأربي', college: 'نظم المعلومات', status: 'نشط', date: '2026-01-04' },
+  { id: 'NIAS-26-0005', name: 'إيمان قائد الضبياني', college: 'المحاسبة والمراجعة', status: 'موقوف', date: '2026-01-05' },
+  { id: 'NIAS-26-0006', name: 'خالد ناصر السيقل', college: 'إدارة الأعمال', status: 'نشط', date: '2026-01-06' },
+];
+
+const adminPrograms = [
+  { name: 'دبلوم الإدارة العامة', college: 'الإدارة العامة', students: 320, capacity: 400 },
+  { name: 'دبلوم المحاسبة والمراجعة', college: 'المحاسبة', students: 245, capacity: 300 },
+  { name: 'دبلوم المالية والمصرفية', college: 'المالية', students: 178, capacity: 250 },
+  { name: 'دورات التطوير القيادي', college: 'التدريب', students: 410, capacity: 500 },
+];
+
+const pendingRequests = [
+  { id: 'REQ-1047', type: 'طلب شهادة', requester: 'أمين المجاهد', date: '2026-01-06' },
+  { id: 'REQ-1048', type: 'تعديل بيانات', requester: 'هدى العريقي', date: '2026-01-06' },
+  { id: 'REQ-1049', type: 'استفسار تسجيل', requester: 'وليد الأصبحي', date: '2026-01-07' },
+];
+---
+
+<BaseLayout title="لوحة التحكم الإلكترونية" description="لوحة التحكم الإلكترونية للطالب والإدارة — المعهد الوطني للعلوم الإدارية" aiContext="dash" hideFooter>
+  <div class="dash" data-dash-root>
+
+    <!-- ===== شاشة تسجيل الدخول ===== -->
+    <section class="dash-login" data-dash-login>
+      <div class="dash-login__card">
+        <div class="dash-login__brand">
+          <img src="/logo.png" alt={siteConfig.name} width="54" height="54" />
+          <h1>تسجيل الدخول</h1>
+          <p>{siteConfig.name}</p>
+        </div>
+
+        <div class="dash-login__tabs" role="tablist" aria-label="نوع الحساب">
+          <button type="button" class="dash-login__tab is-active" data-login-tab="student" role="tab" aria-selected="true">
+            <Icon name="graduation" size={16} />
+            حساب الطالب
+          </button>
+          <button type="button" class="dash-login__tab" data-login-tab="admin" role="tab" aria-selected="false">
+            <Icon name="shield" size={16} />
+            حساب الإدارة
+          </button>
+        </div>
+
+        <form class="dash-login__form" data-login-form novalidate>
+          <label class="dash-login__field">
+            <span>اسم المستخدم</span>
+            <div class="dash-login__input">
+              <Icon name="user" size={17} />
+              <input type="text" name="username" data-login-user placeholder="اسم المستخدم" autocomplete="username" />
+            </div>
+          </label>
+          <label class="dash-login__field">
+            <span>كلمة المرور</span>
+            <div class="dash-login__input">
+              <Icon name="lock" size={17} />
+              <input type="password" name="password" data-login-pass placeholder="••••••••" autocomplete="current-password" />
+            </div>
+          </label>
+          <p class="dash-login__msg" data-login-msg role="alert" hidden></p>
+          <button type="submit" class="dash-login__submit">
+            دخول
+            <Icon name="arrow-left" size={17} />
+          </button>
+          <p class="dash-login__hint">
+            <Icon name="info" size={16} />
+            <span>الدخول يتم عبر <strong>بوابة الطالب الموحدة</strong> — إن كنت جديدًا ابدأ من <a href="/portal">بوابة الطالب</a>.</span>
+          </p>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===== لوحة التحكم ===== -->
+    <section class="dash-shell" data-dash-shell hidden>
+      <aside class="dash-side">
+        <div class="dash-side__brand">
+          <img src="/logo.png" alt={siteConfig.name} width="40" height="40" />
+          <span>
+            <strong>NIAS</strong>
+            <small>لوحة التحكم</small>
+          </span>
+        </div>
+
+        <nav class="dash-side__nav" data-dash-nav aria-label="أقسام لوحة التحكم">
+          <p class="dash-side__group" data-nav-group-student>حساب الطالب</p>
+          <button class="dash-side__btn is-active" type="button" data-panel="overview"><Icon name="home" size={17} /> نظرة عامة</button>
+          <button class="dash-side__btn" type="button" data-panel="schedule" data-scope="student"><Icon name="calendar" size={17} /> جدولي الأسبوعي</button>
+          <button class="dash-side__btn" type="button" data-panel="results" data-scope="student"><Icon name="chart" size={17} /> النتائج</button>
+          <button class="dash-side__btn" type="button" data-panel="certificates" data-scope="student"><Icon name="award" size={17} /> الشهادات</button>
+          <button class="dash-side__btn" type="button" data-panel="fees" data-scope="student"><Icon name="database" size={17} /> الفواتير</button>
+          <button class="dash-side__btn" type="button" data-panel="profile" data-scope="student"><Icon name="user" size={17} /> ملفي الشخصي</button>
+
+          <p class="dash-side__group" data-nav-group-admin>إدارة المعهد</p>
+          <button class="dash-side__btn" type="button" data-panel="students" data-scope="admin"><Icon name="users" size={17} /> إدارة الطلاب</button>
+          <button class="dash-side__btn" type="button" data-panel="programs" data-scope="admin"><Icon name="book" size={17} /> البرامج</button>
+          <button class="dash-side__btn" type="button" data-panel="board-announce" data-scope="admin"><Icon name="send" size={17} /> الإعلانات</button>
+          <button class="dash-side__btn" type="button" data-panel="reports" data-scope="admin"><Icon name="trending" size={17} /> التقارير</button>
+        </nav>
+
+        <div class="dash-side__foot">
+          <button type="button" class="dash-side__logout" data-logout>
+            <Icon name="x" size={16} />
+            تسجيل الخروج
+          </button>
+        </div>
+      </aside>
+
+      <div class="dash-main">
+        <header class="dash-topbar">
+          <div>
+            <span class="dash-topbar__kicker">أهلًا بك</span>
+            <h2 class="dash-topbar__title" data-greet>مرحبًا</h2>
+          </div>
+          <div class="dash-topbar__user">
+            <span class="dash-topbar__role" data-user-role>طالب</span>
+            <button type="button" class="dash-topbar__logout" data-logout aria-label="تسجيل الخروج">
+              <Icon name="x" size={15} />
+            </button>
+          </div>
+        </header>
+
+        <div class="dash-panels">
+          <!-- نظرة عامة (مشتركة) -->
+          <section class="dash-panel" data-panel="overview">
+            <div class="dash-stats" data-overview-student>
+              <div class="dash-stat">
+                <span class="dash-stat__ico"><Icon name="chart" size={19} /></span>
+                <span class="dash-stat__num" data-st-gpa>—</span>
+                <span class="dash-stat__label">المعدل التراكمي</span>
+              </div>
+              <div class="dash-stat">
+                <span class="dash-stat__ico"><Icon name="book" size={19} /></span>
+                <span class="dash-stat__num" data-st-hours>—</span>
+                <span class="dash-stat__label">الوحدات المكتملة</span>
+              </div>
+              <div class="dash-stat">
+                <span class="dash-stat__ico"><Icon name="clock" size={19} /></span>
+                <span class="dash-stat__num" data-st-attend>—</span>
+                <span class="dash-stat__label">نسبة الحضور</span>
+              </div>
+              <div class="dash-stat">
+                <span class="dash-stat__ico"><Icon name="calendar" size={19} /></span>
+                <span class="dash-stat__num" data-st-exams>—</span>
+                <span class="dash-stat__label">امتحانات قادمة</span>
+              </div>
+            </div>
+
+            <div class="dash-stats" data-overview-admin>
+              <div class="dash-stat">
+                <span class="dash-stat__ico"><Icon name="users" size={19} /></span>
+                <span class="dash-stat__num">1,153</span>
+                <span class="dash-stat__label">طالب مسجل</span>
+              </div>
+              <div class="dash-stat">
+                <span class="dash-stat__ico"><Icon name="book" size={19} /></span>
+                <span class="dash-stat__num">38</span>
+                <span class="dash-stat__label">برنامجًا</span>
+              </div>
+              <div class="dash-stat">
+                <span class="dash-stat__ico"><Icon name="map-pin" size={19} /></span>
+                <span class="dash-stat__num">7</span>
+                <span class="dash-stat__label">فروع</span>
+              </div>
+              <div class="dash-stat">
+                <span class="dash-stat__ico"><Icon name="clock" size={19} /></span>
+                <span class="dash-stat__num" data-req-count>3</span>
+                <span class="dash-stat__label">طلبات قيد المعالجة</span>
+              </div>
+            </div>
+
+            <div class="dash-cols">
+              <div class="dash-card">
+                <h3 class="dash-card__title"><Icon name="trending" size={17} /> تقدمك في البرنامج</h3>
+                <div class="dash-progress">
+                  <div class="dash-progress__row">
+                    <span>مبادئ الإدارة العامة</span>
+                    <strong>88%</strong>
+                    <i style="--w:88%"></i>
+                  </div>
+                  <div class="dash-progress__row">
+                    <span>المحاسبة المالية</span>
+                    <strong>76%</strong>
+                    <i style="--w:76%"></i>
+                  </div>
+                  <div class="dash-progress__row">
+                    <span>التحول الرقمي</span>
+                    <strong>94%</strong>
+                    <i style="--w:94%"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="dash-card">
+                <h3 class="dash-card__title"><Icon name="info" size={17} /> إعلانات أساسية</h3>
+                <ul class="dash-list">
+                  {announcements.map((a) => (
+                    <li>
+                      <span class="dash-badge">{a.tag}</span>
+                      <span>{a.title}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- جدول الطالب -->
+          <section class="dash-panel" data-panel="schedule" hidden>
+            <div class="dash-card">
+              <h3 class="dash-card__title"><Icon name="calendar" size={17} /> جدول المحاضرات — الفصل الثاني</h3>
+              <div class="timetable">
+                <div class="timetable__head"><span>الوقت</span>{scheduleDays.map((d) => <span>{d}</span>)}</div>
+                {schedulePeriods.map((p, i) => (
+                  <div class="timetable__row">
+                    <span class="timetable__time">{p.time}<small>{p.label}</small></span>
+                    {scheduleGrid[i].map((cell) => (
+                      <span class:list={['timetable__cell', cell !== '—' && cell !== 'SP' && cell !== 'FL' && 'is-class']}>
+                        {cell === 'SP' ? 'راحة' : cell === 'FL' ? 'حر' : cell}
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <!-- النتائج -->
+          <section class="dash-panel" data-panel="results" hidden>
+            <div class="dash-card">
+              <h3 class="dash-card__title"><Icon name="chart" size={17} /> النتائج — العام 2026</h3>
+              <div class="tbl">
+                <table>
+                  <thead>
+                    <tr><th>رمز المادة</th><th>المادة</th><th>الوحدات</th><th>الدرجة</th><th>التقدير</th></tr>
+                  </thead>
+                  <tbody>
+                    {studentCourses.map((c) => (
+                      <tr>
+                        <td>{c.code}</td>
+                        <td>{c.name}</td>
+                        <td>{c.hours}</td>
+                        <td>{c.mark}</td>
+                        <td><span class="dash-badge">{c.grade}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- الشهادات -->
+          <section class="dash-panel" data-panel="certificates" hidden>
+            <div class="dash-cols">
+              <div class="dash-card">
+                <h3 class="dash-card__title"><Icon name="award" size={17} /> شهاداتي</h3>
+                <ul class="dash-list">
+                  <li>
+                    <span class="dash-badge">دبلوم</span>
+                    <span>دبلوم الإدارة العامة</span>
+                    <button type="button" class="dash-btn dash-btn--sm"><Icon name="download" size={14} /> تحميل</button>
+                  </li>
+                  <li>
+                    <span class="dash-badge">دورة</span>
+                    <span>التحول الرقمي و AI</span>
+                    <button type="button" class="dash-btn dash-btn--sm"><Icon name="download" size={14} /> تحميل</button>
+                  </li>
+                </ul>
+              </div>
+              <div class="dash-card">
+                <h3 class="dash-card__title"><Icon name="qrcode" size={17} /> تحقق QR</h3>
+                <div class="dash-qr">
+                  <span class="dash-qr__box" aria-hidden="true"></span>
+                  <p>كل شهادة تصدر برمز QR معتمد للتحقق الفوري من صحة الوثيقة.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- الفواتير -->
+          <section class="dash-panel" data-panel="fees" hidden>
+            <div class="dash-cols">
+              <div class="dash-card">
+                <h3 class="dash-card__title"><Icon name="database" size={17} /> المصاريف الدراسية</h3>
+                <ul class="dash-list">
+                  <li><span class="dash-badge">2026</span><span>رسوم التسجيل</span><strong>20,000</strong></li>
+                  <li><span class="dash-badge">2026</span><span>الرسوم الدراسية</span><strong>150,000</strong></li>
+                  <li><span class="dash-badge">مدفوع</span><span>دفعة أولى</span><strong>85,000</strong></li>
+                </ul>
+              </div>
+              <div class="dash-card">
+                <h3 class="dash-card__title"><Icon name="shield" size={17} /> المتبقي عليك</h3>
+                <p class="dash-fee-total">85,000 <small>ريال يمني</small></p>
+                <button type="button" class="dash-btn">الدفع الآن</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- الملف الشخصي -->
+          <section class="dash-panel" data-panel="profile" hidden>
+            <div class="dash-flex">
+              <div class="dash-card">
+                <h3 class="dash-card__title"><Icon name="user" size={17} /> بياناتي</h3>
+                <dl class="dash-dl">
+                  <div><dt>الاسم الكامل</dt><dd data-p-name>—</dd></div>
+                  <div><dt>الرقم الأكاديمي</dt><dd data-p-pid>—</dd></div>
+                  <div><dt>القسم</dt><dd data-p-dept>—</dd></div>
+                  <div><dt>الدفعة</dt><dd data-p-batch>—</dd></div>
+                  <div><dt>البريد</dt><dd>student@nias-ye.academy</dd></div>
+                </dl>
+              </div>
+              <div class="dash-card">
+                <h3 class="dash-card__title"><Icon name="camera" size={17} /> تعريف الطالب</h3>
+                <div class="dash-id">
+                  <span class="dash-id__chip">NIAS</span>
+                  <strong data-id-name>—</strong>
+                  <small data-id-pid>—</small>
+                  <span class="dash-id__qr" aria-hidden="true"></span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- إدارة الطلاب (admin) -->
+          <section class="dash-panel" data-panel="students" hidden>
+            <div class="dash-card">
+              <div class="dash-card__head">
+                <h3 class="dash-card__title"><Icon name="users" size={17} /> سجل الطلاب المسجلين</h3>
+                <input class="dash-search" type="search" placeholder="بحث بالاسم أو الرقم ..." data-student-search />
+              </div>
+              <div class="tbl">
+                <table>
+                  <thead>
+                    <tr><th>الرقم الأكاديمي</th><th>الاسم</th><th>الكلية</th><th>الحالة</th><th>التاريخ</th><th></th></tr>
+                  </thead>
+                  <tbody data-students-body>
+                    {adminStudents.map((s) => (
+                      <tr data-student-row>
+                        <td>{s.id}</td>
+                        <td>{s.name}</td>
+                        <td>{s.college}</td>
+                        <td>
+                          <span class:list={['dash-badge', s.status !== 'نشط' && 'is-warn', s.status === 'موقوف' && 'is-danger']}>
+                            {s.status}
+                          </span>
+                        </td>
+                        <td>{s.date}</td>
+                        <td>
+                          <div class="dash-row-actions" data-row-actions>
+                            <button type="button" class="dash-icon-btn" aria-label="عرض"><Icon name="eye" size={15} /></button>
+                            <button type="button" class="dash-icon-btn" aria-label="تعديل"><Icon name="settings" size={15} /></button>
+                            <button type="button" class="dash-icon-btn" aria-label="فصل"><Icon name="x" size={15} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- البرامج (admin) -->
+          <section class="dash-panel" data-panel="programs" hidden>
+            <div class="dash-card">
+              <h3 class="dash-card__title"><Icon name="book" size={17} /> الطاقة الاستيعابية للبرامج</h3>
+              <div class="dash-progress dash-progress--lg">
+                {adminPrograms.map((p) => (
+                  <div class="dash-progress__row">
+                    <span>{p.name}</span>
+                    <strong>{p.students} / {p.capacity}</strong>
+                    <i style={`--w:${Math.round((p.students / p.capacity) * 100)}%`}></i>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <!-- الإعلانات (admin) -->
+          <section class="dash-panel" data-panel="board-announce" hidden>
+            <div class="dash-cols">
+              <div class="dash-card">
+                <h3 class="dash-card__title"><Icon name="send" size={17} /> نشر إعلان جديد</h3>
+                <form class="dash-announce" data-announce-form>
+                  <label>عنوان الإعلان<input type="text" placeholder="مثال: مواعيد امتحانات الفصل الثاني" /></label>
+                  <label>النص<textarea rows="4" placeholder="اكتب تفاصيل الإعلان ..."></textarea></label>
+                  <button type="submit" class="dash-btn">نشر الإعلان</button>
+                </form>
+              </div>
+              <div class="dash-card">
+                <h3 class="dash-card__title"><Icon name="newspaper" size={17} /> الإعلانات المنشورة</h3>
+                <ul class="dash-list">
+                  {announcements.map((a) => (
+                    <li>
+                      <span class="dash-badge">{a.tag}</span>
+                      <span>{a.title}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- التقارير (admin) -->
+          <section class="dash-panel" data-panel="reports" hidden>
+            <div class="dash-card">
+              <h3 class="dash-card__title"><Icon name="info" size={17} /> أحدث طلبات المعالجة</h3>
+              <ul class="dash-list">
+                {pendingRequests.map((r) => (
+                  <li>
+                    <span class="dash-badge">{r.id}</span>
+                    <span>{r.type} — {r.requester}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <style>
+    .dash {
+      min-height: 60vh;
+    }
+    .dash [hidden],
+    [hidden] {
+      display: none !important;
+    }
+
+    /* ===== شاشة الدخول ===== */
+    .dash-login {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(32px, 6vw, 72px) var(--spacing-4);
+      background:
+        radial-gradient(880px 460px at 85% -8%, rgba(15, 122, 74, 0.14), transparent 60%),
+        radial-gradient(760px 420px at 4% 108%, rgba(201, 162, 39, 0.12), transparent 60%),
+        linear-gradient(180deg, #0E5B37 0%, #0A3F29 100%);
+    }
+    .dash-login__card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--color-surface);
+      border-radius: 22px;
+      box-shadow: 0 34px 80px rgba(4, 26, 17, 0.45);
+      padding: clamp(24px, 5vw, 36px);
+    }
+    .dash-login__brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      margin-bottom: var(--spacing-5);
+    }
+    .dash-login__brand img {
+      border-radius: 16px;
+      box-shadow: 0 14px 30px rgba(7, 123, 67, 0.25);
+    }
+    .dash-login__brand h1 {
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: var(--color-text);
+      margin-top: 6px;
+    }
+    .dash-login__brand p {
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+    }
+    .dash-login__tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: var(--color-surface-alt);
+      border: 1px solid var(--color-border);
+      border-radius: 13px;
+      padding: 5px;
+      margin-bottom: var(--spacing-4);
+    }
+    .dash-login__tab {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 8px;
+      border-radius: 9px;
+      font-weight: 800;
+      font-size: 0.86rem;
+      color: var(--color-text-secondary);
+      transition: all 0.2s ease;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+    }
+    .dash-login__tab.is-active {
+      background: var(--color-primary);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(15, 122, 74, 0.3);
+    }
+    .dash-login__form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-3);
+    }
+    .dash-login__field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .dash-login__field > span {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--color-text-secondary);
+    }
+    .dash-login__input {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid var(--color-border-dark);
+      background: var(--color-surface);
+      border-radius: 11px;
+      padding: 0 13px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .dash-login__input:focus-within {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(15, 122, 74, 0.14);
+    }
+    .dash-login__input svg {
+      color: var(--color-text-muted);
+    }
+    .dash-login__input input {
+      flex: 1;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      padding: 12px 0;
+      font-size: 0.95rem;
+      color: var(--color-text);
+    }
+    .dash-login__msg {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--color-danger, #C5333E);
+      background: rgba(197, 51, 62, 0.08);
+      border: 1px solid rgba(197, 51, 62, 0.25);
+      border-radius: 10px;
+      padding: 9px 12px;
+    }
+    .dash-login__submit {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(120deg, var(--color-primary), var(--color-primary-dark));
+      color: #fff;
+      font-weight: 900;
+      font-size: 0.98rem;
+      padding: 13px;
+      border-radius: 12px;
+      border: 0;
+      cursor: pointer;
+      box-shadow: 0 14px 30px rgba(15, 122, 74, 0.3);
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .dash-login__submit:hover {
+      filter: brightness(1.07);
+      transform: translateY(-1px);
+    }
+    .dash-login__hint {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: var(--spacing-4);
+      padding: 11px 13px;
+      background: var(--color-accent-light);
+      border: 1px dashed rgba(201, 162, 39, 0.55);
+      border-radius: 12px;
+      color: var(--color-accent-dark);
+      font-size: 0.8rem;
+      line-height: 1.7;
+    }
+    .dash-login__hint svg {
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+    .dash-login__hint code {
+      font-weight: 900;
+      background: #fff;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(201, 162, 39, 0.35);
+    }
+
+    /* ===== الهيكل العام ===== */
+    .dash-shell {
+      display: grid;
+      grid-template-columns: 264px minmax(0, 1fr);
+      min-height: 68vh;
+      background: var(--color-background);
+    }
+    .dash-side {
+      background: linear-gradient(180deg, #0E5B37 0%, #093A24 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .dash-side__brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .dash-side__brand img {
+      border-radius: 10px;
+    }
+    .dash-side__brand strong {
+      font-size: 1.05rem;
+      font-weight: 900;
+    }
+    .dash-side__brand small {
+      display: block;
+      color: var(--color-accent);
+      font-weight: 700;
+      font-size: 0.78rem;
+    }
+    .dash-side__nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .dash-side__group {
+      margin: 14px 10px 6px;
+      font-size: 0.74rem;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      color: rgba(255, 255, 255, 0.55);
+      text-transform: uppercase;
+    }
+    .dash-side__group:first-child {
+      margin-top: 0;
+    }
+    .dash-side__btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      text-align: right;
+      padding: 11px 14px;
+      border-radius: 11px;
+      border: 0;
+      background: transparent;
+      color: #DCEAE2;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .dash-side__btn svg {
+      color: rgba(255, 255, 255, 0.65);
+      transition: color 0.2s ease;
+    }
+    .dash-side__btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .dash-side__btn.is-active {
+      background: var(--color-accent);
+      color: #202022;
+    }
+    .dash-side__btn.is-active svg {
+      color: #202022;
+    }
+    .dash-side__foot {
+      padding: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .dash-side__logout {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 11px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .dash-side__logout:hover {
+      background: rgba(197, 51, 62, 0.25);
+    }
+
+    .dash-main {
+      min-width: 0;
+      padding: clamp(18px, 4vw, 36px);
+    }
+    .dash-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--spacing-4);
+      margin-bottom: var(--spacing-5);
+    }
+    .dash-topbar__kicker {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--color-primary);
+    }
+    .dash-topbar__title {
+      font-size: clamp(1.2rem, 3vw, 1.6rem);
+      font-weight: 900;
+      color: var(--color-text);
+    }
+    .dash-topbar__user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dash-topbar__role {
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      font-weight: 800;
+      font-size: 0.82rem;
+      padding: 8px 14px;
+      border-radius: 999px;
+    }
+    .dash-topbar__logout {
+      display: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-danger, #C5333E);
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .dash-topbar__logout:hover {
+      background: rgba(197, 51, 62, 0.08);
+    }
+
+    /* ===== البطاقات والإحصائيات ===== */
+    .dash-panel [data-overview-admin] {
+      display: none;
+    }
+    html[data-role='student'] .dash-panel [data-overview-student] {
+      display: grid;
+    }
+    html[data-role='admin'] .dash-panel [data-overview-admin] {
+      display: grid;
+    }
+    html[data-role='admin'] .dash-panel [data-overview-student] {
+      display: none;
+    }
+    .dash-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-4);
+      margin-bottom: var(--spacing-5);
+    }
+    .dash-stat {
+      position: relative;
+      overflow: hidden;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: var(--spacing-4);
+      box-shadow: 0 10px 26px rgba(27, 30, 39, 0.05);
+    }
+    .dash-stat::after {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--color-primary), var(--color-accent));
+    }
+    .dash-stat__ico {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      margin-bottom: 10px;
+    }
+    .dash-stat__num {
+      display: block;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--color-text);
+      line-height: 1.1;
+    }
+    .dash-stat__label {
+      display: block;
+      margin-top: 4px;
+      color: var(--color-text-muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .dash-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-4);
+      align-items: start;
+    }
+    .dash-flex {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-4);
+      align-items: start;
+    }
+    .dash-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 18px;
+      padding: var(--spacing-5);
+      box-shadow: 0 12px 30px rgba(27, 30, 39, 0.05);
+      margin-bottom: var(--spacing-4);
+    }
+    .dash-card__title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.98rem;
+      font-weight: 900;
+      color: var(--color-text);
+      margin-bottom: var(--spacing-4);
+    }
+    .dash-card__title svg {
+      color: var(--color-primary);
+    }
+    .dash-card__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--spacing-3);
+      flex-wrap: wrap;
+      margin-bottom: var(--spacing-3);
+    }
+    .dash-card__head .dash-card__title {
+      margin-bottom: 0;
+    }
+
+    /* ===== قوائم وبادجات وأزرار ===== */
+    .dash-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .dash-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--color-surface-alt);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      font-size: 0.87rem;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+      flex-wrap: wrap;
+    }
+    .dash-list li > span:not(.dash-badge) {
+      flex: 1;
+      min-width: 0;
+    }
+    .dash-list li > strong {
+      color: var(--color-text);
+      font-family: var(--font-num);
+    }
+    .dash-badge {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 122, 74, 0.25);
+    }
+    .dash-badge.is-warn {
+      background: var(--color-accent-light);
+      color: var(--color-accent-dark);
+      border-color: rgba(201, 162, 39, 0.4);
+    }
+    .dash-badge.is-danger {
+      background: rgba(197, 51, 62, 0.09);
+      color: #B0252F;
+      border-color: rgba(197, 51, 62, 0.3);
+    }
+    .dash-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      background: var(--color-primary);
+      color: #fff;
+      font-weight: 900;
+      font-size: 0.88rem;
+      padding: 11px 20px;
+      border-radius: 11px;
+      border: 0;
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .dash-btn:hover {
+      filter: brightness(1.07);
+      transform: translateY(-1px);
+    }
+    .dash-btn--sm {
+      padding: 7px 13px;
+      font-size: 0.8rem;
+      align-self: flex-start;
+    }
+
+    /* ===== شرائح التقدم ===== */
+    .dash-progress {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-4);
+    }
+    .dash-progress__row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px 12px;
+      align-items: center;
+    }
+    .dash-progress__row > span {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+    }
+    .dash-progress__row > strong {
+      font-size: 0.82rem;
+      font-weight: 900;
+      color: var(--color-primary);
+      font-family: var(--font-num);
+    }
+    .dash-progress__row > i {
+      position: relative;
+      grid-column: 1 / -1;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--color-surface-alt);
+      overflow: hidden;
+    }
+    .dash-progress__row > i::after {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: var(--w, 50%);
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--color-primary), #2EB57A);
+    }
+
+    /* ===== الجدول الدراسي و الجداول ===== */
+    .timetable {
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .timetable__head,
+    .timetable__row {
+      display: grid;
+      grid-template-columns: 150px repeat(5, 1fr);
+    }
+    .timetable__head {
+      background: var(--color-primary-dark);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.84rem;
+    }
+    .timetable__head span {
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .timetable__row {
+      border-top: 1px solid var(--color-border);
+    }
+    .timetable__row:nth-child(even) {
+      background: var(--color-surface-alt);
+    }
+    .timetable__time {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 10px 12px;
+      font-weight: 900;
+      font-size: 0.84rem;
+      color: var(--color-text-secondary);
+    }
+    .timetable__time small {
+      font-weight: 700;
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+    }
+    .timetable__cell {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 10px 6px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--color-text-muted);
+    }
+    .timetable__cell.is-class {
+      margin: 6px;
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      border: 1px solid rgba(15, 122, 74, 0.25);
+      border-radius: 10px;
+    }
+
+    .tbl {
+      overflow-x: auto;
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+    }
+    .tbl table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 480px;
+    }
+    .tbl th,
+    .tbl td {
+      text-align: right;
+      padding: 11px 14px;
+      font-size: 0.84rem;
+      white-space: nowrap;
+    }
+    .tbl thead th {
+      background: var(--color-surface-alt);
+      color: var(--color-text-muted);
+      font-size: 0.74rem;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+    }
+    .tbl tbody tr {
+      border-top: 1px solid var(--color-border);
+    }
+    .tbl tbody tr:hover {
+      background: var(--color-primary-light);
+    }
+    .tbl td {
+      color: var(--color-text-secondary);
+      font-weight: 700;
+    }
+    .tbl td:first-child {
+      color: var(--color-text);
+      font-family: var(--font-num);
+      font-weight: 800;
+    }
+    .dash-row-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .dash-icon-btn {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .dash-icon-btn:hover {
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+    .dash-search {
+      border: 1px solid var(--color-border-dark);
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 0.86rem;
+      outline: 0;
+      min-width: 220px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .dash-search:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(15, 122, 74, 0.14);
+    }
+
+    /* ===== تفاصيل إضافية ===== */
+    .dash-qr {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .dash-qr__box {
+      flex-shrink: 0;
+      width: 84px;
+      height: 84px;
+      border-radius: 12px;
+      background:
+        linear-gradient(45deg, var(--color-text) 25%, transparent 25%, transparent 75%, var(--color-text) 75%),
+        linear-gradient(45deg, var(--color-text) 25%, transparent 25%, transparent 75%, var(--color-text) 75%);
+      background-size: 18px 18px;
+      background-position: 0 0, 9px 9px;
+      background-color: #fff;
+      border: 1px solid var(--color-border);
+    }
+    .dash-qr p {
+      font-size: 0.84rem;
+      line-height: 1.8;
+      color: var(--color-text-secondary);
+    }
+    .dash-fee-total {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--color-primary);
+      font-family: var(--font-num);
+      margin-bottom: var(--spacing-3);
+    }
+    .dash-fee-total small {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--color-text-muted);
+    }
+    .dash-dl {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .dash-dl > div {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed var(--color-border);
+    }
+    .dash-dl dt {
+      color: var(--color-text-muted);
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+    .dash-dl dd {
+      color: var(--color-text);
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+    .dash-id {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: var(--spacing-4);
+      border-radius: 16px;
+      background:
+        radial-gradient(560px 220px at 50% -30%, rgba(201, 162, 39, 0.2), transparent 70%),
+        linear-gradient(160deg, #0E5B37, #093A24);
+      color: #fff;
+      text-align: center;
+    }
+    .dash-id__chip {
+      background: var(--color-accent);
+      color: #202022;
+      font-weight: 900;
+      font-size: 0.78rem;
+      padding: 4px 14px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+    .dash-id strong {
+      font-size: 1.05rem;
+    }
+    .dash-id small {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 700;
+    }
+    .dash-id__qr {
+      width: 54px;
+      height: 54px;
+      margin-top: 12px;
+      border-radius: 8px;
+      background:
+        linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%),
+        linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%);
+      background-size: 12px 12px;
+      background-position: 0 0, 6px 6px;
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+    .dash-announce {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-3);
+    }
+    .dash-announce label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--color-text-secondary);
+    }
+    .dash-announce input,
+    .dash-announce textarea {
+      border: 1px solid var(--color-border-dark);
+      border-radius: 11px;
+      padding: 10px 13px;
+      font-size: 0.9rem;
+      outline: 0;
+      color: var(--color-text);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .dash-announce input:focus,
+    .dash-announce textarea:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(15, 122, 74, 0.14);
+    }
+
+    /* ===== الاستجابة ===== */
+    @media (max-width: 900px) {
+      .dash-shell {
+        grid-template-columns: 1fr;
+      }
+      .dash-side {
+        position: sticky;
+        top: 0;
+        height: auto;
+        z-index: 20;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+      }
+      .dash-side__brand {
+        border: 0;
+        padding: 0;
+      }
+      .dash-side__brand img {
+        width: 34px;
+        height: 34px;
+      }
+      .dash-side__brand small {
+        display: none;
+      }
+      .dash-side__nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 4px;
+        align-items: center;
+        gap: 6px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .dash-side__group {
+        display: none;
+      }
+      .dash-side__btn {
+        width: auto;
+        white-space: nowrap;
+        padding: 8px 13px;
+        font-size: 0.82rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .dash-side__foot {
+        display: none;
+      }
+      .dash-topbar__logout {
+        display: grid;
+        place-items: center;
+      }
+    }
+    @media (max-width: 640px) {
+      .dash-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      .dash-cols,
+      .dash-flex {
+        grid-template-columns: 1fr;
+      }
+      .timetable {
+        overflow-x: auto;
+      }
+      .timetable__head,
+      .timetable__row {
+        min-width: 620px;
+      }
+      .dash-topbar {
+        align-items: flex-start;
+      }
+    }
+  </style>
+
+  <script is:inline>
+    (function () {
+      const root = document.querySelector('[data-dash-root]');
+      if (!root) return;
+      const $ = (sel, p) => (p || root).querySelector(sel);
+      const $$ = (sel, p) => Array.from((p || root).querySelectorAll(sel));
+
+      const CREDS = {
+        student: { u: 'student', p: '12345678' },
+        admin: { u: 'admin', p: '12345678' },
+      };
+      const STUDENT = {
+        name: 'أحمد عبدالله الحميري',
+        roleLabel: 'طالب',
+        role: 'student',
+        pid: 'NIAS-2023-0457',
+        dept: 'قسم إدارة الأعمال',
+      };
+      const ADMIN = { name: 'إدارة المعهد', roleLabel: 'مدير النظام', role: 'admin', pid: 'ADM-001' };
+
+      const loginView = $('[data-dash-login]');
+      const shell = $('[data-dash-shell]');
+      const loginForm = $('[data-login-form]');
+      const loginMsg = $('[data-login-msg]');
+      const loginUser = $('[data-login-user]');
+      const loginPass = $('[data-login-pass]');
+      const tabs = $$('.dash-login__tab');
+      let loginRole = 'student';
+
+      const fillStudentOverview = () => {
+        if ($('[data-st-gpa]')) $('[data-st-gpa]').textContent = '3.6';
+        if ($('[data-st-hours]')) $('[data-st-hours]').textContent = '16';
+        if ($('[data-st-attend]')) $('[data-st-attend]').textContent = '92%';
+        if ($('[data-st-exams]')) $('[data-st-exams]').textContent = exCount();
+        const pName = $('[data-p-name]');
+        const pPid = $('[data-p-pid]');
+        const pDept = $('[data-p-dept]');
+        const pBatch = $('[data-p-batch]');
+        if (pName) pName.textContent = STUDENT.name;
+        if (pPid) pPid.textContent = STUDENT.pid;
+        if (pDept) pDept.textContent = STUDENT.dept;
+        if (pBatch) pBatch.textContent = '2026';
+        if (pName) {
+          const idName = $('[data-id-name]');
+          const idPid = $('[data-id-pid]');
+          if (idName) idName.textContent = STUDENT.name;
+          if (idPid) idPid.textContent = STUDENT.pid;
+        }
+      };
+      const exCount = () => '2';
+      const fillAdminStats = () => {
+        const c = $('[data-req-count]');
+        if (c) c.textContent = String(3);
+      };
+
+      function enter(user, role) {
+        loginView.hidden = true;
+        shell.hidden = false;
+        $$('.dash-side__btn').forEach((b) => {
+          b.hidden = b.hasAttribute('data-scope') && b.dataset.scope !== role;
+        });
+        $$('[data-nav-group-admin]').forEach((g) => {
+          g.hidden = role !== 'admin';
+        });
+        const greet = $('[data-greet]');
+        if (greet) greet.textContent = 'مرحبًا، ' + user.name;
+        const ur = $('[data-user-role]');
+        if (ur) ur.textContent = user.roleLabel;
+        showPanel('overview');
+        if (role === 'student') fillStudentOverview();
+        else fillAdminStats();
+        clearMsg();
+      }
+
+      function showPanel(name) {
+        $$('.dash-side__btn').forEach((b) => b.classList.toggle('is-active', b.dataset.panel === name));
+        $$('[data-panel]').forEach((p) => {
+          const is = p.classList.contains('dash-panel');
+          if (is) p.hidden = p.dataset.panel !== name;
+        });
+      }
+
+      function clearMsg() {
+        loginMsg.hidden = true;
+        loginMsg.textContent = '';
+      }
+      function failMsg(text) {
+        loginMsg.textContent = text;
+        loginMsg.hidden = false;
+      }
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          loginRole = tab.dataset.loginTab;
+          tabs.forEach((t) => {
+            const on = t === tab;
+            t.classList.toggle('is-active', on);
+            t.setAttribute('aria-selected', on ? 'true' : 'false');
+          });
+          clearMsg();
+        });
+      });
+
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const u = loginUser.value.trim().toLowerCase();
+        const p = loginPass.value;
+        if (u === CREDS[loginRole].u && p === CREDS[loginRole].p) {
+          const user = loginRole === 'admin' ? ADMIN : STUDENT;
+          if (window.NIASTrack) window.NIASTrack.log({ type: 'login', role: loginRole, name: user.name, pid: user.pid || u, page: location.pathname, ts: new Date().toISOString(), ua: navigator.userAgent });
+          if (window.NIASAuth) window.NIASAuth.set(user, loginRole);
+          else {
+            try {
+              localStorage.setItem('nias:portal:user', JSON.stringify(user));
+              localStorage.setItem('nias:portal:role', loginRole);
+            } catch (_e) {}
+          }
+          enter(user, loginRole);
+        } else {
+          failMsg('بيانات الدخول غير صحيحة — تحقق من اسم المستخدم وكلمة المرور.');
+        }
+      });
+
+      $$('[data-panel]').forEach((btn) => {
+        if (!btn.classList.contains('dash-side__btn')) return;
+        btn.addEventListener('click', () => showPanel(btn.dataset.panel));
+      });
+
+      $$('[data-logout]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (window.NIASAuth) window.NIASAuth.set(null);
+          else {
+            try {
+              localStorage.removeItem('nias:portal:user');
+              localStorage.removeItem('nias:portal:role');
+            } catch (_e) {}
+          }
+          window.location.href = '/portal';
+        });
+      });
+
+      const search = $('[data-student-search]');
+      if (search) {
+        search.addEventListener('input', () => {
+          const q = search.value.trim().toLowerCase();
+          $$('[data-student-row]').forEach((row) => {
+            row.hidden = !(row.textContent || '').toLowerCase().includes(q);
+          });
+        });
+      }
+
+      const announce = $('[data-announce-form]');
+      if (announce) {
+        const announceList = root.querySelector('[data-panel="board-announce"] .dash-list');
+        announce.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const t = announce.querySelector('input');
+          if (t && t.value.trim() && announceList) {
+            const li = document.createElement('li');
+            li.innerHTML = '<span class="dash-badge">جديد</span><span>' + t.value.trim() + '</span>';
+            announceList.prepend(li);
+            announce.reset();
+          }
+        });
+      }
+
+      if (window.NIASAuth) {
+        const s = window.NIASAuth.read();
+        const role = window.NIASAuth.role() || 'student';
+        if (s) enter(s, role);
+      } else {
+        try {
+          const raw = localStorage.getItem('nias:portal:user');
+          const s = raw ? JSON.parse(raw) : null;
+          if (s) enter(s, localStorage.getItem('nias:portal:role') || 'student');
+        } catch (_e) {}
+      }
+    })();
+  </script>
+</BaseLayout>

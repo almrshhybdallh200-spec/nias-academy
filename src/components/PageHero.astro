@@ -1,0 +1,20 @@
+---
+import Breadcrumb from './Breadcrumb.astro';
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  crumbs?: { label: string; href?: string }[];
+}
+
+const { title, subtitle, crumbs = [] } = Astro.props;
+---
+
+<section class="page-hero">
+  <div class="container">
+    {crumbs.length > 0 && <div class="page-hero__crumbs"><Breadcrumb crumbs={crumbs} /></div>}
+    <h1 class="page-hero__title">{title}</h1>
+    {subtitle && <p class="page-hero__subtitle">{subtitle}</p>}
+    <slot name="extra" />
+  </div>
+</section>

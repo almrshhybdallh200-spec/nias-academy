@@ -1,0 +1,352 @@
+---
+import Icon from './Icon.astro';
+import { programs, branches, newsItems, colleges } from '../lib/data';
+
+interface Props {
+  variant?: 'hero' | 'inline';
+  placeholder?: string;
+}
+
+const { variant = 'inline', placeholder = 'ابحث عن برنامج، دبلوم، أو دورة ...' } = Astro.props;
+const variantClass = variant === 'hero' ? 'quicksearch--hero' : 'quicksearch--inline';
+
+const programsIdx = programs.map((p) => ({ t: p.typeLabel, l: p.name, s: `برنامج ${p.department}`, h: `/media/programs/${p.slug}` }));
+const branchesIdx = branches.map((b) => ({ t: 'فرع', l: `فرع ${b.name}`, s: b.city, h: `/branches/${b.slug}` }));
+const newsIdx = newsItems.map((n) => ({ t: 'خبر', l: n.title, s: n.category, h: `/media/news/${n.slug}` }));
+const collegesIdx = colleges.map((c) => ({ t: 'كلية', l: c.name, s: c.description, h: `/about#${c.slug}` }));
+const searchIndex = [...programsIdx, ...branchesIdx, ...newsIdx, ...collegesIdx];
+---
+
+<div class:list={['quicksearch', variantClass]} data-component="quicksearch">
+  <div class="quicksearch__inputwrap">
+    <Icon name="search" size={20} class="quicksearch__searchicon" />
+    <input
+      type="search"
+      class="quicksearch__input"
+      placeholder={placeholder}
+      role="combobox"
+      aria-autocomplete="list"
+      aria-expanded="false"
+      aria-controls="qs-listbox"
+      autocomplete="off"
+      value=""
+    />
+    <button class="quicksearch__submit" type="button">
+      بحث
+      <Icon name="arrow-left" size={16} />
+    </button>
+  </div>
+  <div class="quicksearch__results" id="qs-listbox" role="listbox"></div>
+</div>
+
+<script is:inline define:vars={{ INDEX: searchIndex }}>
+  const normalize = (s) =>
+    String(s || '')
+      .toLowerCase()
+      .replace(/[\u064B-\u065F\u0670]/g, '')
+      .replace(/[أإآٱ]/g, 'ا')
+      .replace(/ة/g, 'ه')
+      .replace(/ى/g, 'ي')
+      .replace(/\u0640/g, '')
+      .trim();
+
+  class QuickSearch {
+    constructor(el) {
+      this.root = el;
+      this.input = el.querySelector('.quicksearch__input');
+      this.results = el.querySelector('.quicksearch__results');
+      this.items = [];
+      this.active = -1;
+      this.index = INDEX.map((p) => ({ ...p, _b: `${normalize(p.l)} ${normalize(p.s)} ${normalize(p.t)}` }));
+
+      this.input.addEventListener('input', () => this.run());
+      this.input.addEventListener('focus', () => this.show());
+      this.input.addEventListener('keydown', (e) => this.keys(e));
+      this.root.querySelector('.quicksearch__submit').addEventListener('click', () => this.commit());
+      document.addEventListener('click', (e) => {
+        if (!this.root.contains(e.target)) this.hide();
+      });
+    }
+
+    setMark(node, text, q) {
+      const i = text.toLowerCase().indexOf(q.toLowerCase());
+      node.textContent = text;
+      if (i < 0) return;
+      node.innerHTML = '';
+      const mark = document.createElement('mark');
+      mark.textContent = text.slice(i, i + q.length);
+      node.append(text.slice(0, i), mark, text.slice(i + q.length));
+    }
+
+    run() {
+      const q = this.input.value.trim().toLowerCase();
+      if (q.length < 2) {
+        this.render([]);
+        this.hide();
+        return;
+      }
+      const nq = normalize(q);
+      const tokens = nq.split(' ').filter(Boolean);
+      const found = this.index.filter((p) => tokens.every((t) => p._b.includes(t))).slice(0, 8);
+      this.render(found, q);
+      /* ضبط القائمة داخل الشاشة مع كل كتابة أيضًا (مفاتيح الجوال تغيّر
+         ارتفاع المنظور) */
+      this.show();
+    }
+
+    render(found, q = '') {
+      this.results.innerHTML = '';
+      this.items = [];
+      this.active = -1;
+      this.input.setAttribute('aria-expanded', String(found.length > 0));
+      if (found.length === 0) {
+        if (q) {
+          const empty = document.createElement('div');
+          empty.className = 'quicksearch__empty';
+          empty.textContent = 'لا توجد نتائج مطابقة';
+          this.results.appendChild(empty);
+        }
+        return;
+      }
+      found.forEach((p, i) => {
+        const it = document.createElement('a');
+        it.className = 'quicksearch__item';
+        it.setAttribute('role', 'option');
+        it.setAttribute('tabindex', '-1');
+        it.href = p.h;
+        const title = document.createElement('strong');
+        this.setMark(title, p.l, q);
+        const type = document.createElement('small');
+        type.textContent = p.t;
+        it.append(title, type);
+        it.addEventListener('mousemove', () => this.setActive(i));
+        it.addEventListener('click', () => this.clean());
+        this.results.appendChild(it);
+        this.items.push(it);
+      });
+    }
+
+    keys(e) {
+      if (this.items.length === 0) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        this.setActive((this.active + 1) % this.items.length);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        this.setActive((this.active - 1 + this.items.length) % this.items.length);
+      } else if (e.key === 'Enter' && this.active >= 0) {
+        e.preventDefault();
+        this.activeItem()?.click();
+      } else if (e.key === 'Escape') {
+        this.hide();
+      }
+    }
+
+    setActive(i) {
+      this.active = i;
+      this.items.forEach((it, idx) => it.classList.toggle('is-active', idx === i));
+      this.items[i]?.scrollIntoView({ block: 'nearest' });
+    }
+
+    activeItem() {
+      return this.active >= 0 ? this.items[this.active] : null;
+    }
+
+    commit() {
+      const it = this.activeItem();
+      if (it) it.click();
+      else if (this.items.length === 1) this.items[0].click();
+    }
+
+    clean() {
+      this.input.value = '';
+      this.hide();
+      this.input.blur();
+    }
+
+    show() {
+      /* تُفتح قائمة الاقتراحات دائمًا لأسفل وتُقيّد ارتفاعها داخل الشاشة */
+      const r = this.input.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - r.bottom;
+      this.results.classList.remove('is-up');
+      const safe = Math.max(96, Math.floor(spaceBelow - 20));
+      this.results.style.maxHeight = safe + 'px';
+      this.results.classList.add('is-open');
+    }
+
+    hide() {
+      this.results.classList.remove('is-open');
+      this.input.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  document.querySelectorAll('[data-component="quicksearch"]').forEach((el) => new QuickSearch(el));
+</script>
+
+<style>
+  .quicksearch {
+    position: relative;
+    z-index: 60;
+  }
+  .quicksearch__inputwrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    border-radius: 14px;
+    padding: 4px 4px 4px 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .quicksearch:focus-within .quicksearch__inputwrap {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px var(--color-primary-light);
+  }
+  .quicksearch__searchicon {
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+  .quicksearch__input {
+    flex: 1;
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: 0.95rem;
+    padding: 10px 0;
+    color: var(--color-text);
+    min-width: 0;
+  }
+  .quicksearch__input:focus {
+    outline: none;
+  }
+  .quicksearch__submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 10px 18px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    transition: background 0.2s ease;
+  }
+  .quicksearch__submit:hover {
+    background: var(--color-primary-dark);
+  }
+  .quicksearch__results {
+    position: absolute;
+    top: calc(100% + 8px);
+    inset-inline: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    box-shadow: 0 18px 40px rgba(7, 123, 67, 0.16);
+    overflow-y: auto;
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: all 0.2s ease;
+  }
+  .quicksearch__results.is-up {
+    top: auto;
+    bottom: calc(100% + 8px);
+  }
+  .quicksearch__results.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 480px) {
+    .quicksearch__submit span {
+      display: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .quicksearch--hero .quicksearch__inputwrap {
+      padding: 3px 3px 3px 10px;
+      border-radius: 12px;
+    }
+    .quicksearch--hero .quicksearch__input {
+      font-size: 0.85rem;
+      padding: 8px 0;
+    }
+    .quicksearch--hero .quicksearch__searchicon {
+      width: 17px;
+      height: 17px;
+    }
+    .quicksearch--hero .quicksearch__submit {
+      font-size: 0.75rem;
+      padding: 7px 11px;
+      gap: 4px;
+      border-radius: 8px;
+    }
+    .quicksearch--hero .quicksearch__submit svg {
+      width: 14px;
+      height: 14px;
+    }
+    .quicksearch--hero .quicksearch__results {
+      inset-inline: auto;
+      inset-inline-start: 0;
+      width: 126%;
+      max-width: calc(100vw - 28px);
+    }
+  }
+
+  /* ===== Light editorial hero variant ===== */
+  .quicksearch--hero .quicksearch__inputwrap {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    box-shadow: 0 8px 24px rgba(27, 30, 39, 0.1);
+  }
+  .quicksearch--hero .quicksearch__searchicon {
+    color: var(--color-text-muted);
+  }
+  .quicksearch--hero .quicksearch__input {
+    color: var(--color-text);
+  }
+  .quicksearch--hero .quicksearch__input::placeholder {
+    color: var(--color-text-muted);
+  }
+  .quicksearch--hero:focus-within .quicksearch__inputwrap {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(15, 122, 74, 0.14);
+  }
+  .quicksearch--hero .quicksearch__submit {
+    background: var(--color-primary);
+    box-shadow: 0 8px 18px rgba(10, 92, 55, 0.3);
+  }
+  .quicksearch--hero .quicksearch__submit:hover {
+    background: var(--color-primary-dark);
+  }
+  .quicksearch--hero .quicksearch__results {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 28px 64px rgba(27, 30, 39, 0.22);
+  }
+  .quicksearch--hero .quicksearch__item {
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
+  .quicksearch--hero .quicksearch__item:hover,
+  .quicksearch--hero .quicksearch__item.is-active {
+    background: var(--color-primary-light);
+  }
+  .quicksearch--hero .quicksearch__item strong {
+    color: var(--color-secondary);
+  }
+  .quicksearch--hero .quicksearch__item small {
+    color: var(--color-text-muted);
+  }
+  .quicksearch--hero .quicksearch__item mark {
+    background: var(--color-accent-light);
+    color: var(--color-accent-dark);
+  }
+  .quicksearch--hero .quicksearch__empty {
+    color: var(--color-text-muted);
+  }
+</style>

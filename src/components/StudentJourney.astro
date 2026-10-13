@@ -1,0 +1,94 @@
+---
+import Icon from './Icon.astro';
+
+const steps = [
+  {
+    icon: 'book',
+    title: 'سجّل و اختر التخصص',
+    text: 'اختر البرنامج المناسب من كليات المعهد الثلاث، وقدّم طلبك إلكترونيًا خلال فترة التسجيل.',
+  },
+  {
+    icon: 'users',
+    title: 'ادرس مع نخبة الأساتذة',
+    text: 'هل تبدأ دراستك في مقر فرعك أو عن بُعد، مع مواد عملية ومشاريع تطبيقية من واقع مؤسساتك؟',
+  },
+  {
+    icon: 'award',
+    title: 'تخرج بشهادة معتمدة',
+    text: 'تحصل على شهادة دبلوم معتمدة موثقة برمز QR، وتحظى بأولوية الدعم الوظيفي التوجيهي.',
+  },
+  {
+    icon: 'trending',
+    title: 'واصل تطورك المهني',
+    text: 'انضم لشبكة خريجي المعهد، والتحق بالدورات التخصصية المستمرة وحلقات الإرشاد المهني.',
+  },
+];
+
+---
+
+<section class="journey">
+  <ol class="journey__list">
+    {steps.map((s, i) => (
+      <li class="journey__step">
+        <span class="journey__number">{String(i + 1).padStart(2, '0')}</span>
+        <span class="journey__icon">
+          <Icon name={s.icon} size={24} />
+        </span>
+        <h3>{s.title}</h3>
+        <p>{s.text}</p>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .journey__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--spacing-5);
+    counter-reset: journey;
+  }
+  .journey__step {
+    position: relative;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: var(--spacing-6) var(--spacing-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .journey__step:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 32px rgba(7, 123, 67, 0.12);
+  }
+  .journey__number {
+    position: absolute;
+    top: var(--spacing-3);
+    left: var(--spacing-4);
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--color-border-dark);
+    font-family: 'Cairo', sans-serif;
+    direction: ltr;
+  }
+  .journey__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--color-accent-light);
+    color: var(--color-accent-dark);
+    display: grid;
+    place-items: center;
+  }
+  .journey__step h3 {
+    font-size: 1.08rem;
+    font-weight: 800;
+    color: var(--color-text);
+  }
+  .journey__step p {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+  }
+</style>

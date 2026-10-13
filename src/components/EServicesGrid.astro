@@ -1,0 +1,334 @@
+---
+import Icon from './Icon.astro';
+
+interface Service {
+  id: string;
+  name: string;
+  description: string;
+  href: string;
+  icon: string;
+}
+
+interface Props {
+  services: Service[];
+  bento?: boolean;
+  soft?: boolean;
+}
+
+const { services, bento = false, soft = false } = Astro.props;
+---
+
+{soft ? (
+  <div class="services-grid services-grid--soft">
+    {services.map((s, i) => (
+      <a
+        class="service-tile service-tile--soft"
+        href={s.href}
+        data-reveal
+        style={`--reveal-delay:${i * 60}ms`}
+      >
+        <span class="service-tile__icon">
+          <Icon name={s.icon} size={22} />
+        </span>
+        <strong>{s.name}</strong>
+      </a>
+    ))}
+  </div>
+) : (
+<div class:list={['services-grid', bento && 'services-grid--bento']}>
+  {services.map((s, i) =>
+    bento && i === 0 ? (
+      <a
+        class="service-tile service-tile--wide"
+        href={s.href}
+        data-reveal
+        style={`--reveal-delay:${i * 60}ms`}
+      >
+        <span class="service-tile__num" aria-hidden="true">01</span>
+        <span class="service-tile__icon service-tile__icon--lg">
+          <Icon name={s.icon} size={26} />
+        </span>
+        <span class="service-tile__body">
+          <strong class="service-tile__name-lg">{s.name}</strong>
+          <small>{s.description}</small>
+        </span>
+        <span class="service-tile__go" aria-hidden="true">
+          <Icon name="arrow-left" size={18} />
+        </span>
+      </a>
+    ) : (
+      <a
+        class="service-tile"
+        href={s.href}
+        data-reveal
+        style={`--reveal-delay:${i * 60}ms`}
+      >
+        <span class="service-tile__icon">
+          <Icon name={s.icon} size={22} />
+        </span>
+        <span class="service-tile__body">
+          <strong>{s.name}</strong>
+          <small>{s.description}</small>
+        </span>
+        <span class="service-tile__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+        <Icon name="chevron-left" size={18} class="service-tile__chevron" />
+      </a>
+    ),
+  )}
+  {bento && (
+    <a
+      class="service-tile service-tile--more"
+      href="/portal"
+      data-reveal
+      style={`--reveal-delay:${services.length * 60}ms`}
+    >
+      <span class="service-tile__more-ico">
+        <Icon name="layers" size={18} />
+      </span>
+      <strong>جميع الخدمات</strong>
+      <Icon name="chevron-left" size={18} />
+    </a>
+  )}
+  </div>
+)}
+
+<style>
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .services-grid--soft {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .service-tile--soft {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+    padding: var(--spacing-5) var(--spacing-3);
+    background: var(--color-surface);
+    border-radius: 18px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  }
+  .service-tile--soft .service-tile__icon {
+    width: 62px;
+    height: 60px;
+    border-radius: 18px;
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    box-shadow: none;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+  .service-tile--soft .service-tile__icon svg {
+    width: 26px;
+    height: 26px;
+  }
+  .service-tile--soft strong {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--color-text);
+    transition: color 0.25s ease;
+  }
+  .service-tile--soft:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-primary);
+    background: var(--color-surface);
+    box-shadow: 0 16px 34px rgba(15, 122, 74, 0.14);
+  }
+  .service-tile--soft:hover .service-tile__icon {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: #fff;
+  }
+  .service-tile--soft:hover strong {
+    color: var(--color-primary-dark);
+  }
+  .service-tile--soft::before,
+  .service-tile--soft::after {
+    display: none;
+  }
+  .services-grid--bento {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-4);
+  }
+  .service-tile--wide {
+    grid-column: span 2;
+    align-items: center;
+    padding: var(--spacing-5);
+  }
+  .service-tile__icon--lg {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+  }
+  .service-tile__name-lg {
+    font-size: 1.08rem;
+    margin-bottom: 2px;
+  }
+  .service-tile__go {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    display: grid;
+    place-items: center;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  }
+  .service-tile--wide:hover .service-tile__go {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: #fff;
+    transform: translateX(-3px);
+  }
+  .service-tile--more {
+    grid-column: span 2;
+    justify-content: center;
+    gap: 10px;
+    background: color-mix(in srgb, var(--color-primary-light) 55%, transparent);
+    border: 1px dashed var(--color-primary);
+    color: var(--color-primary);
+    font-size: 0.94rem;
+  }
+  .service-tile--more:hover {
+    background: var(--color-primary-light);
+    border-style: solid;
+  }
+  .service-tile__more-ico {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    display: grid;
+    place-items: center;
+    color: var(--color-primary);
+  }
+  .service-tile {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: var(--spacing-4);
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .service-tile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    inset-inline: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-gold), var(--color-accent));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .service-tile:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-primary);
+    box-shadow: 0 12px 26px rgba(27, 30, 39, 0.1);
+  }
+  .service-tile:hover::before {
+    opacity: 1;
+  }
+  .service-tile:nth-child(odd)::after {
+    content: '';
+    position: absolute;
+    inset-inline-end: -34px;
+    bottom: -34px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(15, 122, 74, 0.08), transparent 70%);
+    pointer-events: none;
+  }
+  .service-tile:nth-child(even)::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: -24px;
+    bottom: -40px;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201, 162, 39, 0.14), transparent 70%);
+    pointer-events: none;
+  }
+  .service-tile__icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: var(--color-primary);
+    box-shadow: 0 6px 14px rgba(27, 30, 39, 0.1);
+  }
+  .service-tile__body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+    z-index: 1;
+  }
+  .service-tile__body strong {
+    font-size: 0.95rem;
+    color: var(--color-text);
+  }
+  .service-tile__body small {
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .service-tile__num {
+    position: absolute;
+    top: 10px;
+    inset-inline-end: 12px;
+    font-family: var(--font-num);
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--color-accent);
+    opacity: 0.5;
+    z-index: 0;
+  }
+  .service-tile__chevron {
+    color: var(--color-primary);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+    z-index: 1;
+  }
+  .service-tile:hover .service-tile__chevron {
+    transform: translateX(-3px);
+  }
+  @media (max-width: 900px) {
+    .services-grid--bento {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .service-tile--wide,
+    .service-tile--more {
+      grid-column: span 2;
+    }
+  }
+  @media (max-width: 560px) {
+    .services-grid--bento {
+      grid-template-columns: 1fr;
+    }
+    .service-tile--wide,
+    .service-tile--more {
+      grid-column: span 1;
+    }
+    .service-tile--wide {
+      flex-wrap: wrap;
+    }
+  }
+</style>

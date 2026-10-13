@@ -1,0 +1,387 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
+import TrainingCard from '../../components/TrainingCard.astro';
+import Icon from '../../components/Icon.astro';
+import { trainingCourses, mediaOf } from '../../lib/data';
+import { formatDate, toArabicNumerals } from '../../lib/format';
+
+export function getStaticPaths() {
+  return trainingCourses.map((c) => {
+    return { params: { slug: c.slug }, props: { course: c } };
+  });
+}
+
+const { course } = Astro.props;
+const related = trainingCourses.filter((c) => c.category === course.category && c.slug !== course.slug).slice(0, 3);
+---
+
+<BaseLayout
+  title={course.title}
+  description={course.summary}
+  canonicalPath={`/training/${course.slug}`}
+  aiContext={course.title}
+>
+  <PageHero
+    title={course.title}
+    subtitle={course.summary}
+    crumbs={[
+      { label: 'الرئيسية', href: '/' },
+      { label: 'البرامج التدريبية', href: '/training' },
+      { label: course.category },
+    ]}
+  >
+    <div class="course-hero-meta" slot="extra">
+      <span><Icon name="clock" size={16} /> {course.duration}</span>
+      <span><Icon name="monitor" size={16} /> {course.mode}</span>
+      <span><Icon name="book" size={16} /> {toArabicNumerals(course.hours)} ساعة تدريبية</span>
+    </div>
+  </PageHero>
+
+  <section class="section">
+    <div class="container">
+      <div class="detail">
+        <div class="detail__main">
+          <div class="detail__card">
+            <figure class="detail__hero">
+              <img src={mediaOf(course.image)} alt={course.title} loading="lazy" />
+            </figure>
+            <SectionHeader icon="layers" title="نبذة عن الدورة" />
+            <p class="detail__lead">{course.overview}</p>
+
+            <div class="vm-mini">
+              <div class="vm-mini__card">
+                <h4><Icon name="eye" size={17} /> الرؤية</h4>
+                <p>{course.vision}</p>
+              </div>
+              <div class="vm-mini__card">
+                <h4><Icon name="target" size={17} /> الرسالة</h4>
+                <p>{course.mission}</p>
+              </div>
+            </div>
+
+            {course.goals?.length > 0 && (
+              <div class="goals-mini">
+                <h3 class="detail__subtitle">أهداف الدورة</h3>
+                <ul class="detail__list">
+                  {course.goals.map((g) => (
+                    <li>
+                      <Icon name="check" size={18} />
+                      {g}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <h3 class="detail__subtitle">مخرجات التعلم</h3>
+            <ul class="detail__list">
+              {course.outcomes.map((o) => (
+                <li>
+                  <Icon name="check" size={18} />
+                  {o}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="detail__card">
+            <SectionHeader icon="users" title="من يمكنه الالتحاق؟" />
+            <ul class="detail__list">
+              {course.requirements.map((r) => (
+                <li>
+                  <Icon name="check" size={18} />
+                  {r}
+                </li>
+              ))}
+            </ul>
+            <p class="detail__muted">الفئة المستهدفة: {course.target}</p>
+          </div>
+
+          <div class="detail__card">
+            <SectionHeader icon="calendar" title="مواعيد الدفعات" />
+            <ul class="dates-list">
+              {course.dates.map((d) => (
+                <li><Icon name="calendar" size={16} /> {formatDate(d)}</li>
+              ))}
+            </ul>
+            <p class="detail__muted">المدرّب: {course.instructor}</p>
+          </div>
+        </div>
+
+        <aside class="detail__side">
+          <div class="apply-box">
+            <span class="apply-box__type">{course.category}</span>
+            <h3>{course.title}</h3>
+            <ul class="apply-box__rows">
+              <li>
+                <span>رمز الدورة</span>
+                <strong>{course.code}</strong>
+              </li>
+              <li>
+                <span>المدة</span>
+                <strong>{course.duration}</strong>
+              </li>
+              <li>
+                <span>عدد الساعات</span>
+                <strong>{toArabicNumerals(course.hours)} ساعة</strong>
+              </li>
+              <li>
+                <span>نمط الحضور</span>
+                <strong>{course.mode}</strong>
+              </li>
+              <li>
+                <span>الرسوم</span>
+                <strong>{course.priceText}</strong>
+              </li>
+            </ul>
+            <a class="apply-box__cta" href="/portal" data-register>
+              سجّل في الدورة
+              <Icon name="arrow-left" size={17} />
+            </a>
+            <p class="apply-box__note">التسجيل عبر البوابة الإلكترونية وتستغرق الخطوات أقل من 10 دقائق.</p>
+          </div>
+        </aside>
+      </div>
+
+      {related.length > 0 && (
+        <div class="related">
+          <SectionHeader icon="layers" title="دورات مشابهة" more={{ href: '/training#courses', label: 'كل الدورات' }} />
+          <div class="related__grid">
+            {related.map((c) => <TrainingCard course={c} />)}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .course-hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-4);
+  }
+  .course-hero-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #EAF4EE;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    border-radius: 999px;
+  }
+  .section {
+    padding-block: var(--spacing-8);
+  }
+  .detail {
+    display: grid;
+    grid-template-columns: 1.4fr 0.6fr;
+    gap: var(--spacing-6);
+    align-items: start;
+  }
+  .detail__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-5);
+  }
+  .detail__card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: var(--spacing-6);
+  }
+  .detail__lead {
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    line-height: 2;
+  }
+  .detail__hero {
+    margin: calc(var(--spacing-6) * -1) calc(var(--spacing-6) * -1) var(--spacing-4);
+  }
+  .detail__hero img {
+    width: 100%;
+    aspect-ratio: 16 / 7;
+    object-fit: cover;
+    border-radius: 18px 18px 0 0;
+  }
+  .vm-mini {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-3);
+    margin: var(--spacing-4) 0;
+  }
+  .vm-mini__card {
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: var(--spacing-4);
+  }
+  .vm-mini__card h4 {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--color-primary-dark);
+    font-size: .95rem;
+    margin: 0 0 var(--spacing-1);
+  }
+  .vm-mini__card h4 :global(svg) {
+    color: var(--color-primary);
+  }
+  .vm-mini__card p {
+    color: var(--color-text-secondary);
+    line-height: 1.85;
+    font-size: .88rem;
+    margin: 0;
+  }
+  .goals-mini {
+    margin: var(--spacing-4) 0;
+  }
+  .detail__subtitle {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--color-primary-dark);
+    margin-top: var(--spacing-3);
+    margin-bottom: var(--spacing-2);
+  }
+  .detail__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .detail__list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    color: var(--color-text);
+  }
+  .detail__list li svg {
+    color: var(--color-success);
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .detail__muted {
+    color: var(--color-text-muted);
+    font-size: 0.88rem;
+    margin-top: var(--spacing-3);
+  }
+  .dates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .dates-list li {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-weight: 700;
+    color: var(--color-text);
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  .dates-list li svg {
+    color: var(--color-primary);
+  }
+
+  .detail__side {
+    position: sticky;
+    top: 120px;
+  }
+  .apply-box {
+    background: var(--color-surface);
+    border: 2px solid var(--color-primary);
+    border-radius: 20px;
+    padding: var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    box-shadow: 0 18px 40px rgba(7, 123, 67, 0.12);
+  }
+  .apply-box__type {
+    align-self: flex-start;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-primary);
+    padding: 4px 14px;
+    border-radius: 999px;
+  }
+  .apply-box h3 {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: var(--color-text);
+    line-height: 1.5;
+  }
+  .apply-box__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 1px dashed var(--color-border);
+    padding-top: var(--spacing-3);
+  }
+  .apply-box__rows li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-2);
+    font-size: 0.88rem;
+  }
+  .apply-box__rows span {
+    color: var(--color-text-muted);
+  }
+  .apply-box__rows strong {
+    color: var(--color-text);
+    text-align: end;
+  }
+  .apply-box__cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 900;
+    font-size: 1rem;
+    padding: 14px;
+    border-radius: 12px;
+    transition: background 0.2s ease;
+  }
+  .apply-box__cta:hover {
+    background: var(--color-accent-dark);
+  }
+  .apply-box__note {
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+
+  .related {
+    margin-top: var(--spacing-7);
+  }
+  .related__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-4);
+  }
+
+  @media (max-width: 1000px) {
+    .detail {
+      grid-template-columns: 1fr;
+    }
+    .detail__side {
+      position: static;
+    }
+  }
+  @media (max-width: 560px) {
+    .vm-mini {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,38 @@
+{
+  "name": "المعهد الوطني للعلوم الإدارية",
+  "nameShort": "NIAS",
+  "nameEn": "National Institute of Administrative Sciences",
+  "tagline": "نُعد كوادر الغد الإدارية",
+  "established": "1963",
+  "trackEndpoint": "https://script.google.com/macros/s/AKfycbx3nMKx8Q4KuHCmeVY1wr1qrmJ0c2YZNllguARq07al4ZhPkaF2qjSyeArlCpKGfSxA/exec",
+  "director": "محمد ضيف الله القطابري",
+  "directorTitle": "عميد المعهد",
+  "phone": "+967 1 222 537",
+  "fax": "+967 1 496 001",
+  "email": "info@nias-ye.academy",
+  "emailAdmissions": "admission@nias-ye.academy",
+  "address": "شارع العدل، أمانة العاصمة، صنعاء، الجمهورية اليمنية",
+  "workingHours": "الأحد - الخميس: 8:00 صباحًا - 3:00 مساءً",
+  "footerDescription": "المعهد الوطني للعلوم الإدارية مؤسسة وطنية متخصصة في بناء القدرات الإدارية والتدريب والاستشارات منذ عام 1963. نسعى لأن نكون مرجع المعرفة الإدارية الأول في اليمن.",
+  "social": {
+    "facebook": "https://facebook.com/nias.ye",
+    "twitter": "https://x.com/nias_ye",
+    "youtube": "https://youtube.com/@nias.ye",
+    "telegram": "https://t.me/nias_ye",
+    "linkedin": "https://linkedin.com/company/nias-ye"
+  },
+  "stats": {
+    "graduates": 42000,
+    "trainees": 150000,
+    "programs": 38,
+    "branches": 7,
+    "faculty": 220,
+    "years": 63
+  },
+  "dates": {
+    "academicYear": "2026",
+    "fallSemester": "الدفعة التدريبية الأولى",
+    "applicationDeadline": "2026-02-28",
+    "registrationLink": "/portal"
+  }
+}

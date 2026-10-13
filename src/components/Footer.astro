@@ -1,0 +1,296 @@
+﻿---
+import Icon from './Icon.astro';
+import { siteConfig } from '../lib/data';
+
+const year = new Date().getFullYear().toString();
+const socialLinks = [
+  { name: 'facebook', href: siteConfig.social.facebook, label: 'فيسبوك' },
+  { label: 'X (تويتر)', name: 'twitter', href: siteConfig.social.twitter },
+  { label: 'يوتيوب', href: siteConfig.social.youtube, name: 'youtube' },
+  { label: 'تليجرام', href: siteConfig.social.telegram, name: 'telegram' },
+  { label: 'لينكدإن', href: siteConfig.social.linkedin, name: 'linkedin' },
+];
+
+const quickLinks = [
+  { label: 'عن المعهد', href: '/about' },
+  { label: 'الكليات والأقسام', href: '/colleges' },
+  { label: 'البرامج والدبلومات', href: '/media/programs' },
+  { label: 'المراكز', href: '/centers' },
+  { label: 'التدريب', href: '/training' },
+  { label: 'الفروع', href: '/branches' },
+];
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__about">
+        <a class="site-footer__brand" href="/" aria-label={siteConfig.name}>
+          <img src="/logo.png" width="48" height="48" alt={`شعار ${siteConfig.name}`} />
+          <span class="site-footer__brand-text">
+            <strong>{siteConfig.name}</strong>
+            <small dir="ltr">{siteConfig.nameEn}</small>
+          </span>
+        </a>
+        <div class="site-footer__social">
+          {socialLinks.map((s) => (
+            <a
+              class:list={['site-footer__social-link', s.name]}
+              href={s.href}
+              target="_blank"
+              rel="noopener"
+              aria-label={s.label}
+              title={s.label}
+            >
+              <Icon name={s.name} size={18} />
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <nav class="site-footer__col" aria-label="روابط سريعة">
+        <h2 class="site-footer__title">روابط سريعة</h2>
+        <ul>
+          {quickLinks.map((l) => (
+            <li><a href={l.href}>{l.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="site-footer__col">
+        <h2 class="site-footer__title">تواصل معنا</h2>
+        <ul class="site-footer__contact">
+          <li>
+            <span class="site-footer__ico"><Icon name="map-pin" size={16} /></span>
+            <span>{siteConfig.address}</span>
+          </li>
+          <li>
+            <span class="site-footer__ico"><Icon name="phone" size={16} /></span>
+            <a href={`tel:${siteConfig.phone.replace(/\s/g, '')}`} dir="ltr">{siteConfig.phone}</a>
+          </li>
+          <li>
+            <span class="site-footer__ico"><Icon name="mail" size={16} /></span>
+            <a href={`mailto:${siteConfig.email}`} dir="ltr">{siteConfig.email}</a>
+          </li>
+          <li>
+            <span class="site-footer__ico"><Icon name="clock" size={16} /></span>
+            <span>{siteConfig.workingHours}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="site-footer__dev">
+      <span class="site-footer__dev-item">عبدالله قايد المرشحي - مصمم و مطور الموقع</span>
+    </div>
+
+    <div class="site-footer__bottom">
+      <p>© {siteConfig.established}–{new Date().getFullYear()} {siteConfig.name}. جميع الحقوق محفوظة.</p>
+      <p class="site-footer__made" dir="ltr">{siteConfig.nameEn} · {siteConfig.nameShort}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    display: flow-root;
+    background:
+      radial-gradient(760px 340px at 82% -30%, rgba(46, 181, 122, 0.22), transparent 62%),
+      radial-gradient(720px 320px at 6% 130%, rgba(125, 214, 167, 0.12), transparent 60%),
+      linear-gradient(180deg, #12503A 0%, #0E4330 52%, #0A3625 100%);
+    margin-top: var(--spacing-8);
+    color: rgba(255, 255, 255, 0.82);
+    border-top: 3px solid transparent;
+    border-image: linear-gradient(90deg, var(--color-gold), var(--color-primary), var(--color-accent)) 1;
+  }
+
+  .site-footer__grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1.4fr;
+    gap: var(--spacing-6);
+    padding-block: var(--spacing-8) var(--spacing-6);
+  }
+
+  .site-footer__brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .site-footer__brand img {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    object-fit: contain;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.28);
+  }
+
+  .site-footer__brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .site-footer__brand-text strong {
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.3;
+    color: #fff;
+  }
+
+  .site-footer__brand-text small {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.25px;
+    color: #AFC4EE;
+  }
+
+  .site-footer__social {
+    display: flex;
+    gap: 8px;
+    margin-top: var(--spacing-4);
+  }
+
+  .site-footer__social a {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .site-footer__social-link.facebook:hover,
+  .site-footer__social-link.facebook:active { background: #1877F2; border-color: #1877F2; }
+  .site-footer__social-link.twitter:hover,
+  .site-footer__social-link.twitter:active { background: #000; border-color: #000; }
+  .site-footer__social-link.youtube:hover,
+  .site-footer__social-link.youtube:active { background: #FF0000; border-color: #FF0000; }
+  .site-footer__social-link.telegram:hover,
+  .site-footer__social-link.telegram:active { background: #229ED9; border-color: #229ED9; }
+  .site-footer__social-link.linkedin:hover,
+  .site-footer__social-link.linkedin:active { background: #0A66C2; border-color: #0A66C2; }
+
+  .site-footer__social a:hover {
+    transform: translateY(-2px);
+    color: #fff;
+  }
+
+  .site-footer__title {
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 900;
+    margin-bottom: var(--spacing-3);
+    position: relative;
+    padding-bottom: 8px;
+  }
+
+  .site-footer__title::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    bottom: 0;
+    width: 30px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-gold);
+  }
+
+  .site-footer__col ul {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-footer__col a {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.72);
+    transition: color 0.2s ease, padding 0.2s ease;
+  }
+
+  .site-footer__col a:hover {
+    color: var(--color-gold);
+  }
+
+  .site-footer__contact li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.84rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .site-footer__ico {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    color: var(--color-gold);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .site-footer__contact a {
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  .site-footer__contact a:hover {
+    color: var(--color-gold);
+  }
+
+  /* سطر اسم المطور */
+  .site-footer__dev {
+    display: flex;
+    justify-content: center;
+    padding-block: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .site-footer__dev-item {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    color: #ffffff;
+    text-align: center;
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    padding-block: var(--spacing-4);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .site-footer__made {
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  @media (max-width: 992px) {
+    .site-footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .site-footer__about {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .site-footer__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

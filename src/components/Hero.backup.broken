@@ -1,0 +1,85 @@
+---
+import Icon from './Icon.astro';
+import QuickSearch from './QuickSearch.astro';
+import { siteConfig } from '../lib/data';
+import { toArabicNumerals } from '../lib/format';
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+}
+
+const {
+  title = ${origTitle},
+  subtitle = ${origSub},
+};
+  subtitle = ${origSub},
+};
+  { icon: 'users', count: siteConfig.stats.graduates, label: 'خريج ومتدرب' },
+  { icon: 'graduation', count: siteConfig.stats.programs, label: 'برنامجًا' },
+  { icon: 'map-pin', count: siteConfig.stats.branches, label: 'فرعًا' },
+];
+---
+
+<section class="hero" data-hero>
+  <div class="hero__bg" aria-hidden="true">
+    <img class="hero__photo" src="/images/صورة للحديقة الداخلية.jpg" alt="" loading="eager" fetchpriority="high" decoding="async" />
+    <span class="hero__shade"></span>
+  </div>
+
+  <div class="container hero__inner">
+    <div class="hero__content">
+      <h1 class="hero__title"><span class="hero__title-mask"><span class="hero__title-inner" set:html={title}></span></span></h1>
+      <p class="hero__lead">{subtitle}</p>
+      <div class="hero__search"><QuickSearch variant="hero" /></div>
+    </div>
+
+    <div class="hero__stats">
+      <div class="hero__stats-grid">
+        {statList.map((s) => (
+          <div class="hero__stat">
+            <span class="hero__stat-ico"><Icon name={s.icon} size={16} /></span>
+            <span class="hero__stat-body"><strong class="js-stat" data-count={s.count}>{s.count}</strong><span>{s.label}</span></span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero { position: relative; z-index: 5; isolation: isolate; padding-block: clamp(60px,9vw,128px) clamp(40px,5vw,72px); color: #fff; }
+  .hero__bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: linear-gradient(165deg, #0a3f29 0%, #06301f 46%, #041f15 100%); }
+  .hero__photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+  .hero__bg::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0); background-size: 24px 24px; -webkit-mask-image: radial-gradient(130% 110% at 50% -10%, #000 26%, transparent 76%); mask-image: radial-gradient(130% 110% at 50% -10%, #000 26%, transparent 76%); }
+  .hero__shade { position: absolute; inset: 0; background: radial-gradient(130% 90% at 85% 8%, rgba(15,122,74,0.34) 0%, transparent 58%), radial-gradient(60% 55% at 80% 84%, rgba(201,162,39,0.14) 0%, transparent 62%), radial-gradient(120% 80% at 12% 100%, rgba(10,63,41,0.5) 0%, transparent 60%), linear-gradient(180deg, rgba(6,34,23,0.5) 0%, rgba(6,34,23,0.34) 44%, rgba(6,34,23,0.52) 74%, rgba(4,26,17,0.82) 100%); box-shadow: inset 0 -90px 130px -50px rgba(3,18,12,0.6); }
+  .hero__inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; text-align: start; gap: clamp(22px,3vw,32px); }
+  .hero__content { display: flex; flex-direction: column; gap: 18px; align-items: flex-start; max-width: 760px; }
+  .hero__content > * { animation: hero-fade 0.85s cubic-bezier(0.22,0.61,0.36,1) both; }
+  .hero__content > *:nth-child(1) { animation-delay: 0.08s; }
+  .hero__content > *:nth-child(2) { animation-delay: 0.18s; }
+  .hero__content > *:nth-child(3) { animation-delay: 0.28s; }
+  @keyframes hero-fade { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+  .hero__content > .hero__title { animation: none; }
+  .hero__title { font-family: var(--font-display); font-size: clamp(1.9rem,4.8vw,3.15rem); font-weight: 900; line-height: 1.28; color: #fff; letter-spacing: -0.015em; text-wrap: balance; text-shadow: 0 4px 28px rgba(0,0,0,0.32); }
+  .hero__title-mask { display: block; overflow: hidden; padding-block: 2px; }
+  .hero__title-inner { display: block; will-change: transform; }
+  @media (prefers-reduced-motion: no-preference) { .hero__title-inner { animation: title-in 0.95s cubic-bezier(0.16,1,0.3,1) 0.1s both; } }
+  @keyframes title-in { from { transform: translateY(116%); } to { transform: translateY(0); } }
+  .hero__accent { background: linear-gradient(100deg,#7BE8AD 0%,#F2C95B 46%,#7BE8AD 100%); background-size: 220% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: accent-flow 7s ease-in-out infinite; }
+  @keyframes accent-flow { 0% { background-position: 0% 50%; } 100% { background-position: 220% 50%; } }
+  .hero__lead { color: rgba(255,255,255,0.93); font-size: clamp(0.98rem,1.6vw,1.12rem); max-width: 62ch; line-height: 1.95; text-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+  .hero__search { position: relative; z-index: 70; width: 100%; max-width: 540px; }
+  .hero__stats { position: relative; z-index: 2; width: min(100%,720px); background: linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.06)); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,0.2); border-radius: 22px; padding: clamp(14px,1.8vw,22px) clamp(10px,1.6vw,18px); box-shadow: 0 28px 70px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.25); overflow: hidden; animation: hero-fade 0.9s cubic-bezier(0.22,0.61,0.36,1) 0.4s both; }
+  .hero__stats::before { content: ''; position: absolute; inset-inline: 0; top: 0; height: 3px; background: linear-gradient(90deg, var(--color-gold), #7BE8AD, var(--color-gold)); opacity: 0.9; }
+  .hero__stats-grid { display: grid; grid-template-columns: repeat(4,1fr); }
+  .hero__stat { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 9px; padding: 4px 8px; border-inline-end: 1px solid rgba(255,255,255,0.16); }
+  .hero__stat:last-child { border-inline-end: none; }
+  .hero__stat-ico { flex-shrink: 0; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: radial-gradient(120% 120% at 30% 20%, rgba(123,232,173,0.34), rgba(123,232,173,0.08)); color: #8FE3B4; box-shadow: inset 0 0 0 1px rgba(143,227,180,0.3); }
+  .hero__stat-body { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; }
+  .hero__stat strong { font-size: clamp(1.45rem,2.6vw,1.95rem); font-weight: 900; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1; color: #fff; font-family: var(--font-num); text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+  .hero__stat-body > span { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.85); white-space: nowrap; }
+  @media (prefers-reduced-motion: reduce) { .hero__content > *, .hero__stats { animation: none; } .hero__accent, .hero__title-inner { animation: none; } .hero__title-inner { transform: none; } }
+  @media (max-width: 560px) { .hero { padding-block: 48px 26px; } .hero__inner { gap: 18px; } .hero__content { gap: 13px; } .hero__title { font-size: clamp(1.48rem,7vw,1.9rem); line-height: 1.32; letter-spacing: 0; } .hero__lead { font-size: 0.93rem; line-height: 1.85; } .hero__search { max-width: none; } .hero__stats { width: 100%; padding: 10px; border-radius: 16px; } .hero__stats-grid { grid-template-columns: repeat(2,1fr); } .hero__stat { gap: 7px; padding: 8px 6px; } .hero__stat:nth-child(2n) { border-inline-end: none; } .hero__stat:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,0.16); padding-bottom: 14px; } .hero__stat:nth-child(n+3) { padding-top: 14px; } .hero__stat-ico { width: 30px; height: 30px; border-radius: 9px; } .hero__stat-ico svg { width: 15px; height: 15px; } .hero__stat strong { font-size: clamp(1.3rem,6vw,1.7rem); } .hero__stat-body > span { font-size: 0.66rem; } }
+</style>
+

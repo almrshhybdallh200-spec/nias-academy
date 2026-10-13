@@ -1,0 +1,418 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ScrollTop from '../components/ScrollTop.astro';
+import LoginHint from '../components/LoginHint.astro';
+import { siteConfig } from '../lib/data';
+
+interface Props {
+  title?: string;
+  description?: string;
+  branchSlug?: string;
+  image?: string;
+  preloadImage?: string;
+  canonicalPath?: string;
+  aiContext?: string;
+  noindex?: boolean;
+  hideFooter?: boolean;
+}
+
+const {
+  title = siteConfig.name,
+  description = siteConfig.footerDescription,
+  branchSlug = 'sanaa',
+  image = '/og-cover.png',
+  preloadImage = '',
+  canonicalPath = '',
+  aiContext = '',
+  noindex = false,
+  hideFooter = false,
+} = Astro.props;
+
+const fullTitle = title === siteConfig.name ? siteConfig.name : `${title} | ${siteConfig.name}`;
+const trackEndpoint = siteConfig.trackEndpoint ?? '';
+const canonical = new URL(canonicalPath || Astro.url.pathname, Astro.site ?? 'https://nias-ye.academy').toString();
+const ogImage = new URL(image, Astro.site ?? 'https://nias-ye.academy').toString();
+const keywords = [
+  siteConfig.name,
+  'NIAS',
+  'المعهد الوطني للعلوم الإدارية صنعاء',
+  'دبلومات',
+  'برامج تدريبية',
+  'دورات إدارية',
+  'إدارة عامة',
+  'موارد بشرية',
+  'محاسبة',
+  'مالية',
+  'حوكمة',
+  'تحول رقمي',
+  'ذكاء اصطناعي',
+  'شهادات معتمدة',
+  'تسجيل',
+  'فروع المعهد',
+  'اليمن',
+  'صنعاء',
+].join('، ');
+
+const schema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      name: siteConfig.name,
+      alternateName: siteConfig.nameEn,
+      url: new URL('/', Astro.site ?? 'https://nias-ye.academy').toString(),
+      email: siteConfig.email,
+      telephone: siteConfig.phone,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: siteConfig.address,
+        addressLocality: 'صنعاء',
+        addressCountry: 'YE',
+      },
+      sameAs: Object.values(siteConfig.social),
+    },
+    {
+      '@type': 'WebSite',
+      name: siteConfig.name,
+      url: new URL('/', Astro.site ?? 'https://nias-ye.academy').toString(),
+      inLanguage: 'ar',
+    },
+  ],
+});
+---
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+<meta name="theme-color" content="#077B43" />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+    <meta name="keywords" content={keywords} />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ar_AE" />
+    <meta property="og:site_name" content={siteConfig.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={siteConfig.name} />
+    <meta property="og:image:type" content="image/png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
+    <link rel="stylesheet" href="/fonts/fonts.css?v=5" />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/tajawal-arabic-400.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/tajawal-arabic-700.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/cairo-arabic.woff2" crossorigin />
+
+    <script type="application/ld+json" set:html={schema}></script>
+    <meta name="generator" content={Astro.generator} />
+
+    <style is:global>
+      @media (prefers-reduced-motion: no-preference) {
+      html {
+        scroll-behavior: smooth;
+      }
+    }
+      /* حماية المحتوى: منع تحديد النص والحفظ السريع مع إبقاء الحقول قابلة للكتابة */
+      html.is-protected body {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+      }
+      html.is-protected input,
+      html.is-protected textarea,
+      html.is-protected select,
+      html.is-protected [contenteditable="true"],
+      html.is-protected .ai-panel__body {
+        -webkit-user-select: text;
+        user-select: text;
+        -webkit-touch-callout: default;
+      }
+      html.is-protected img {
+        -webkit-touch-callout: none;
+      }
+    </style>
+  <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    <script is:inline>
+    // حماية المحتوى من النسخ السريع
+      (function () {
+        document.documentElement.classList.add('is-protected');
+        var isTypable = function (t) {
+          return !(t instanceof Element) || !!t.closest('input,textarea,select,[contenteditable="true"],.ai-panel__body');
+        };
+        document.addEventListener('contextmenu', function (e) {
+          if (!isTypable(e.target)) e.preventDefault();
+        });
+        document.addEventListener('dragstart', function (e) {
+          if (e.target && e.target.tagName === 'IMG') e.preventDefault();
+        });
+        document.addEventListener('keydown', function (e) {
+          var k = e.key;
+          var ctrl = e.ctrlKey || e.metaKey;
+          if (k === 'F12') e.preventDefault();
+          if (ctrl && !e.shiftKey && !e.altKey && /^[suj]$/i.test(k)) e.preventDefault();
+          if (ctrl && e.shiftKey && /^[ijc]$/i.test(k)) e.preventDefault();
+        });
+      })();
+    </script>
+    <script is:inline>
+      // طبقة المصادقة المركزية: تحدد حالة الدخول على مستوى الصفحة
+      (function () {
+        var KEY = 'nias:portal:user';
+        var ROLE_KEY = 'nias:portal:role';
+        function read() {
+          try {
+            var raw = localStorage.getItem(KEY);
+            return raw ? JSON.parse(raw) : null;
+          } catch (_e) {
+            return null;
+          }
+        }
+        function role() {
+          try {
+            return localStorage.getItem(ROLE_KEY) || 'student';
+          } catch (_e) {
+            return 'student';
+          }
+        }
+        function sync() {
+          var s = read();
+          var html = document.documentElement;
+          html.classList.toggle('is-authed', !!s);
+          html.setAttribute('data-role', s ? role() : '');
+          var pill = document.querySelector('[data-auth-pill]');
+          if (pill) {
+            pill.classList.toggle('is-authed', !!s);
+          }
+        }
+        window.NIASAuth = {
+          read: read,
+          role: role,
+          sync: sync,
+          set: function (user, r) {
+            try {
+              if (user) {
+                localStorage.setItem(KEY, JSON.stringify(user));
+                localStorage.setItem(ROLE_KEY, r || 'student');
+              } else {
+                localStorage.removeItem(KEY);
+                localStorage.removeItem(ROLE_KEY);
+              }
+            } catch (_e) {}
+            sync();
+            window.dispatchEvent(new CustomEvent('nias:authchange', { detail: { user: read(), role: role() } }));
+          },
+        };
+        sync();
+        window.addEventListener('nias:authchange', sync);
+        window.addEventListener('storage', sync);
+      })();
+    </script>
+    <script is:inline define:vars={{ trackEndpoint }}>
+      // طبقة تتبّع مركزية: تسجّل الزيارات وتسجيل الدخول في Google Sheets
+      (function () {
+        var ENDPOINT = trackEndpoint || '';
+        function send(payload) {
+          if (!ENDPOINT) return;
+          try {
+            var body = JSON.stringify(payload);
+            if (navigator.sendBeacon) {
+              navigator.sendBeacon(ENDPOINT, body);
+            } else {
+              fetch(ENDPOINT, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: body,
+                keepalive: true,
+              }).catch(function () {});
+            }
+          } catch (_e) {}
+        }
+        window.NIASTrack = {
+          endpoint: ENDPOINT,
+          log: function (payload) {
+            send(payload);
+          },
+          visit: function () {
+            try {
+              if (sessionStorage.getItem('nias:visit-logged')) return;
+              sessionStorage.setItem('nias:visit-logged', '1');
+            } catch (_e) {}
+            send({
+              type: 'visit',
+              role: '',
+              name: '',
+              pid: '',
+              phone: '',
+              page: location.pathname,
+              ts: new Date().toISOString(),
+              ua: navigator.userAgent,
+            });
+          },
+        };
+        window.NIASTrack.visit();
+      })();
+    </script>
+    <script is:inline>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
+  <body data-ai-context={aiContext}>
+    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
+    <Header branchSlug={branchSlug} pathname={Astro.url.pathname} />
+    <main id="main-content"><slot /></main>
+    {!hideFooter && <Footer />}
+    <ScrollTop />
+    <LoginHint />
+    <script is:inline>
+      (function () {
+        // تنبيه صغير يظهر تحت البطاقة عند الزائر، مع خطين أحمرين حولها
+        var box = document.querySelector('[data-login-alert]');
+        if (box) {
+          var ring = box.querySelector('[data-alert-ring]');
+          var tip = box.querySelector('[data-alert-box]');
+          var hideTimer;
+          var suppressScrollUntil = 0;
+
+          /* إخفاء فوري: لا يبقى الإطار بعد التمرير أو اللمس أو النقر خارجًا */
+          var hide = function () {
+            clearTimeout(hideTimer);
+            box.classList.remove('is-open');
+            box.setAttribute('hidden', '');
+          };
+
+          var place = function (r) {
+            var w = Math.min(268, Math.max(210, window.innerWidth - 24));
+            var left = Math.min(Math.max(r.left + r.width / 2 - w / 2, 12), window.innerWidth - w - 12);
+            var top = r.bottom + 18;
+            if (top + 124 > window.innerHeight) {
+              tip.classList.add('is-above');
+              top = Math.max(12, r.top - 124);
+            } else {
+              tip.classList.remove('is-above');
+            }
+            tip.style.maxWidth = w + 'px';
+            tip.style.minWidth = Math.min(210, w) + 'px';
+            tip.style.left = left + 'px';
+            tip.style.top = top + 'px';
+            /* رأس التنبيه يشير إلى منتصف البطاقة لا إلى منتصف الصندوق */
+            var shift = Math.round(
+              Math.min(Math.max(r.left + r.width / 2 - left, 18), w - 18) - w / 2
+            );
+            tip.style.setProperty('--arrow-shift', shift + 'px');
+          };
+
+          var show = function (el) {
+            box.removeAttribute('hidden');
+            clearTimeout(hideTimer);
+            hideTimer = setTimeout(hide, 6000);
+
+            /* نؤجّل الحساب إطارًا واحدًا حتى لا تتداخل التمريرة مع الحدث */
+            setTimeout(function () {
+              var need = 18 + 124;
+              var r = el.getBoundingClientRect();
+
+              /* إن لم يتسع أسفل البطاقة، نمرّرها لأعلى بمقدار ما ينقص،
+                 مع كتم التمريرة البرمجية حتى لا تُخفى الحلقة لحظيًا */
+              if (r.bottom + need > window.innerHeight) {
+                suppressScrollUntil = Date.now() + 360;
+                window.scrollTo({
+                  top: Math.max(0, Math.round(window.scrollY + r.bottom + need - window.innerHeight + 14)),
+                  behavior: 'instant'
+                });
+                r = el.getBoundingClientRect();
+              }
+
+              ring.style.left = r.left + 'px';
+              ring.style.top = r.top + 'px';
+              ring.style.width = r.width + 'px';
+              ring.style.height = r.height + 'px';
+              place(r);
+
+              /* إعادة حساب التخطيط ثم تفعيل الحركة */
+              void box.offsetWidth;
+              box.classList.add('is-open');
+            }, 0);
+          };
+
+          box.querySelectorAll('[data-alert-close]').forEach(function (b) {
+            b.addEventListener('click', hide);
+          });
+
+          /* التمرير أو اللمس: يُخفى الإطار فورًا (جوال وحاسوب) */
+          var onScroll = function () {
+            if (Date.now() < suppressScrollUntil) return;
+            if (!box.hasAttribute('hidden')) hide();
+          };
+          window.addEventListener('scroll', onScroll, { passive: true });
+          ['touchstart', 'touchmove'].forEach(function (evt) {
+            document.addEventListener(evt, onScroll, { passive: true });
+          });
+
+          document.addEventListener(
+            'click',
+            function (e) {
+              if (document.documentElement.classList.contains('is-authed')) return;
+              if (!box.hasAttribute('hidden')) hide();
+              /* تنبيه تسجيل الدخول يظهر فقط عند الضغط على أزرار التسجيل/التقديم */
+              var reg = e.target.closest('[data-register]');
+              if (!reg) return;
+              e.preventDefault();
+              e.stopPropagation();
+              show(reg);
+            },
+            true
+          );
+
+          document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !box.hasAttribute('hidden')) hide();
+          });
+        }
+      })();
+    </script>
+    <script is:inline>
+      (function () {
+        var els = document.querySelectorAll('[data-reveal]');
+        if (!('IntersectionObserver' in window)) {
+          els.forEach(function (el) { el.classList.add('is-revealed'); });
+          return;
+        }
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (en) {
+              if (en.isIntersecting) {
+                en.target.classList.add('is-revealed');
+                io.unobserve(en.target);
+              }
+            });
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.08 }
+        );
+        els.forEach(function (el) { io.observe(el); });
+      })();
+    </script>
+  </body>
+</html>
+</html>

@@ -1,0 +1,160 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import ProgramCard from '../../components/ProgramCard.astro';
+import Icon from '../../components/Icon.astro';
+import { departments, getDepartment, getDepartmentPrograms, getCollege, mediaOf } from '../../lib/data';
+import { toArabicNumerals } from '../../lib/format';
+
+export function getStaticPaths() {
+  return departments.map((dept) => ({
+    params: { slug: dept.slug },
+    props: { dept },
+  }));
+}
+
+interface Props {
+  dept: (typeof departments)[number];
+}
+
+const { dept } = Astro.props;
+const college = getCollege(dept.college);
+const list = getDepartmentPrograms(dept.slug);
+---
+
+<BaseLayout title={`${dept.name} | ${dept.nameEn}`} description={dept.description}>
+  <PageHero
+    title={dept.name}
+    subtitle={dept.nameEn}
+    crumbs={[
+      { label: 'الرئيسية', href: '/' },
+      { label: 'الكليات', href: '/colleges' },
+      { label: college?.name || 'الكلية', href: `/colleges/${college?.slug || ''}` },
+      { label: dept.name },
+    ]}
+  >
+    <span slot="extra" class="dept-hero__badge">
+      <Icon name="book" size={15} />
+      {toArabicNumerals(list.length)} برنامج · رئيس القسم: {dept.head}
+    </span>
+  </PageHero>
+
+  <section class="dept-about">
+    <div class="container">
+      <div class="dept-about__grid">
+        <div class="dept-about__img">
+          <img src={mediaOf('')} alt={dept.name} loading="lazy" />
+        </div>
+        <div class="dept-about__body">
+          <h2 class="dept-about__title">عن القسم</h2>
+          <p class="dept-about__desc">{dept.description}</p>
+          <ul class="dept-about__meta">
+            <li><Icon name="university" size={17} /> تابع لـ <a href={`/colleges/${college?.slug}`}>{college?.name}</a></li>
+            <li><Icon name="user" size={17} /> رئيس القسم: {dept.head}</li>
+            <li><Icon name="layers" size={17} /> {toArabicNumerals(list.length)} برامج و دبلومات</li>
+          </ul>
+          <a class="btn btn--primary" href="/portal">التقديم على برامج القسم</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dept-programs">
+    <div class="container">
+      <h2 class="dept-programs__title">برامج القسم</h2>
+      <div class="dept-programs__grid">
+        {list.map((p) => (
+          <ProgramCard program={p} />
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .dept-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: .82rem;
+    font-weight: 800;
+    margin-top: var(--spacing-2);
+  }
+
+  .dept-about {
+    padding: var(--spacing-7) 0 var(--spacing-4);
+  }
+  .dept-about__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: var(--spacing-6);
+    align-items: center;
+  }
+  .dept-about__img img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 18px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 18px 40px rgba(7, 123, 67, .12);
+  }
+  .dept-about__title {
+    font-family: var(--font-display);
+    color: var(--color-primary-dark);
+    font-size: clamp(1.3rem, 3vw, 1.7rem);
+    margin-bottom: var(--spacing-2);
+  }
+  .dept-about__desc {
+    color: var(--color-text-secondary);
+    line-height: 1.95;
+    font-size: .95rem;
+  }
+  .dept-about__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: var(--spacing-4) 0;
+    padding: 0;
+    list-style: none;
+  }
+  .dept-about__meta li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text);
+    font-weight: 700;
+    font-size: .88rem;
+  }
+  .dept-about__meta li :global(svg) {
+    color: var(--color-primary);
+  }
+  .dept-about__meta a {
+    color: var(--color-primary);
+  }
+
+  .dept-programs {
+    padding: var(--spacing-4) 0 var(--spacing-8);
+  }
+  .dept-programs__title {
+    font-family: var(--font-display);
+    color: var(--color-primary-dark);
+    font-size: clamp(1.3rem, 3vw, 1.7rem);
+    margin-bottom: var(--spacing-5);
+  }
+  .dept-programs__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--spacing-4);
+  }
+
+  @media (max-width: 820px) {
+    .dept-about__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

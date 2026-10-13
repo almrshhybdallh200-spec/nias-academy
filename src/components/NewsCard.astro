@@ -1,0 +1,152 @@
+---
+import Icon from './Icon.astro';
+import MediaPlaceholder from './MediaPlaceholder.astro';
+import { relativeDate } from '../lib/format';
+
+interface Props {
+  title: string;
+  date: string;
+  category: string;
+  summary: string;
+  slug: string;
+  readingMinutes: number;
+  image?: string;
+}
+
+const { title, date, category, summary, slug, readingMinutes, image = '' } = Astro.props;
+const href = `/media/news/${slug}`;
+---
+
+<article class="news-card">
+  <a class="news-card__media" href={href} aria-label={title}>
+    {image ? (
+      <img src={image} alt="" loading="lazy" decoding="async" />
+    ) : (
+      <div class="news-card__placeholder" aria-hidden="true">
+        <MediaPlaceholder label="صورة الخبر" hint={title} />
+      </div>
+    )}
+    <span class="news-card__category">{category}</span>
+  </a>
+  <div class="news-card__body">
+    <div class="news-card__meta">
+      <span class="news-card__date">
+        <Icon name="calendar" size={14} />
+        {relativeDate(date)}
+      </span>
+      <span class="news-card__reading">
+        <Icon name="clock" size={14} />
+        {readingMinutes} د.
+      </span>
+    </div>
+    <h3 class="news-card__title">
+      <a href={href}>{title}</a>
+    </h3>
+    <p class="news-card__summary">{summary}</p>
+    <a class="news-card__link" href={href}>
+      اقرأ المزيد
+      <Icon name="arrow-left" size={16} />
+    </a>
+  </div>
+</article>
+
+<style>
+  .news-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 424px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .news-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 32px rgba(7, 123, 67, 0.12);
+  }
+  .news-card__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+  }
+  .news-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .news-card:hover .news-card__media img {
+    transform: scale(1.05);
+  }
+  .news-card__placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--color-surface);
+  }
+  .news-card__category {
+    position: absolute;
+    top: var(--spacing-3);
+    right: var(--spacing-3);
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+  .news-card__body {
+    padding: var(--spacing-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    flex: 1;
+  }
+  .news-card__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+  }
+  .news-card__meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .news-card__title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    line-height: 1.5;
+    color: var(--color-text);
+  }
+  .news-card__title a:hover {
+    color: var(--color-primary);
+  }
+  .news-card__summary {
+    color: var(--color-text-secondary);
+    font-size: 0.92rem;
+    flex: 1;
+  }
+  .news-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: gap 0.2s ease;
+  }
+  .news-card__link:hover {
+    gap: 10px;
+  }
+  @media (max-width: 640px) {
+    .news-card {
+      min-height: 384px;
+    }
+    .news-card__media {
+      aspect-ratio: 16 / 10;
+    }
+  }
+</style>

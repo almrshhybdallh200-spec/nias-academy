@@ -1,0 +1,476 @@
+﻿---
+import Icon from './Icon.astro';
+import GlobalSearch from './GlobalSearch.astro';
+import { navigationItems, siteConfig } from '../lib/data';
+
+interface Props {
+  pathname: string;
+}
+
+const { pathname } = Astro.props;
+
+const isActive = (href: string) => {
+  const path = href.split('#')[0];
+  if (path === '/') return pathname === '/';
+  return pathname === path || pathname.startsWith(path + '/');
+};
+
+const desktopNav = navigationItems.filter((item) => item.navId !== 'contact');
+---
+
+<header class="navbar" data-header>
+  <div class="navbar__inner container">
+    <a class="navbar__logo" href="/" aria-label={siteConfig.name}>
+      <img class="navbar__logo-img" src="/logo.png" width="48" height="48" alt={`شعار ${siteConfig.name}`} />
+      <span class="navbar__logo-text">
+        <h1>{siteConfig.name}</h1>
+        <p class="navbar__logo-en">{siteConfig.nameEn}</p>
+      </span>
+    </a>
+
+    <nav class="navbar__links" aria-label="القائمة الرئيسية">
+      {desktopNav.map((item) =>
+        item.children ? (
+          <div class="nav-item" data-nav>
+            <a
+              href={item.href}
+              class:list={['navbar__link', isActive(item.href) && 'active']}
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              {item.label}
+              <Icon name="chevron-down" size={14} class="nav-item__chevron" />
+            </a>
+            <div class="nav-drop" role="menu">
+              {item.children.map((child) => (
+                <a
+                  href={child.href}
+                  class="nav-drop__link"
+                  role="menuitem"
+                  target={child.external ? '_blank' : undefined}
+                  rel={child.external ? 'noopener' : undefined}
+                >{child.label}</a>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <a href={item.href} class:list={['navbar__link', isActive(item.href) && 'active']}>{item.label}</a>
+        )
+      )}
+    </nav>
+
+    <div class="navbar__actions">
+      <button class="navbar__burger" type="button" data-mobile-open aria-label="فتح القائمة" aria-haspopup="true" aria-expanded="false">
+        <Icon name="menu" size={22} />
+      </button>
+
+      <a class="navbar__lang" href="/en/" hreflang="en" aria-label="تغيير اللغة إلى الإنجليزية" title="English">
+        <Icon name="globe" size={17} />
+        <span>EN</span>
+      </a>
+
+      <button class="navbar__icon-btn navbar__search-btn" type="button" data-global-search-open aria-label="بحث في الموقع">
+        <Icon name="search" size={20} />
+      </button>
+
+      <div class="navbar__auth" data-auth-pill>
+        <a href="/portal" class="navbar__auth-btn navbar__auth-btn--guest">
+          <Icon name="user" size={17} />
+          <span>تسجيل الدخول</span>
+        </a>
+        <a href="/dashboard" class="navbar__auth-btn navbar__auth-btn--authed">
+          <Icon name="chart" size={17} />
+          <span>لوحة التحكم</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu__backdrop" data-mobile-backdrop aria-hidden="true"></div>
+
+<div class="mobile-menu" data-mobile-menu aria-hidden="true">
+  <div class="mobile-menu__header">
+    <a class="navbar__logo" href="/" aria-label={siteConfig.name}>
+      <img class="navbar__logo-img" src="/logo.png" width="48" height="48" alt={`شعار ${siteConfig.name}`} />
+      <span class="navbar__logo-text">
+        <h1>{siteConfig.name}</h1>
+        <p class="navbar__logo-en">{siteConfig.nameEn}</p>
+      </span>
+    </a>
+    <button class="mobile-menu__close" type="button" data-mobile-close aria-label="إغلاق القائمة">
+      <Icon name="x" size={22} />
+    </button>
+  </div>
+
+  <nav class="mobile-menu__nav" aria-label="القائمة الرئيسية - الجوال">
+    {navigationItems.map((item) => (
+      <div class="mobile-menu__group" data-menu-group>
+        <div class="mobile-menu__row">
+          <a href={item.href} class:list={['mobile-menu__link', isActive(item.href) && 'active']}>{item.label}</a>
+          {item.children && (
+            <button
+              class="mobile-menu__toggle"
+              type="button"
+              data-menu-toggle
+              aria-expanded="false"
+              aria-label={`توسيع قسم ${item.label}`}
+            >
+              <Icon name="chevron-down" size={18} />
+            </button>
+          )}
+        </div>
+        {item.children && (
+          <div class="mobile-menu__sub" data-menu-sub>
+            {item.children.map((child) => (
+              <a
+                href={child.href}
+                target={child.external ? '_blank' : undefined}
+                rel={child.external ? 'noopener' : undefined}
+              >{child.label}</a>
+            ))}
+          </div>
+        )}
+      </div>
+    ))}
+  </nav>
+
+  <div class="mobile-menu__actions">
+    <div class="mobile-menu__tools">
+      <button class="mobile-menu__tool" type="button" data-global-search-open aria-label="بحث في الموقع">
+        <Icon name="search" size={16} />
+        <span>بحث</span>
+      </button>
+      <a class="mobile-menu__tool mobile-menu__lang" href="/en/" hreflang="en" aria-label="تغيير اللغة إلى الإنجليزية">
+        <Icon name="globe" size={16} />
+        <span>English</span>
+      </a>
+    </div>
+
+    <div class="mobile-menu__auth navbar__auth" data-auth-pill>
+      <a href="/portal" class="navbar__auth-btn navbar__auth-btn--guest">
+        <Icon name="user" size={17} />
+        <span>تسجيل الدخول</span>
+      </a>
+      <a href="/dashboard" class="navbar__auth-btn navbar__auth-btn--authed">
+        <Icon name="chart" size={17} />
+        <span>لوحة التحكم</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<GlobalSearch hideTrigger />
+
+<script is:inline>
+  (function () {
+    var menu = document.querySelector('[data-mobile-menu]');
+    var opener = document.querySelector('[data-mobile-open]');
+    var backdrop = document.querySelector('[data-mobile-backdrop]');
+
+    function setOpen(open) {
+      if (!menu) return;
+      menu.classList.toggle('open', open);
+      if (backdrop) backdrop.classList.toggle('open', open);
+      menu.setAttribute('aria-hidden', String(!open));
+      if (opener) opener.setAttribute('aria-expanded', String(open));
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+
+    if (opener) opener.addEventListener('click', function () { setOpen(true); });
+    if (backdrop) backdrop.addEventListener('click', function () { setOpen(false); });
+    if (menu) {
+      var closer = menu.querySelector('[data-mobile-close]');
+      if (closer) closer.addEventListener('click', function () { setOpen(false); });
+      menu.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () { setOpen(false); });
+      });
+      menu.querySelectorAll('[data-global-search-open]').forEach(function (b) {
+        b.addEventListener('click', function () { setOpen(false); });
+      });
+      menu.querySelectorAll('[data-menu-toggle]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var group = btn.closest('[data-menu-group]');
+          if (!group) return;
+          var open = group.classList.toggle('is-open');
+          btn.setAttribute('aria-expanded', String(open));
+        });
+      });
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') setOpen(false);
+    });
+
+    function syncAuth() {
+      var authed = !!(window.NIASAuth && window.NIASAuth.read && window.NIASAuth.read());
+      document.querySelectorAll('[data-auth-pill]').forEach(function (pill) {
+        pill.classList.toggle('is-authed', authed);
+      });
+    }
+    syncAuth();
+    window.addEventListener('nias:authchange', syncAuth);
+    window.addEventListener('storage', syncAuth);
+  })();
+</script>
+
+<style>
+  .nav-item {
+    position: relative;
+  }
+
+  .nav-item > .navbar__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .nav-item__chevron {
+    transition: transform 0.2s ease;
+  }
+
+  .nav-item:hover .nav-item__chevron,
+  .nav-item:focus-within .nav-item__chevron {
+    transform: rotate(180deg);
+  }
+
+  .nav-drop {
+    position: absolute;
+    top: calc(100% + 8px);
+    inset-inline-start: 0;
+    min-width: 240px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(7, 123, 67, 0.16);
+    padding: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: all 0.2s ease;
+    z-index: 120;
+  }
+
+  .nav-item:hover > .nav-drop,
+  .nav-item:focus-within > .nav-drop {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .nav-drop__link {
+    display: block;
+    padding: 9px 12px;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    transition: all 0.15s ease;
+  }
+
+  .nav-drop__link:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+
+  .navbar__auth {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .navbar__lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    border-radius: 9px;
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  .navbar__lang svg {
+    color: var(--color-primary);
+    transition: transform 0.4s ease;
+  }
+  .navbar__lang:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+  }
+  .navbar__lang:hover svg {
+    transform: rotate(20deg);
+  }
+
+  .mobile-menu__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .mobile-menu__group {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-menu__group:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-menu__row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mobile-menu__row .mobile-menu__link {
+    flex: 1;
+  }
+
+  .mobile-menu__toggle {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    color: var(--color-text-secondary);
+    transition: background 0.2s ease, color 0.2s ease, transform 0.3s ease;
+  }
+
+  .mobile-menu__toggle:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+
+  .mobile-menu__group.is-open .mobile-menu__toggle {
+    color: var(--color-primary);
+    transform: rotate(180deg);
+  }
+
+  .mobile-menu__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .mobile-menu__tools {
+    display: flex;
+    gap: 8px;
+  }
+
+  .mobile-menu__tool {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--color-text-secondary);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .mobile-menu__tool:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+  }
+
+  .mobile-menu__lang {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    border-color: transparent;
+  }
+
+  .navbar__auth-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    border-radius: 9px;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+
+  .navbar__auth-btn svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .navbar__auth-btn--guest {
+    background: var(--color-primary);
+    color: #fff;
+  }
+
+  .navbar__auth-btn--guest:hover {
+    background: var(--color-primary-dark);
+  }
+
+  .navbar__auth-btn--authed {
+    display: none;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+
+  .navbar__auth-btn--authed:hover {
+    background: var(--color-primary);
+    color: #fff;
+  }
+
+  .navbar__auth.is-authed .navbar__auth-btn--guest {
+    display: none;
+  }
+
+  .navbar__auth.is-authed .navbar__auth-btn--authed {
+    display: inline-flex;
+  }
+
+  .navbar__search-btn {
+    display: inline-flex;
+  }
+
+  @media (min-width: 992px) {
+    .navbar__search-btn {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .navbar__search-btn {
+      display: none;
+    }
+    .navbar__actions .navbar__auth {
+      display: none;
+    }
+    .navbar__actions {
+      flex-direction: row;
+      gap: 6px;
+    }
+    .navbar__lang {
+      display: none;
+    }
+  }
+
+  .mobile-menu__auth {
+    margin-top: 0;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mobile-menu__auth .navbar__auth-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+    font-size: 0.95rem;
+    border-radius: 12px;
+  }
+</style>

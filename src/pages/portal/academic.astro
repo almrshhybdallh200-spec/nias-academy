@@ -1,0 +1,438 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
+import AuthGate from '../../components/AuthGate.astro';
+import Icon from '../../components/Icon.astro';
+import { siteConfig } from '../../lib/data';
+import { toArabicNumerals } from '../../lib/format';
+
+const moheUrl = 'https://oasyemen.net/';
+
+const plan = [
+  { code: 'ADM-101', name: 'مبادئ الإدارة العامة', hours: 3, term: 'الفصل الأول' },
+  { code: 'ACC-102', name: 'محاسبة إدارية', hours: 3, term: 'الفصل الأول' },
+  { code: 'DIG-103', name: 'التحول الرقمي في الجهات الحكومية', hours: 2, term: 'الفصل الأول' },
+  { code: 'HRM-201', name: 'إدارة الموارد البشرية', hours: 3, term: 'الفصل الثاني' },
+  { code: 'FIN-202', name: 'التمويل والميزانيات العامة', hours: 3, term: 'الفصل الثاني' },
+  { code: 'LAW-203', name: 'القانون الإداري', hours: 2, term: 'الفصل الثاني' },
+  { code: 'PRJ-301', name: 'إدارة المشاريع العامة', hours: 3, term: 'الفصل الثالث' },
+  { code: 'QMS-302', name: 'إدارة الجودة الشاملة', hours: 2, term: 'الفصل الثالث' },
+];
+
+const schedule = [
+  { day: 'الأحد', slots: ['مبادئ الإدارة العامة 08:00', 'محاسبة إدارية 10:00', 'التحول الرقمي 12:30'] },
+  { day: 'الاثنين', slots: ['إدارة الموارد البشرية 08:00', 'التمويل والميزانيات 10:00'] },
+  { day: 'الثلاثاء', slots: ['القانون الإداري 08:00', 'إدارة المشاريع العامة 10:00', 'إدارة الجودة الشاملة 01:00'] },
+  { day: 'الأربعاء', slots: ['ورشة تطبيقية 09:00', 'مشروع تطبيقي 11:00'] },
+  { day: 'الخميس', slots: ['امتحانات الفصل 09:00'] },
+];
+
+const exams = [
+  { name: 'مبادئ الإدارة العامة', date: '2026-10-18', time: '08:00' },
+  { name: 'محاسبة إدارية', date: '2026-10-20', time: '08:00' },
+  { name: 'إدارة الموارد البشرية', date: '2026-10-22', time: '10:00' },
+];
+---
+
+<BaseLayout
+  title="الخطة الدراسية والجداول"
+  description="الخطة الدراسية والجدول الأسبوعي ومواعيد الامتحانات — متاحة بعد تسجيل الدخول في البوابة الإلكترونية."
+  noindex
+>
+  <PageHero
+    title="الخطة الدراسية والجداول"
+    subtitle="خطتك الدراسية، جدولك الأسبوعي، ومواعيد الامتحانات — معتمدة من إدارة المعهد."
+    crumbs={[{ label: 'الرئيسية', href: '/' }, { label: 'بوابة الطالب', href: '/portal' }, { label: 'الخطة والجداول' }]}
+  >
+    <div class="portal-chips" slot="extra">
+      <span><Icon name="graduation" size={16} /> الدفعة {toArabicNumerals(siteConfig.dates.academicYear)}</span>
+      <span><Icon name="layers" size={16} /> دبلوم عالي — إدارة الأعمال</span>
+    </div>
+  </PageHero>
+
+  <section class="section">
+    <div class="container">
+      <div class="acad-guide" data-reveal>
+        <div class="acad-guide__intro">
+          <span class="acad-guide__badge"><Icon name="target" size={15} /> ابدأ من هنا</span>
+          <h2>قبل عرض خطتك الدراسية</h2>
+          <p>جميع بياناتك الأكاديمية مرتبطة برقمك المعتمد من وزارة التعليم العالي. أكمل الخطوات التالية لفتح ملفك بالكامل.</p>
+        </div>
+        <ol class="acad-guide__steps">
+          <li>
+            <span class="acad-guide__num">{toArabicNumerals(1)}</span>
+            <span>
+              <strong>سجّل في وزارة التعليم العالي</strong>
+              <small>احصل على رقمك الأكاديمي المعتمد عبر بوابة التنسيق والقبول الإلكترونية الموحدة.</small>
+            </span>
+          </li>
+          <li>
+            <span class="acad-guide__num">{toArabicNumerals(2)}</span>
+            <span>
+              <strong>أنشئ حسابك في البوابة</strong>
+              <small>أدخل رقمك الأكاديمي وكلمة المرور لربط ملفك الأكاديمي بك.</small>
+            </span>
+          </li>
+          <li>
+            <span class="acad-guide__num">{toArabicNumerals(3)}</span>
+            <span>
+              <strong>اعرض خطتك وجدولك</strong>
+              <small>ستظهر لك الخطة الدراسية والجدول الأسبوعي ومواعيد الامتحانات كاملة.</small>
+            </span>
+          </li>
+        </ol>
+        <div class="acad-guide__cta">
+          <a class="acad-guide__btn" href={moheUrl} target="_blank" rel="noopener">
+            <Icon name="university" size={18} />
+            <span>التسجيل عبر وزارة التعليم العالي</span>
+            <Icon name="external" size={16} />
+          </a>
+          <a class="acad-guide__btn acad-guide__btn--ghost" href="/portal">
+            <Icon name="user" size={18} />
+            <span>لديّ رقم أكاديمي — تسجيل الدخول</span>
+          </a>
+        </div>
+      </div>
+
+      <AuthGate
+        title="الخطة الدراسية والجداول متاحة بعد تسجيل بياناتك"
+        text="هذه البيانات مرتبطة برقمك الأكاديمي. سجّل الدخول في البوابة الإلكترونية لعرض خطتك وجدولك الكامل."
+        cta="تسجيل الدخول عبر البوابة"
+        href="/portal"
+      >
+        <div class="plan">
+          <SectionHeader
+            icon="book"
+            title="الخطة الدراسية"
+            subtitle="المواد المقررة على المسار الأكاديمي مع توزيع الساعات على الفصول."
+          />
+          <div class="plan__table-wrap">
+            <table class="plan__table">
+              <thead>
+                <tr>
+                  <th scope="col">الرمز</th>
+                  <th scope="col">المادة</th>
+                  <th scope="col">الساعات</th>
+                  <th scope="col">التوزيع</th>
+                </tr>
+              </thead>
+              <tbody>
+                {plan.map((row) => (
+                  <tr>
+                    <td dir="ltr">{row.code}</td>
+                    <td>{row.name}</td>
+                    <td>{toArabicNumerals(row.hours)}</td>
+                    <td><span class="plan__term">{row.term}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="plan">
+          <SectionHeader
+            icon="calendar"
+            title="الجدول الأسبوعي"
+            subtitle="توزيع المحاضرات على أيام الأسبوع في القاعة الرئيسية."
+          />
+          <div class="sched">
+            {schedule.map((day) => (
+              <article class="sched__day">
+                <h3><Icon name="clock" size={16} /> {day.day}</h3>
+                <ul>
+                  {day.slots.map((s) => (
+                    <li>{s}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div class="plan">
+          <SectionHeader icon="gavel" title="مواعيد الامتحانات" subtitle="جدول امتحانات الفصل الدراسي الحالي." />
+          <ul class="exams">
+            {exams.map((e) => (
+              <li>
+                <span class="exams__name">{e.name}</span>
+                <span class="exams__date">{e.date}</span>
+                <span class="exams__time">{e.time}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </AuthGate>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .section {
+    padding-block: var(--spacing-8);
+  }
+  .portal-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-4);
+  }
+  .portal-chips span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #eaf4ee;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    border-radius: 999px;
+  }
+
+  .acad-guide {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: clamp(20px, 3vw, 34px);
+    align-items: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 22px;
+    padding: clamp(22px, 3vw, 34px);
+    box-shadow: 0 22px 50px rgba(7, 123, 67, 0.1);
+    margin-bottom: var(--spacing-8);
+  }
+  .acad-guide__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-accent-light);
+    color: var(--color-accent-dark);
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: var(--spacing-3);
+  }
+  .acad-guide__intro h2 {
+    font-size: clamp(1.25rem, 2.6vw, 1.6rem);
+    font-weight: 900;
+    color: var(--color-text);
+    margin-bottom: 8px;
+  }
+  .acad-guide__intro p {
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: var(--color-text-secondary);
+    max-width: 46ch;
+  }
+  .acad-guide__steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .acad-guide__steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .acad-guide__num {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 900;
+  }
+  .acad-guide__steps strong {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 900;
+    color: var(--color-primary-dark);
+    margin-bottom: 2px;
+  }
+  .acad-guide__steps small {
+    display: block;
+    font-size: 0.8rem;
+    line-height: 1.8;
+    color: var(--color-text-secondary);
+  }
+  .acad-guide__cta {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-2);
+  }
+  .acad-guide__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 0.92rem;
+    color: #fff;
+    background: linear-gradient(120deg, var(--color-primary), var(--color-primary-dark));
+    border-radius: 12px;
+    padding: 12px 20px;
+    box-shadow: 0 12px 26px rgba(7, 123, 67, 0.18);
+    transition: transform 0.2s ease, box-shadow 0.25s ease, filter 0.2s ease;
+  }
+  .acad-guide__btn:hover {
+    transform: translateY(-2px);
+    filter: saturate(1.08);
+    box-shadow: 0 16px 32px rgba(7, 123, 67, 0.24);
+  }
+  .acad-guide__btn--ghost {
+    color: var(--color-primary-dark);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-dark);
+    box-shadow: none;
+  }
+  .acad-guide__btn--ghost:hover {
+    background: var(--color-primary-light);
+    border-color: var(--color-primary);
+  }
+
+  .plan {
+    margin-bottom: var(--spacing-8);
+  }
+  .plan__table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    background: var(--color-surface);
+  }
+  .plan__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .plan__table th,
+  .plan__table td {
+    text-align: start;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .plan__table thead th {
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    font-weight: 900;
+    font-size: 0.84rem;
+    white-space: nowrap;
+  }
+  .plan__table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .plan__table td {
+    color: var(--color-text-secondary);
+  }
+  .plan__term {
+    display: inline-block;
+    background: var(--color-accent-light);
+    color: var(--color-accent-dark);
+    border: 1px solid var(--color-accent);
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 3px 12px;
+    white-space: nowrap;
+  }
+
+  .sched {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .sched__day {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: var(--spacing-4);
+  }
+  .sched__day h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.98rem;
+    font-weight: 900;
+    color: var(--color-primary-dark);
+    margin-bottom: var(--spacing-3);
+    padding-bottom: var(--spacing-2);
+    border-bottom: 1px dashed var(--color-border);
+  }
+  .sched__day h3 svg {
+    color: var(--color-accent);
+  }
+  .sched__day ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sched__day li {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 9px 12px;
+  }
+
+  .exams {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .exams li {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: 13px var(--spacing-4);
+  }
+  .exams__name {
+    flex: 1 1 auto;
+    font-weight: 800;
+    color: var(--color-text);
+    font-size: 0.92rem;
+  }
+  .exams__date {
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    font-size: 0.86rem;
+    direction: ltr;
+  }
+  .exams__time {
+    font-weight: 900;
+    color: var(--color-primary-dark);
+    font-size: 0.86rem;
+    direction: ltr;
+    background: var(--color-primary-light);
+    border-radius: 999px;
+    padding: 4px 12px;
+  }
+
+  @media (max-width: 760px) {
+    .acad-guide {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .exams li {
+      flex-wrap: wrap;
+      gap: var(--spacing-2);
+    }
+  }
+</style>

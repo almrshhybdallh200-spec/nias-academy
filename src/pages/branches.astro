@@ -1,0 +1,179 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import BranchCard from '../components/BranchCard.astro';
+import Icon from '../components/Icon.astro';
+import { branches } from '../lib/data';
+---
+
+<BaseLayout
+  title="فروع المعهد"
+  description="تعرف على فروع المعهد الوطنية للإدارية السبعة المنتشرة في عموم اليمن، واختر الأقرب إليك."
+>
+  <PageHero
+    title="فروع المعهد"
+    subtitle="سبع فروع إقليمية في أقصى نقاط اليمن — اختر الأقرب إليك عبر موقعك أو حدده يدويًا. جميع الفروع تُمنح نفس الشهادات المعتمدة."
+    crumbs={[{ label: 'الرئيسية', href: '/' }, { label: 'الفروع' }]}
+  />
+
+  <section class="section">
+    <div class="container">
+      <div class="locator">
+        <button class="locator__btn" type="button" data-locate>
+          <Icon name="target" size={18} />
+          حدد أقرب فرع لموقعي
+          <span class="locator__spinner" data-spinner aria-hidden="true"></span>
+        </button>
+        <p data-locator-note class="locator__note">سنجد لك أقرب فرع ونميزه أمامك.</p>
+      </div>
+
+      <div class="branches-grid">
+        {branches.map((b) => <BranchCard branch={b} highlight={b.isDefault} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const locateBtn = document.querySelector('[data-locate]');
+  const spinner = locateBtn.querySelector('[data-spinner]');
+  const note = document.querySelector('[data-locator-note]');
+
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dist = (lat1, lng1, lat2, lng2) => {
+    const R = 6371;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
+
+  const fillDistances = (lat, lng, highlightSlug) => {
+    document.querySelectorAll('[data-branch-lat]').forEach((el) => {
+      const d = dist(lat, lng, Number(el.dataset.branchLat), Number(el.dataset.branchLng));
+      el.innerHTML = `${Math.round(d).toLocaleString('en')} كم عنك`;
+    });
+    document.querySelectorAll('.branch-card').forEach((c) => c.classList.remove('is-nearest'));
+    const target = document.querySelector(`[data-branch-slug="${highlightSlug}"]`);
+    if (target) {
+      target.classList.add('is-nearest');
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  locateBtn.addEventListener('click', () => {
+    if (!('geolocation' in navigator)) {
+      note.textContent = 'المتصفح لا يدعم تحديد الموقع، اختر فرعك يدويًا.';
+      return;
+    }
+    spinner.classList.add('is-active');
+    locateBtn.setAttribute('disabled', 'true');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const latitude = pos.coords.latitude;
+        const longitude = pos.coords.longitude;
+        const points = JSON.parse(locateBtn.dataset.points ?? '[]');
+        let best = points[0];
+        let bestD = Infinity;
+        for (const p of points) {
+          const d = dist(latitude, longitude, p.lat, p.lng);
+          if (d < bestD) {
+            bestD = d;
+            best = p;
+          }
+        }
+        try {
+          localStorage.setItem('nias:branch', best?.slug ?? 'sanaa');
+        } catch {
+          /* ignore */
+        }
+        fillDistances(latitude, longitude, best?.slug ?? 'sanaa');
+        note.textContent = `أقرب فرع لك: ${best?.slug ?? 'صنعاء'}. المسافات محدثة أدناه.`;
+        spinner.classList.remove('is-active');
+        locateBtn.removeAttribute('disabled');
+      },
+      () => {
+        spinner.classList.remove('is-active');
+        locateBtn.removeAttribute('disabled');
+        note.textContent = 'تعذر تحديد موقعك. تأكد من تفعيل خدمة الموقع وثم أعد المحاولة.';
+      },
+    );
+  });
+
+  locateBtn.dataset.points = JSON.stringify(
+    Array.from(document.querySelectorAll('[data-branch-slug]')).map((el) => ({
+      slug: el.dataset.branchSlug,
+      lat: Number(el.dataset.lat),
+      lng: Number(el.dataset.lng),
+    })),
+  );
+</script>
+
+<style>
+  .section {
+    padding-block: var(--spacing-8);
+  }
+  .locator {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    flex-wrap: wrap;
+    background: var(--color-primary-light);
+    border: 1px dashed var(--color-primary);
+    border-radius: 16px;
+    padding: var(--spacing-4) var(--spacing-5);
+    margin-bottom: var(--spacing-6);
+  }
+  .locator__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.9rem;
+    padding: 11px 18px;
+    border-radius: 12px;
+    transition: background 0.2s ease;
+  }
+  .locator__btn:hover {
+    background: var(--color-primary-dark);
+  }
+  .locator__btn:disabled {
+    opacity: 0.6;
+  }
+  .locator__spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    display: none;
+  }
+  .locator__spinner.is-active {
+    display: inline-block;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .locator__note {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .branches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-4);
+  }
+  :global(.branch-card.is-nearest) {
+    box-shadow: 0 0 0 4px var(--color-accent-light);
+  }
+</style>

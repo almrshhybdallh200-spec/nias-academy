@@ -1,0 +1,271 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import NewsCard from '../components/NewsCard.astro';
+import AnnouncementItem from '../components/AnnouncementItem.astro';
+import EventCard from '../components/EventCard.astro';
+import EmptyState from '../components/EmptyState.astro';
+import Icon from '../components/Icon.astro';
+import MediaPlaceholder from '../components/MediaPlaceholder.astro';
+import { newsItems, announcements, events, galleryAlbums } from '../lib/data';
+import { getLatest, getUpcomingEvents, getPriorityAnnouncements } from '../lib/data';
+import { formatDate } from '../lib/format';
+
+const latestNews = [...newsItems].sort((a, b) => b.date.localeCompare(a.date));
+const allEvents = [...events].sort((a, b) => a.date.localeCompare(b.date));
+const pinned = getPriorityAnnouncements();
+const restAnnouncements = announcements.filter((a) => !a.priority);
+---
+
+<BaseLayout
+  title="الإعلام"
+  description="المركز الإعلامي للمعهد الوطني للعلوم الإدارية: الأخبار، الإعلانات، الفعاليات، المعرض، والبيانات الصحفية."
+>
+  <PageHero
+    title="الإعلام"
+    subtitle="نافذة المعهد على المتدربين والمجتمع — الأخبار، الإعلانات، الفعاليات، وكل ما يهم التّجربة."
+    crumbs={[{ label: 'الرئيسية', href: '/' }, { label: 'الإعلام' }]}
+  />
+
+  <section class="section" id="news">
+    <div class="container">
+      <SectionHeader icon="newspaper" title="الأخبار والفعاليات" subtitle="تغطيات المعهد وأنشطته، وأبرز الفعاليات والندوات والورش." />
+
+      {latestNews.length > 0 ? (
+        <div class="news-grid">
+          {latestNews.map((n) => (
+            <NewsCard title={n.title} date={n.date} category={n.category} summary={n.summary} slug={n.slug} readingMinutes={n.readingMinutes} image={n.image} />
+          ))}
+        </div>
+      ) : (
+        <EmptyState title="لا توجد أخبار بعد" action={{ label: 'عودة للرئيسية', href: '/' }} />
+      )}
+
+      <div class="feed-sep" id="events">
+        <span class="feed-sep__ico"><Icon name="calendar" size={16} /></span>
+        <span>الفعاليات</span>
+      </div>
+
+      {allEvents.length > 0 ? (
+        <div class="events-grid">
+          {allEvents.map((e) => <EventCard event={e} />)}
+        </div>
+      ) : (
+        <EmptyState title="لا توجد فعاليات مسجلة حاليًا" />
+      )}
+    </div>
+  </section>
+
+  <section class="section section--alt" id="announcements">
+    <div class="container">
+      <SectionHeader icon="star" title="الإعلانات الرسمية" subtitle="آخر التعميمات والإعلانات الرسمية للمعهد وفروعه." />
+      <div class="announcements-grid">
+        {[...pinned, ...restAnnouncements].map((a) => (
+          <AnnouncementItem item={a} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="gallery">
+    <div class="container">
+      <SectionHeader icon="image" title="معرض الصور" subtitle="لقطات من حياة المعهد اليومية." />
+      <div class="gallery-grid">
+        {galleryAlbums.map((a) => {
+          const year = a.date.slice(0, 4);
+          return (
+            <a class="gallery-card" href="#gallery">
+              <div class="gallery-card__media">
+                {a.cover ? (
+                  <img class="gallery-card__img" src={a.cover} alt={a.album} loading="lazy" decoding="async" />
+                ) : (
+                  <MediaPlaceholder label="غلاف الألبوم" hint={a.album} />
+                )}
+                <span class="gallery-card__count">{a.count} صورة</span>
+              </div>
+              <div class="gallery-card__body">
+                <strong>{a.album}</strong>
+                <small>
+                  <Icon name="calendar" size={13} />
+                  {formatDate(a.date)}
+                </small>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="press">
+    <div class="container">
+      <SectionHeader icon="document" title="البيانات الصحفية" subtitle="وثائق المركز الإعلامي للاعتماد الصحفي." />
+      <div class="press-grid">
+        {[
+          { t: 'دليل الاعتماد الصحفي 2026', d: 'متاح للتحميل' },
+          { t: 'الملف الصحفي للمعهد', d: 'PDF — تحديث يناير 2026' },
+          { t: 'الهوية البصرية الرسمية', d: 'حصري لوسائل الإعلام' },
+        ].map((p) => (
+          <a class="press-tile" href="/media#press">
+            <Icon name="download" size={18} />
+            <span>
+              <strong>{p.t}</strong>
+              <small>{p.d}</small>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .section {
+    padding-block: var(--spacing-8);
+  }
+  .section--alt {
+    background: var(--color-surface-alt);
+  }
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .announcements-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    max-width: 900px;
+  }
+  .events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--spacing-4);
+  }
+
+  .feed-sep {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: var(--spacing-7) 0 var(--spacing-4);
+    font-weight: 900;
+    font-size: 1.05rem;
+    color: var(--color-primary-dark);
+    scroll-margin-top: 96px;
+  }
+  .feed-sep::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+  }
+  .feed-sep__ico {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .gallery-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+  }
+  .gallery-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(7, 123, 67, 0.12);
+  }
+  .gallery-card__media {
+    aspect-ratio: 16 / 10;
+    background: linear-gradient(135deg, var(--color-primary-light), var(--color-accent-light));
+    display: grid;
+    place-items: center;
+    color: var(--color-primary);
+    position: relative;
+    overflow: hidden;
+  }
+  .gallery-card__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.45s ease;
+  }
+  .gallery-card:hover .gallery-card__img {
+    transform: scale(1.06);
+  }
+  .gallery-card__count {
+    position: absolute;
+    top: var(--spacing-2);
+    inset-inline-start: var(--spacing-2);
+    background: rgba(7, 123, 67, 0.85);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .gallery-card__body {
+    padding: var(--spacing-3) var(--spacing-4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-2);
+  }
+  .gallery-card__body strong {
+    font-size: 0.92rem;
+    color: var(--color-text);
+  }
+  .gallery-card__body small {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-text-muted);
+    font-size: 0.76rem;
+  }
+
+  .press-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .press-tile {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: var(--spacing-4);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .press-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(7, 123, 67, 0.1);
+  }
+  .press-tile > svg {
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+  .press-tile strong {
+    display: block;
+    font-size: 0.92rem;
+    color: var(--color-text);
+  }
+  .press-tile small {
+    color: var(--color-text-muted);
+    font-size: 0.76rem;
+  }
+</style>

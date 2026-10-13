@@ -1,0 +1,50 @@
+<button class="scroll-top" type="button" aria-label="العودة إلى الأعلى">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <line x1="12" y1="19" x2="12" y2="5"></line>
+    <polyline points="5 12 12 5 19 12"></polyline>
+  </svg>
+</button>
+
+<script>
+  const btn = document.querySelector('.scroll-top');
+  const onScroll = () => btn.classList.toggle('is-visible', window.scrollY > 500);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>
+
+<style>
+  .scroll-top {
+    position: fixed;
+    bottom: 22px;
+    inset-inline-end: 22px;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: var(--color-primary);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 10px 26px rgba(7, 123, 67, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: all 0.25s ease;
+    z-index: 90;
+  }
+  .scroll-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .scroll-top:hover {
+    background: var(--color-accent-dark);
+  }
+
+  @media (max-width: 640px) {
+    .scroll-top {
+      bottom: 84px;
+      inset-inline-end: 16px;
+    }
+  }
+</style>

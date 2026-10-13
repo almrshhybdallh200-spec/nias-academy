@@ -1,0 +1,139 @@
+---
+import Icon from './Icon.astro';
+import { formatDate } from '../lib/format';
+import type { EventItem } from '../lib/types';
+
+interface Props {
+  event: EventItem;
+}
+
+const { event } = Astro.props;
+---
+
+<article class="event-card">
+  <div class="event-card__date">
+    <span class="event-card__day">{new Date(event.date).getDate()}</span>
+    <span class="event-card__month">
+      {new Date(event.date).toLocaleDateString('ar-EG', { month: 'long' })}
+    </span>
+  </div>
+  <div class="event-card__body">
+    <span class="event-card__type">{event.type}</span>
+    <h3 class="event-card__title">{event.title}</h3>
+    <ul class="event-card__meta">
+      <li>
+        <Icon name="clock" size={15} />
+        {event.time}
+      </li>
+      <li>
+        <Icon name="map-pin" size={15} />
+        {event.location}
+      </li>
+      <li>
+        <Icon name="user" size={15} />
+        {event.speaker}
+      </li>
+    </ul>
+    <p class="event-card__desc">{event.description}</p>
+    {event.registerLink && (
+      <a class="event-card__cta" href={event.registerLink}>
+        سجّل الآن
+        <Icon name="arrow-left" size={16} />
+      </a>
+    )}
+  </div>
+</article>
+
+<style>
+  .event-card {
+    display: flex;
+    gap: var(--spacing-4);
+    min-height: 204px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: var(--spacing-5);
+    transition: box-shadow 0.25s ease;
+  }
+  .event-card:hover {
+    box-shadow: 0 10px 28px rgba(7, 123, 67, 0.12);
+  }
+  .event-card__date {
+    flex-shrink: 0;
+    width: 68px;
+    height: 68px;
+    border-radius: 14px;
+    background: var(--color-primary);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+  }
+  .event-card__day {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .event-card__month {
+    font-size: 0.68rem;
+    margin-top: 3px;
+  }
+  .event-card__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .event-card__type {
+    align-self: flex-start;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--color-accent-dark);
+    background: var(--color-accent-light);
+    padding: 2px 12px;
+    border-radius: 999px;
+  }
+  .event-card__title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--color-text);
+  }
+  .event-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-4);
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+  }
+  .event-card__meta li {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .event-card__desc {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+  }
+  .event-card__cta {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-top: auto;
+  }
+  @media (max-width: 640px) {
+    .event-card {
+      min-height: 186px;
+      padding: var(--spacing-4);
+    }
+    .event-card__date {
+      width: 60px;
+      height: 60px;
+    }
+  }
+</style>

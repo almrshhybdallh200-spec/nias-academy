@@ -1,0 +1,172 @@
+---
+import Icon from './Icon.astro';
+import { toArabicNumerals } from '../lib/format';
+import type { Branch } from '../lib/types';
+
+interface Props {
+  branch: Branch;
+  highlight?: boolean;
+}
+
+const { branch, highlight = false } = Astro.props;
+const href = `/branches/${branch.slug}`;
+---
+
+<article
+  class:list={['branch-card', highlight && 'branch-card--main']}
+  data-branch-slug={branch.slug}
+  data-lat={branch.gps.lat}
+  data-lng={branch.gps.lng}
+>
+  <div class="branch-card__header">
+    <span class="branch-card__type">{branch.typeLabel}</span>
+    <span class="branch-card__established">
+      <Icon name="calendar" size={14} />
+      منذ {toArabicNumerals(branch.established)}
+    </span>
+  </div>
+  <h3 class="branch-card__name">
+    <a href={href}>فرع {branch.name}</a>
+  </h3>
+  <p class="branch-card__desc">{branch.description}</p>
+  <ul class="branch-card__services">
+    {branch.services.slice(0, 4).map((s) => (
+      <li>
+        <Icon name="check" size={15} />
+        {s}
+      </li>
+    ))}
+  </ul>
+  <div class="branch-card__meta">
+    <span>
+      <Icon name="phone" size={14} />
+      {branch.phone}
+    </span>
+    <span>
+      <Icon name="map-pin" size={14} />
+      {branch.address}
+    </span>
+  </div>
+  <div class="branch-card__footer">
+    <a class="branch-card__link" href={href}>
+      تفاصيل الفرع
+      <Icon name="arrow-left" size={16} />
+    </a>
+    <span class="branch-card__distance" id={`dist-${branch.slug}`} data-branch-lat={branch.gps.lat} data-branch-lng={branch.gps.lng}>
+      <Icon name="map-pin" size={14} />
+      موقع الفرع
+    </span>
+  </div>
+</article>
+
+<style>
+  .branch-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: var(--spacing-5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .branch-card--main {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-light);
+  }
+  .branch-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 32px rgba(7, 123, 67, 0.12);
+  }
+  .branch-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-2);
+  }
+  .branch-card__type {
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-primary);
+    padding: 3px 12px;
+    border-radius: 999px;
+  }
+  .branch-card__established {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+  }
+  .branch-card__name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-text);
+  }
+  .branch-card__name a:hover {
+    color: var(--color-primary);
+  }
+  .branch-card__desc {
+    color: var(--color-text-secondary);
+    font-size: 0.92rem;
+  }
+  .branch-card__services {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .branch-card__services li {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.88rem;
+    color: var(--color-text-secondary);
+  }
+  .branch-card__services li :global(svg) {
+    color: var(--color-success);
+    flex-shrink: 0;
+  }
+  .branch-card__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--color-text-muted);
+    font-size: 0.84rem;
+    border-top: 1px dashed var(--color-border);
+    padding-top: var(--spacing-3);
+  }
+  .branch-card__meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-wrap: anywhere;
+  }
+  .branch-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-2);
+    margin-top: auto;
+  }
+  .branch-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: gap 0.2s ease;
+  }
+  .branch-card__link:hover {
+    gap: 10px;
+  }
+  .branch-card__distance {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+  }
+</style>

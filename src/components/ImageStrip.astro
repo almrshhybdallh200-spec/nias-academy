@@ -1,0 +1,359 @@
+---
+import Icon from './Icon.astro';
+
+export interface StripCard {
+  key: string;
+  title: string;
+  href: string;
+  kicker: string;
+  meta: string;
+  image?: string;
+  imgHint?: string;
+  icon?: string;
+  accent?: number;
+}
+
+interface Props {
+  items: StripCard[];
+  id?: string;
+}
+
+const palette = [
+  ['#077B43', '#055B31'],
+  ['#2F3170', '#232563'],
+  ['#1591B3', '#0E6A83'],
+  ['#D4AF37', '#8A6D1B'],
+  ['#7D3FAE', '#5A2A86'],
+  ['#C0392B', '#8E2418'],
+];
+
+const accent = (n: number | undefined) => (n ?? 0) % palette.length;
+const { items, id = 'strip' } = Astro.props;
+const stripId = `strip-${id}`;
+---
+
+<div class="image-strip" id={stripId} data-strip data-eql-height>
+  <div class="image-strip__track" data-track>
+    {items.map((c, i) => (
+      <a class:list={['image-strip__card', !c.image && 'is-fallback']} href={c.href} data-card data-n={String(i + 1).padStart(2, '0')}>
+        <span class="image-strip__grad" style={`background:linear-gradient(150deg, ${palette[accent(c.accent ?? i)][0]}, ${palette[accent(c.accent ?? i)][1]})`}></span>
+        {c.image && (
+          <img class="image-strip__bg" src={c.image} alt="" loading="lazy" decoding="async" />
+        )}
+        <span class="image-strip__overlay"></span>
+        {c.icon && (
+          <span class="image-strip__icon">
+            <Icon name={c.icon} size={22} />
+          </span>
+        )}
+        <span class="image-strip__content">
+          <span class="image-strip__kicker">{c.kicker}</span>
+          <span class="image-strip__title">{c.title}</span>
+          <span class="image-strip__meta">
+            <Icon name="calendar" size={13} />
+            {c.meta}
+          </span>
+          {c.imgHint && !c.image && (
+            <span class="image-strip__img-hint">
+              <Icon name="camera" size={12} />
+              <span>{c.imgHint}</span>
+            </span>
+          )}
+        </span>
+      </a>
+    ))}
+  </div>
+  <button class="image-strip__arrow image-strip__arrow--prev" type="button" data-prev aria-label="السابق">
+    <Icon name="chevron-right" size={20} />
+  </button>
+  <button class="image-strip__arrow image-strip__arrow--next" type="button" data-next aria-label="التالي">
+    <Icon name="chevron-left" size={20} />
+  </button>
+</div>
+
+<script>
+  document.querySelectorAll('[data-strip]').forEach((strip) => {
+    const track = strip.querySelector('[data-track]');
+    const prev = strip.querySelector('[data-prev]');
+    const next = strip.querySelector('[data-next]');
+    if (!track) return;
+
+    const step = () => {
+      const card = track.querySelector('[data-card]');
+      if (!card) return 0;
+      const gap = parseFloat(getComputedStyle(track).columnGap || '16') || 16;
+      return card.getBoundingClientRect().width + gap;
+    };
+
+    const rtl = getComputedStyle(track).direction === 'rtl';
+    const sign = rtl ? -1 : 1;
+
+    prev.addEventListener('click', () =>
+      track.scrollBy({ left: -sign * step() * 2, behavior: 'smooth' }),
+    );
+    next.addEventListener('click', () =>
+      track.scrollBy({ left: sign * step() * 2, behavior: 'smooth' }),
+    );
+
+    const sync = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      const cur = Math.abs(track.scrollLeft);
+      prev.disabled = cur <= 4;
+      next.disabled = cur >= Math.max(max, 0) - 4;
+    };
+    prev.addEventListener('click', () => setTimeout(sync, 50));
+    next.addEventListener('click', () => setTimeout(sync, 50));
+    track.addEventListener('scroll', sync, { passive: true });
+    sync();
+
+    track.querySelectorAll('img.image-strip__bg').forEach((img) => {
+      const card = img.closest('[data-card]');
+      if (!card) return;
+      const fit = () => {
+        const r = img.naturalWidth / img.naturalHeight || 1;
+        if (r < 1) card.classList.add('is-portrait');
+      };
+      if (img.complete) fit();
+      else img.addEventListener('load', fit);
+    });
+  });
+</script>
+
+<style>
+  .image-strip {
+    position: relative;
+  }
+  .image-strip__track {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-behavior: smooth;
+    padding-block: 6px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+  .image-strip__track::-webkit-scrollbar {
+    display: none;
+  }
+  .image-strip__card {
+    position: relative;
+    flex: 0 0 400px;
+    min-height: 310px;
+    border-radius: 24px;
+    overflow: hidden;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: flex-end;
+    isolation: isolate;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 16px 36px rgba(27, 30, 39, 0.16);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .image-strip__card::before {
+    content: attr(data-n);
+    position: absolute;
+    top: 14px;
+    inset-inline-end: 14px;
+    z-index: 3;
+    font-family: var(--font-num);
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.82);
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+    direction: ltr;
+    pointer-events: none;
+  }
+  .image-strip__card.is-fallback::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+    background-size: 22px 22px;
+    -webkit-mask-image: linear-gradient(120deg, #000, transparent 72%);
+    mask-image: linear-gradient(120deg, #000, transparent 72%);
+    pointer-events: none;
+  }
+  .image-strip__card.is-fallback .image-strip__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.22);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35), 0 12px 26px rgba(8, 12, 32, 0.35);
+    color: #fff;
+    font-size: 1.1rem;
+  }
+  .image-strip__card.is-fallback .image-strip__title {
+    font-size: 1.18rem;
+  }
+  .image-strip__card:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-primary);
+    box-shadow: 0 24px 48px rgba(27, 30, 39, 0.2);
+  }
+  .image-strip__bg,
+  .image-strip__grad {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    transition: transform 0.45s ease;
+  }
+  .image-strip__card.is-portrait .image-strip__bg {
+    object-fit: contain;
+    object-position: center 15%;
+    background: var(--color-surface);
+  }
+  .image-strip__card.is-portrait:hover .image-strip__bg {
+    transform: none;
+  }
+  .image-strip__card.is-portrait .image-strip__overlay {
+    background: linear-gradient(180deg, rgba(8, 12, 32, 0.25) 30%, rgba(8, 12, 32, 0.9) 92%);
+  }
+  .image-strip__card:hover .image-strip__bg {
+    transform: scale(1.06);
+  }
+  .image-strip__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(120% 80% at 80% 100%, rgba(15, 122, 74, 0.34), transparent 62%),
+      linear-gradient(180deg, rgba(10, 16, 40, 0) 32%, rgba(8, 12, 32, 0.74) 76%, rgba(6, 10, 28, 0.95) 100%);
+  }
+  .image-strip__icon {
+    position: absolute;
+    top: 14px;
+    inset-inline-start: 14px;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(4px);
+    color: #fff;
+    display: grid;
+    place-items: center;
+  }
+  .image-strip__content {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 22px;
+    color: #fff;
+    width: 100%;
+  }
+  .image-strip__card .image-strip__title {
+    font-size: 1.16rem;
+    line-height: 1.5;
+  }
+  .image-strip__kicker {
+    align-self: flex-start;
+    font-size: 0.72rem;
+    font-weight: 800;
+    background: linear-gradient(120deg, #E9B64F, #D49E2A);
+    color: #201505;
+    padding: 3px 11px;
+    border-radius: 999px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  }
+  .image-strip__title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.5;
+  }
+  .image-strip__card:hover .image-strip__title {
+    color: var(--color-gold-light);
+  }
+  .image-strip__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    opacity: 0.92;
+  }
+  .image-strip__img-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    align-self: flex-start;
+    font-size: 0.68rem;
+    color: var(--color-gold-light);
+    border: 1px dashed rgba(212, 175, 55, 0.55);
+    background: rgba(8, 12, 32, 0.42);
+    padding: 3px 8px;
+    border-radius: 999px;
+    margin-top: 3px;
+    max-width: 100%;
+  }
+  .image-strip__img-hint span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .image-strip__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--color-surface);
+    color: var(--color-primary);
+    box-shadow: 0 10px 24px rgba(23, 32, 46, 0.18);
+    display: grid;
+    place-items: center;
+    z-index: 2;
+    transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+  }
+  .image-strip__arrow:hover {
+    background: var(--color-primary);
+    color: #fff;
+  }
+  .image-strip__arrow:disabled {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .image-strip__arrow--prev {
+    inset-inline-start: -8px;
+  }
+  .image-strip__arrow--next {
+    inset-inline-end: -8px;
+  }
+
+  @media (max-width: 640px) {
+    .image-strip__track {
+      flex-basis: 84vw;
+      min-height: 320px;
+      gap: 12px;
+    }
+    .image-strip__card {
+      flex: 0 0 84vw;
+      min-height: 320px;
+    }
+    .image-strip__content {
+      padding: 18px;
+    }
+    .image-strip__card .image-strip__title {
+      font-size: 1.08rem;
+    }
+    .image-strip__arrow {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 6px 18px rgba(23, 32, 46, 0.22);
+    }
+    .image-strip__arrow--prev {
+      inset-inline-start: 8px;
+    }
+    .image-strip__arrow--next {
+      inset-inline-end: 8px;
+    }
+  }
+</style>

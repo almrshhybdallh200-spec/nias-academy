@@ -1,0 +1,101 @@
+[
+  {
+    "slug": "public-administration",
+    "name": "قسم الإدارة العامة",
+    "nameEn": "Department of Public Administration",
+    "college": "administrative-sciences",
+    "description": "يُعنى قسم الإدارة العامة بإعداد الكوادر القيادية والإدارية في مؤسسات الدولة والقطاع الخاص والمنظمات، ويمنح درجة البكالوريوس في إدارة الأعمال، ويستضيف برامج الماجستير الأكاديمية والتنفيذية في الإدارة العامة والموارد البشرية.",
+    "head": "قمرية محمد عبدالله الزغير",
+    "headTitle": "أستاذ مساعد",
+    "facultyCount": 33,
+    "programs": ["bachelor-business-administration"]
+  },
+  {
+    "slug": "accounting",
+    "name": "قسم المحاسبة والمراجعة",
+    "nameEn": "Department of Accounting",
+    "college": "administrative-sciences",
+    "description": "يؤهل القسم الطلاب في مجالات المحاسبة المالية ومحاسبة التكاليف والتدقيق والمراجعة، بما يمكنهم من العمل محاسبين ومراجعين في القطاعات الحكومية والخاصة، وبما يلبي متطلبات الهيئات المهنية المحلية والدولية.",
+    "head": "نجيبة علي عايض اليمني",
+    "headTitle": "أستاذ مساعد",
+    "facultyCount": 27,
+    "programs": ["bachelor-accounting"]
+  },
+  {
+    "slug": "economics-finance",
+    "name": "قسم الاقتصاد والعلوم المالية والمصرفية",
+    "nameEn": "Department of Economics & Finance",
+    "college": "administrative-sciences",
+    "description": "يهتم القسم بدراسة النواحي الاقتصادية والمالية والمصرفية على المستويين النظري والتطبيقي، ويؤهل خريجيه للعمل في البنوك والمؤسسات المالية ووزارة المالية ومراكز الاستثمار ودراسات الجدوى.",
+    "head": "أمين ناجي محسن حسن العيسي",
+    "headTitle": "أستاذ مشارك",
+    "facultyCount": 21,
+    "programs": ["bachelor-economics-finance"]
+  },
+  {
+    "slug": "law-local-administration",
+    "name": "قسم القانون والإدارة المحلية",
+    "nameEn": "Department of Law & Local Administration",
+    "college": "administrative-sciences",
+    "description": "يُعنى القسم بالجوانب القانونية والإدارية للوحدات الإدارية المحلية، ويمنح درجة البكالوريوس في القانون مع التوجه نحو القانون الإداري والتنظيم الإداري المحلي واللامركزية وبناء قدرات السلطات المحلية.",
+    "head": "عبدالله حمود يحيى قلامة",
+    "headTitle": "أستاذ",
+    "facultyCount": 15,
+    "programs": ["bachelor-law-local-administration"]
+  },
+  {
+    "slug": "information-systems",
+    "name": "قسم النظم وتقنية المعلومات",
+    "nameEn": "Department of Information Systems",
+    "college": "information-technology",
+    "description": "يهتم القسم بعلوم الحاسوب وتقنية المعلومات وشبكات وأمن المعلومات، ويمنح درجة البكالوريوس في النظم وتقنية المعلومات بما يؤهل خريجيه للعمل في قطاعات تقنية المعلومات والتحول الرقمي وتطوير الأنظمة.",
+    "head": "فاتن محمد قائد سيف",
+    "headTitle": "أستاذ مساعد",
+    "facultyCount": 6,
+    "programs": ["bachelor-information-systems"]
+  },
+  {
+    "slug": "programming-multimedia",
+    "name": "قسم البرمجة والوسائط المتعددة",
+    "nameEn": "Department of Programming & Multimedia",
+    "college": "information-technology",
+    "description": "يُعنى القسم ببرمجة الحاسوب وتقنيات الوسائط المتعددة والتصميم الرقمي، ويمد سوق العمل بكوادر مؤهلة في تطوير البرمجيات وتطبيقات الويب والهاتف والوسائط المتعددة وإدارة المشاريع البرمجية.",
+    "head": "أحمد محمد طاهر الخولاني",
+    "headTitle": "مدرس",
+    "facultyCount": 0,
+    "programs": ["diploma-computer-programming", "diploma-graphics-multimedia"]
+  },
+  {
+    "slug": "diploma-administration",
+    "name": "قسم الدبلوم الإداري",
+    "nameEn": "Diploma - Administration",
+    "college": "intermediate-diplomas",
+    "description": "يقدم القسم برامج الدبلوم المتوسط في التخصصات الإدارية والمحاسبية وإدارة المستشفيات، لتمنح الطالب مهارات عملية تؤهله لسوق العمل خلال عامين.",
+    "head": "عبدالسلام علي ناجي القيفي",
+    "headTitle": "دكتوراه",
+    "facultyCount": 36,
+    "programs": ["diploma-business-administration", "diploma-office-management", "diploma-hospital-management"]
+  },
+  {
+    "slug": "diploma-accounting",
+    "name": "قسم الدبلوم المحاسبي",
+    "nameEn": "Diploma - Accounting",
+    "college": "intermediate-diplomas",
+    "description": "يقدم القسم برنامج الدبلوم المتوسط في المحاسبة، بما يمنح الطالب مهارات تطبيقية في القيد والمحاسبة المالية والتكاليف والتدقيق، مؤهلاً للقيام بالأعمال المحاسبية والمالية لكافة القطاعات.",
+    "head": "عبدالسلام علي ناجي القيفي",
+    "headTitle": "دكتوراه",
+    "facultyCount": 17,
+    "programs": ["diploma-accounting"]
+  },
+  {
+    "slug": "postgraduate-public-administration",
+    "name": "قسم الدراسات العليا — إدارة عامة",
+    "nameEn": "Postgraduate - Public Administration",
+    "college": "postgraduate-studies",
+    "description": "يُعنى القسم بإدارة برامج الماجستير الأكاديمية والتنفيذية في الإدارة العامة وإدارة الموارد البشرية، وتأهيل الدارسين لمتطلبات البحث العلمي والقيادة المؤسسية واتخاذ القرار وفق أفضل الممارسات.",
+    "head": "قمرية محمد عبدالله الزغير",
+    "headTitle": "أستاذ مساعد",
+    "facultyCount": 0,
+    "programs": ["master-academic-public-administration", "master-executive-public-administration-hr"]
+  }
+]

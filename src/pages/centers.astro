@@ -1,0 +1,167 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import { centers } from '../lib/data';
+---
+
+<BaseLayout title="المراكز والوحدات المساندة" description="المراكز والوحدات التابعة للمعهد الوطني للعلوم الإدارية">
+  <PageHero
+    title="المراكز"
+    subtitle="وحدات مساندة تخدم الطالب والباحث والموظف"
+    crumbs={[{ label: 'الرئيسية', href: '/' }, { label: 'المراكز' }]}
+  />
+
+  <section class="centers">
+    <div class="container">
+      <div class="centers__grid">
+        {centers.map((c) => (
+          <a class="center-card" href={c.href}>
+            <span class="center-card__ico"><Icon name={c.icon} size={22} /></span>
+            <h3 class="center-card__title">{c.name}</h3>
+            <p class="center-card__desc">{c.description}</p>
+            <span class="center-card__more">تصفح المركز <Icon name="arrow-left" size={15} /></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="research" id="research">
+    <div class="container">
+      <div class="research__head">
+        <h2 class="research__title">الاستشارات والبحوث</h2>
+        <p class="research__desc">وحدة متخصصة تقدم الاستشارات الإدارية والمشاريع البحثية التطبيقية للجهات الحكومية ومؤسسات القطاع الخاص والمنظمات.</p>
+      </div>
+      <div class="research__cards">
+        <article class="research__card">
+          <Icon name="document" size={20} />
+          <h3>الاستشارات الإدارية</h3>
+          <p>دراسات تنظيمية وهيكلة مؤسسية وتطوير إجراءات العمل.</p>
+        </article>
+        <article class="research__card">
+          <Icon name="chart" size={20} />
+          <h3>البحوث والدراسات</h3>
+          <p>إعداد الدراسات الإدارية والاقتصادية والمسوحات الميدانية.</p>
+        </article>
+        <article class="research__card">
+          <Icon name="monitor" size={20} />
+          <h3>التدريب المؤسسي</h3>
+          <p>برامج تدريبية حسب الطلب لكوادر الجهات المتعاقدة.</p>
+        </article>
+      </div>
+      <p class="research__note">لطلب استشارة أو دراسة: <a href={`tel:${201}`}>تواصل مع إدارة المركز</a> أو عبر <a href="/contact">صفحة التواصل</a></p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .centers {
+    padding: var(--spacing-7) 0 var(--spacing-5);
+  }
+  .centers__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .center-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: var(--spacing-5);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .center-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-primary);
+    box-shadow: 0 18px 36px rgba(7, 123, 67, .12);
+  }
+  .center-card__ico {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+  .center-card__title {
+    color: var(--color-primary-dark);
+    font-size: 1.05rem;
+    margin: 0;
+  }
+  .center-card__desc {
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    font-size: .88rem;
+    margin: 0;
+    flex: 1;
+  }
+  .center-card__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-primary);
+    font-size: .84rem;
+    font-weight: 800;
+    transition: gap .2s ease;
+  }
+  .center-card:hover .center-card__more {
+    gap: 9px;
+  }
+
+  .research {
+    padding: var(--spacing-5) 0 var(--spacing-8);
+  }
+  .research__head {
+    max-width: 720px;
+    margin-bottom: var(--spacing-5);
+  }
+  .research__title {
+    font-family: var(--font-display);
+    color: var(--color-primary-dark);
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+  }
+  .research__desc {
+    color: var(--color-text-secondary);
+    line-height: 1.9;
+    margin-top: var(--spacing-1);
+  }
+  .research__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .research__card {
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: var(--spacing-4);
+  }
+  .research__card :global(svg) {
+    color: var(--color-primary);
+  }
+  .research__card h3 {
+    color: var(--color-text);
+    font-size: .98rem;
+    margin: var(--spacing-2) 0 var(--spacing-1);
+  }
+  .research__card p {
+    color: var(--color-text-secondary);
+    font-size: .86rem;
+    line-height: 1.8;
+    margin: 0;
+  }
+  .research__note {
+    margin-top: var(--spacing-4);
+    color: var(--color-text-muted);
+    font-size: .84rem;
+  }
+  .research__note a {
+    color: var(--color-primary);
+    font-weight: 700;
+  }
+</style>

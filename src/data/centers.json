@@ -1,0 +1,37 @@
+[
+  {
+    "slug": "training",
+    "name": "مركز التدريب والتأهيل",
+    "description": "دورات عملية وندوات لكوادر القطاعين العام والخاص.",
+    "icon": "layers",
+    "href": "/training"
+  },
+  {
+    "slug": "consulting",
+    "name": "مركز الاستشارات والبحوث",
+    "description": "استشارات إدارية ومشاريع بحثية تطبيقية.",
+    "icon": "document",
+    "href": "/centers#research"
+  },
+  {
+    "slug": "media",
+    "name": "المركز الإعلامي",
+    "description": "الأخبار والفعاليات والمعرض والبيانات الصحفية.",
+    "icon": "newspaper",
+    "href": "/media"
+  },
+  {
+    "slug": "library",
+    "name": "المكتبة الرقمية",
+    "description": "المقتنيات والمذكرات وأرشيف الأبحاث الإدارية.",
+    "icon": "library",
+    "href": "/about#library"
+  },
+  {
+    "slug": "portal",
+    "name": "البوابة الإلكترونية",
+    "description": "الخدمات الطلابية والتحقق والتسجيل في مكان واحد.",
+    "icon": "globe",
+    "href": "/portal"
+  }
+]

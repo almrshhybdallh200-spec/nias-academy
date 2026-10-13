@@ -1,0 +1,153 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  title?: string;
+  text?: string;
+  cta?: string;
+  href?: string;
+  compact?: boolean;
+}
+
+const {
+  title = 'محتوى خاص بالحسابات المسجّلة',
+  text = 'سجّل بياناتك عبر بوابة المعهد الإلكترونية، ثم اطّلع على هذا المحتوى مباشرة.',
+  cta = 'تسجيل الدخول عبر البوابة',
+  href = '/portal',
+  compact = false,
+} = Astro.props;
+---
+
+<div class="auth-gate" data-auth-gate>
+  <div class="auth-gate__locked" data-auth-gate-locked>
+    <span class="auth-gate__icon"><Icon name="lock" size={compact ? 20 : 24} /></span>
+    <div class="auth-gate__copy">
+      <strong>{title}</strong>
+      <p>{text}</p>
+    </div>
+    <a class="auth-gate__cta" href={href}>{cta}<Icon name="arrow-left" size={16} /></a>
+  </div>
+
+  <div class="auth-gate__content" data-auth-gate-content>
+    <slot />
+  </div>
+</div>
+
+<style>
+  .auth-gate {
+    width: 100%;
+  }
+
+  .auth-gate__locked {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    background: linear-gradient(135deg, var(--color-primary-light), var(--color-accent-light));
+    border: 1px dashed var(--color-primary);
+    border-radius: 18px;
+    padding: var(--spacing-4) var(--spacing-5);
+  }
+
+  .auth-gate__icon {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: var(--color-primary);
+    color: #fff;
+    box-shadow: 0 10px 22px rgba(7, 123, 67, 0.18);
+  }
+
+  .auth-gate__copy {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .auth-gate__copy strong {
+    display: block;
+    font-weight: 900;
+    font-size: 1rem;
+    color: var(--color-primary-dark);
+    margin-bottom: 2px;
+  }
+
+  .auth-gate__copy p {
+    font-size: 0.86rem;
+    line-height: 1.8;
+    color: var(--color-text-secondary);
+    max-width: 60ch;
+  }
+
+  .auth-gate__cta {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: #fff;
+    background: linear-gradient(120deg, var(--color-primary), var(--color-primary-dark));
+    border-radius: 12px;
+    padding: 11px 18px;
+    box-shadow: 0 12px 26px rgba(7, 123, 67, 0.16);
+    transition: transform 0.18s ease, filter 0.18s ease;
+  }
+
+  .auth-gate__cta:hover {
+    filter: brightness(1.07);
+    transform: translateY(-2px);
+  }
+
+  html[dir='rtl'] .auth-gate__cta svg {
+    transform: scaleX(-1);
+  }
+
+  .auth-gate__content {
+    display: none;
+  }
+
+  html.is-authed .auth-gate__locked {
+    display: none;
+  }
+
+  html.is-authed .auth-gate__content {
+    display: block;
+    animation: auth-gate-in 0.45s ease both;
+  }
+
+  @keyframes auth-gate-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.is-authed .auth-gate__content {
+      animation: none;
+    }
+    .auth-gate__cta:hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 680px) {
+    .auth-gate__locked {
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: start;
+      padding: var(--spacing-4);
+    }
+    .auth-gate__cta {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>

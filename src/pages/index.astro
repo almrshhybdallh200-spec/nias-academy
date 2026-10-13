@@ -1,0 +1,421 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import StatsBand from '../components/StatsBand.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import EServicesGrid from '../components/EServicesGrid.astro';
+import CollegeCard from '../components/CollegeCard.astro';
+import TrainingCard from '../components/TrainingCard.astro';
+import ImageStrip from '../components/ImageStrip.astro';
+import Icon from '../components/Icon.astro';
+import { formatDate } from '../lib/format';
+import {
+  siteConfig,
+  branches,
+  colleges,
+  newsItems,
+  getUpcomingEvents,
+  partners,
+  eServices,
+  trainingCourses,
+  getLatest,
+} from '../lib/data';
+
+const latestNews = getLatest(newsItems, 6);
+
+const featuredTraining = trainingCourses.slice(0, 3);
+
+const keyServices = eServices.filter((s) => ['s01', 's11', 's03', 's07'].includes(s.id));
+
+const stripNews = (() => {
+  const top = latestNews.slice(0, 5);
+  if (top.length < 3) return top;
+  const [first, second, third, ...rest] = top;
+  return [third, first, second, ...rest];
+})();
+
+const mediaFeed = [
+  ...stripNews.map((n) => ({
+    key: `news-${n.slug}`,
+    title: n.title,
+    href: `/media/news/${n.slug}`,
+    kicker: n.category,
+    meta: formatDate(n.date),
+    icon: 'newspaper',
+    image: n.image || '',
+  })),
+  ...getUpcomingEvents().slice(0, 3).map((e) => ({
+    key: `event-${e.title}`,
+    title: e.title,
+    href: '/media#events',
+    kicker: e.type || 'فعالية',
+    meta: formatDate(e.date),
+    icon: 'calendar',
+    image: '',
+  })),
+];
+---
+
+<BaseLayout
+  title={siteConfig.name}
+  description={siteConfig.footerDescription}
+  preloadImage="/images/الحديقة الداخلية للمعهد 2.jpg"
+>
+  <Hero />
+
+  <StatsBand />
+
+  <section class="trust-strip" aria-label="جهات تثق بالمعهد">
+    <div class="container trust-strip__inner">
+      <span class="trust-strip__label">
+        <Icon name="shield" size={15} />
+        جهات تثق بنا
+      </span>
+      <div class="trust-strip__viewport" aria-hidden="true">
+        <div class="trust-strip__track">
+          {[...partners, ...partners].map((p) => (
+            <span class="trust-strip__item">
+              <Icon name="landmark" size={13} />
+              {p.name}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--mesh" id="services">
+    <div class="container">
+      <SectionHeader icon="briefcase" title="الخدمات الإلكترونية" />
+      <EServicesGrid services={keyServices} soft />
+    </div>
+  </section>
+
+  <section class="section section--alt" id="colleges">
+    <div class="container">
+      <SectionHeader icon="university" title="كليات المعهد" />
+      <div class="colleges-grid">
+        {colleges.map((c, i) => (
+          <CollegeCard slug={c.slug} name={c.name} description={c.description} icon={c.icon} image={c.image} index={i + 1} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+    <section class="section section--alt" id="training">
+      <div class="container">
+        <SectionHeader kicker="تدريب" icon="award" title="البرامج التدريبية" />
+
+        {/* الشريط الترويجي مُخفى مؤقتًا */}
+        <div class="training-promo" data-reveal hidden>
+          <p class="training-promo__title">برامج ودبلومات معتمدة تطوّر مسارك المهني</p>
+          <a class="training-promo__link" href="/portal">
+            سجّل الآن
+            <Icon name="arrow-left" size={15} />
+          </a>
+        </div>
+
+        <div class="cards-grid">
+          {featuredTraining.map((t) => (
+            <TrainingCard course={t} showMeta={false} />
+          ))}
+        </div>
+      </div>
+    </section>
+
+  <section class="section section--mesh" id="branches">
+    <div class="container">
+      <SectionHeader icon="map-pin" title="فروعنا في اليمن" />
+      <div class="branch-chips">
+        {branches.map((b) => (
+          <a class="branch-chip" href={`/branches/${b.slug}`}>
+            <span class="branch-chip__name">
+              <span class="branch-chip__dot"></span>
+              {b.name}
+            </span>
+            <small>{b.typeLabel}</small>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="media-preview">
+    <div class="container">
+      <SectionHeader icon="newspaper" title="الأخبار والفعاليات" />
+      <ImageStrip id="news" items={mediaFeed} />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .section {
+    padding-block: var(--spacing-9);
+  }
+  .section--alt {
+    background:
+      radial-gradient(620px 320px at 92% 8%, rgba(201, 162, 39, 0.07), transparent 60%),
+      radial-gradient(640px 320px at 6% 96%, rgba(21, 145, 179, 0.06), transparent 60%),
+      linear-gradient(180deg, var(--color-surface-alt) 0%, var(--color-surface-alt) 100%);
+  }
+  .section--mesh {
+    position: relative;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(27, 30, 39, 0.03) 1px, transparent 0),
+      radial-gradient(820px 380px at 90% -6%, rgba(15, 122, 74, 0.05), transparent 60%),
+      radial-gradient(720px 360px at 4% 108%, rgba(212, 175, 55, 0.06), transparent 60%),
+      linear-gradient(180deg, var(--color-background) 0%, var(--color-surface) 100%);
+    background-size: 24px 24px, auto, auto, auto;
+  }
+
+  /* ============ TRUST STRIP ============ */
+  .trust-strip {
+    padding-block: 14px 20px;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-background);
+  }
+  .trust-strip__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-5);
+  }
+  .trust-strip__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+  .trust-strip__label svg {
+    color: var(--color-primary);
+  }
+  .trust-strip__viewport {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+  .trust-strip__track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+  .trust-strip__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    position: relative;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    padding-inline: 26px;
+    white-space: nowrap;
+  }
+  .trust-strip__item::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background: var(--color-gold);
+    opacity: 0.6;
+  }
+  .trust-strip__item svg {
+    color: var(--color-primary);
+    opacity: 0.85;
+  }
+  .trust-strip__viewport:hover .trust-strip__track {
+    animation-play-state: paused;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .trust-strip__track {
+      animation: trust-marquee 36s linear infinite;
+    }
+  }
+  @keyframes trust-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .trust-strip__track {
+      animation: none;
+    }
+  }
+
+  /* ============ CARDS GRIDS ============ */
+  .colleges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-5);
+  }
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-5);
+  }
+  .cards-grid :global(.training-card) {
+    height: 100%;
+  }
+  @media (max-width: 900px) {
+    .cards-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ============ TRAINING PROMO (شريط موجز) ============ */
+  .training-promo {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-3) var(--spacing-4);
+    padding: clamp(18px, 3vw, 24px) clamp(22px, 4vw, 40px);
+    border-radius: 20px;
+    margin-bottom: var(--spacing-6);
+    color: #fff;
+    background:
+      radial-gradient(520px 260px at 92% -40%, rgba(212, 175, 55, 0.36), transparent 60%),
+      radial-gradient(460px 240px at 2% 140%, rgba(46, 181, 122, 0.32), transparent 62%),
+      linear-gradient(120deg, #0E4330 0%, #12503A 55%, #0A3625 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 48px rgba(8, 40, 26, 0.28);
+    isolation: isolate;
+  }
+  .training-promo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+    background-size: 26px 26px;
+    -webkit-mask-image: linear-gradient(115deg, #000, transparent 62%);
+    mask-image: linear-gradient(120deg, #000, transparent 65%);
+    opacity: 0.6;
+  }
+  .training-promo[hidden] {
+    display: none;
+  }
+  .training-promo__title {
+    flex: 1 1 300px;
+    margin: 0;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-weight: 800;
+    line-height: 1.5;
+    color: #fff;
+  }
+  .training-promo__link {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--color-gold);
+    color: #14261C;
+    font-weight: 900;
+    font-size: 0.88rem;
+    border-radius: 12px;
+    padding: 11px 24px;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .training-promo__link:hover {
+    background: #fff;
+    transform: translateY(-1px);
+  }
+
+  /* ============ BRANCHES ============ */
+  .branch-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+  }
+  .branch-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 9px 18px;
+    font-weight: 800;
+    color: var(--color-text);
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+  .branch-chip:hover {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    transform: translateY(-2px);
+  }
+  .branch-chip__name {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .branch-chip__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-gold);
+  }
+  .branch-chip small {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+  .branch-chip:hover small {
+    color: var(--color-accent-light);
+  }
+
+  @media (max-width: 960px) {
+    .branch-chips {
+      gap: var(--spacing-2);
+    }
+    .branch-chip {
+      padding: 7px 12px;
+    }
+  }
+  @media (max-width: 640px) {
+    .section {
+      padding-block: var(--spacing-6);
+    }
+    .cards-grid {
+      gap: 10px;
+    }
+    .trust-strip {
+      padding-block: 12px 16px;
+    }
+    .trust-strip__inner {
+      gap: var(--spacing-3);
+    }
+    .trust-strip__item {
+      padding-inline: 18px;
+      font-size: 0.74rem;
+    }
+    .branch-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+    .branch-chip {
+      padding: 8px 14px;
+      border-radius: 999px;
+    }
+  }
+</style>

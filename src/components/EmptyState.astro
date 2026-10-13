@@ -1,0 +1,70 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  title?: string;
+  message?: string;
+  action?: { label: string; href: string };
+}
+
+const {
+  title = 'لا توجد بيانات بعد',
+  message = 'سنقوم بإضافة هذا المحتوى قريبًا. ترقبوا التحديثات عبر المركز الإعلامي.',
+  action,
+} = Astro.props;
+---
+
+<div class="empty-state">
+  <span class="empty-state__icon">
+    <Icon name="info" size={28} />
+  </span>
+  <h3>{title}</h3>
+  <p>{message}</p>
+  {action && (
+    <a class="empty-state__action" href={action.href}>
+      {action.label}
+      <Icon name="arrow-left" size={16} />
+    </a>
+  )}
+</div>
+
+<style>
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-8) var(--spacing-5);
+    background: var(--color-surface-alt);
+    border: 1px dashed var(--color-border-dark);
+    border-radius: 18px;
+  }
+  .empty-state__icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    display: grid;
+    place-items: center;
+  }
+  .empty-state h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--color-text);
+  }
+  .empty-state p {
+    color: var(--color-text-secondary);
+    font-size: 0.92rem;
+    max-width: 42ch;
+  }
+  .empty-state__action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+</style>

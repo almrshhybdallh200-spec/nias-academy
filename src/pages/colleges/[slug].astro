@@ -1,0 +1,406 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import Icon from '../../components/Icon.astro';
+import { colleges, getCollege, getProgramsByCollege, getDepartmentPrograms, departments, mediaOf } from '../../lib/data';
+import { toArabicNumerals } from '../../lib/format';
+
+export function getStaticPaths() {
+  return colleges.map((college) => ({
+    params: { slug: college.slug },
+    props: { college },
+  }));
+}
+
+interface Props {
+  college: (typeof colleges)[number];
+}
+
+const { college } = Astro.props;
+const depts = departments.filter((d) => d.college === college.slug);
+const programCount = getProgramsByCollege(college).length;
+const stats = [
+  { value: toArabicNumerals(depts.length), label: 'قسم أكاديمي', icon: 'book' },
+  { value: toArabicNumerals(programCount), label: 'برنامج ودبلوم', icon: 'layers' },
+  { value: toArabicNumerals(2), label: 'متوسط مدة الدراسة', icon: 'clock' },
+];
+---
+
+<BaseLayout title={college.name} description={college.description}>
+  <PageHero
+    title={college.name}
+    subtitle={college.nameEn}
+    crumbs={[
+      { label: 'الرئيسية', href: '/' },
+      { label: 'الكليات', href: '/colleges' },
+      { label: college.name },
+    ]}
+  >
+    <span slot="extra" class="college-hero__badge">
+      <Icon name={college.icon} size={15} />
+      {toArabicNumerals(depts.length)} أقسام · {toArabicNumerals(programCount)} برنامج
+    </span>
+  </PageHero>
+
+  <section class="college-intro">
+    <div class="container">
+      <div class="college-intro__grid">
+        <div class="college-intro__img">
+          <img src={mediaOf(college.image)} alt={college.name} loading="lazy" />
+        </div>
+        <div class="college-intro__body">
+          <h2 class="college-intro__title">نبذة عن الكلية</h2>
+          <p class="college-intro__desc">{college.description}</p>
+          <div class="college-stats">
+            {stats.map((s) => (
+              <div class="college-stats__item">
+                <span class="college-stats__ico"><Icon name={s.icon} size={18} /></span>
+                <span class="college-stats__value">{s.value}</span>
+                <span class="college-stats__label">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="college-vm">
+    <div class="container">
+      <div class="college-vm__grid">
+        <article class="vm-card">
+          <span class="vm-card__ico"><Icon name="eye" size={20} /></span>
+          <h3>رؤيتنا</h3>
+          <p>{college.vision}</p>
+        </article>
+        <article class="vm-card">
+          <span class="vm-card__ico"><Icon name="target" size={20} /></span>
+          <h3>رسالتنا</h3>
+          <p>{college.mission}</p>
+        </article>
+      </div>
+      <div class="college-goals">
+        <h3 class="college-goals__title">أهداف الكلية</h3>
+        <ul>
+          {college.goals.map((g) => (
+            <li><Icon name="check" size={16} /> {g}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="college-depts">
+    <div class="container">
+      <div class="college-depts__head">
+        <h2 class="college-depts__title">أقسام الكلية</h2>
+        <a class="college-depts__more" href={`/colleges/${college.slug}#depts`}>تصفح البرامج <Icon name="arrow-left" size={15} /></a>
+      </div>
+      <div class="depts-grid" id="depts">
+        {depts.map((dept) => (
+          <a class="dept-card" href={`/departments/${dept.slug}`}>
+            <span class="dept-card__ico"><Icon name="book" size={20} /></span>
+            <h3>{dept.name}</h3>
+            <p>{dept.description}</p>
+            <div class="dept-card__foot">
+              <span>{toArabicNumerals(getDepartmentPrograms(dept.slug).length)} برنامج</span>
+              <span class="dept-card__more">التفاصيل <Icon name="arrow-left" size={14} /></span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="college-dean">
+    <div class="container">
+      <article class="dean-card">
+        <div class="dean-card__avatar"><Icon name="user" size={28} /></div>
+        <div class="dean-card__body">
+          <span class="dean-card__tag">عمادة الكلية</span>
+          <h3>{college.dean.name}</h3>
+          <p>{college.dean.title}</p>
+        </div>
+      </article>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .college-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: .82rem;
+    font-weight: 800;
+    margin-top: var(--spacing-2);
+  }
+
+  .college-intro {
+    padding: var(--spacing-7) 0 var(--spacing-4);
+  }
+  .college-intro__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: var(--spacing-6);
+    align-items: center;
+  }
+  .college-intro__img img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 18px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 18px 40px rgba(7, 123, 67, .12);
+  }
+  .college-intro__title {
+    font-family: var(--font-display);
+    color: var(--color-primary-dark);
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    margin-bottom: var(--spacing-2);
+  }
+  .college-intro__desc {
+    color: var(--color-text-secondary);
+    line-height: 1.95;
+    font-size: .95rem;
+  }
+  .college-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-5);
+  }
+  .college-stats__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: var(--spacing-3);
+    text-align: center;
+  }
+  .college-stats__ico {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+  .college-stats__value {
+    font-family: var(--font-num);
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--color-primary-dark);
+  }
+  .college-stats__label {
+    font-size: .78rem;
+    color: var(--color-text-secondary);
+    font-weight: 700;
+  }
+
+  .college-vm {
+    padding: var(--spacing-4) 0;
+  }
+  .college-vm__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-4);
+  }
+  .vm-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: var(--spacing-5);
+  }
+  .vm-card__ico {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+  .vm-card h3 {
+    color: var(--color-primary-dark);
+    font-size: 1.1rem;
+    margin: var(--spacing-3) 0 var(--spacing-1);
+  }
+  .vm-card p {
+    color: var(--color-text-secondary);
+    line-height: 1.9;
+    font-size: .92rem;
+    margin: 0;
+  }
+  .college-goals {
+    margin-top: var(--spacing-4);
+    background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-alt) 100%);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: var(--spacing-5);
+  }
+  .college-goals__title {
+    color: var(--color-primary-dark);
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-3);
+  }
+  .college-goals ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .college-goals li {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--color-text);
+    font-weight: 700;
+    font-size: .92rem;
+  }
+  .college-goals li :global(svg) {
+    color: var(--color-primary);
+  }
+
+  .college-depts {
+    padding: var(--spacing-5) 0 var(--spacing-4);
+  }
+  .college-depts__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-4);
+  }
+  .college-depts__title {
+    font-family: var(--font-display);
+    color: var(--color-primary-dark);
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    margin: 0;
+  }
+  .college-depts__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: .88rem;
+    white-space: nowrap;
+  }
+  .depts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .dept-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: var(--spacing-4);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .dept-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-primary);
+    box-shadow: 0 14px 30px rgba(7, 123, 67, .1);
+  }
+  .dept-card__ico {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+  }
+  .dept-card h3 {
+    color: var(--color-primary-dark);
+    font-size: 1.02rem;
+    margin: 0;
+  }
+  .dept-card p {
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    font-size: .86rem;
+    margin: 0;
+    flex: 1;
+  }
+  .dept-card__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    border-top: 1px dashed var(--color-border);
+    padding-top: 8px;
+    font-size: .78rem;
+    color: var(--color-text-muted);
+    font-weight: 700;
+  }
+  .dept-card__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-primary);
+  }
+
+  .college-dean {
+    padding: var(--spacing-4) 0 var(--spacing-8);
+  }
+  .dean-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    background: linear-gradient(180deg, var(--color-primary-dark), var(--color-primary));
+    border-radius: 20px;
+    padding: var(--spacing-5) var(--spacing-6);
+    color: #fff;
+  }
+  .dean-card__avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, .14);
+    border: 1px solid rgba(255, 255, 255, .22);
+  }
+  .dean-card__tag {
+    font-size: .76rem;
+    font-weight: 800;
+    color: var(--color-gold);
+    letter-spacing: .04em;
+  }
+  .dean-card h3 {
+    color: #fff;
+    font-size: 1.15rem;
+    margin: 2px 0;
+  }
+  .dean-card p {
+    color: rgba(255, 255, 255, .82);
+    font-size: .86rem;
+    margin: 0;
+  }
+
+  @media (max-width: 820px) {
+    .college-intro__grid {
+      grid-template-columns: 1fr;
+    }
+    .college-vm__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

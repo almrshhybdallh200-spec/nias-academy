@@ -1,0 +1,132 @@
+---
+import Icon from './Icon.astro';
+import { formatDate } from '../lib/format';
+import type { Announcement } from '../lib/types';
+
+interface Props {
+  item: Announcement;
+}
+
+const { item } = Astro.props;
+
+const typeTone: Record<string, string> = {
+  قبول: 'tone-accept',
+  نتائج: 'tone-result',
+  مناقصات: 'tone-tender',
+  وظائف: 'tone-job',
+  إعلان: 'tone-general',
+};
+const toneClass = typeTone[item.type] ?? 'tone-general';
+---
+
+<li class:list={['announcement', toneClass]}>
+  <div class="announcement__badge">{item.code}</div>
+  <div class="announcement__content">
+    <div class="announcement__row">
+      <span class="announcement__type">{item.type}</span>
+      {item.priority && (
+        <span class="announcement__pinned">
+          <Icon name="pin" size={13} />
+          مثبّت
+        </span>
+      )}
+      <time class="announcement__date">
+        <Icon name="calendar" size={14} />
+        {formatDate(item.date)}
+      </time>
+    </div>
+    <h3 class="announcement__title">{item.title}</h3>
+    <p class="announcement__body">{item.body}</p>
+  </div>
+</li>
+
+<style>
+  .announcement {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: var(--spacing-4) var(--spacing-5);
+    position: relative;
+    transition: box-shadow 0.25s ease;
+  }
+  .announcement:hover {
+    box-shadow: 0 8px 22px rgba(7, 123, 67, 0.1);
+  }
+  .announcement::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    top: 16px;
+    bottom: 16px;
+    width: 4px;
+    border-radius: 4px;
+    background: var(--color-primary);
+  }
+  .tone-accept::before { background: var(--color-success); }
+  .tone-result::before { background: var(--color-info); }
+  .tone-tender::before { background: var(--color-accent); }
+  .tone-job::before { background: #2F3170; }
+  .tone-general::before { background: var(--color-text-muted); }
+
+  .announcement__badge {
+    font-family: 'Cairo', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-border);
+    padding: 4px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .announcement__content {
+    flex: 1;
+  }
+  .announcement__row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-1);
+  }
+  .announcement__type {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    padding: 2px 10px;
+    border-radius: 999px;
+  }
+  .announcement__date {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+  }
+  .announcement__title {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: var(--color-text);
+    margin-bottom: 4px;
+  }
+  .announcement__body {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+  }
+  .announcement__pinned {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-inline-start: auto;
+    color: var(--color-accent-dark);
+    background: var(--color-accent-light);
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 2px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+</style>

@@ -1,0 +1,100 @@
+---
+import MediaPlaceholder from './MediaPlaceholder.astro';
+import { getDepartment, getDepartmentPrograms } from '../lib/data';
+
+interface Props {
+  slug: string;
+  name: string;
+  department: string;
+  title: string;
+  degree: string;
+  specialty: string;
+  image?: string;
+}
+
+const { slug, name, department, title, degree, specialty, image = '' } = Astro.props;
+const dept = getDepartment(department)?.name ?? '';
+const progCount = getDepartmentPrograms(department).length;
+---
+
+<article class="faculty-card">
+  <div class="faculty-card__avatar">
+    {image ? (
+      <img src={image} alt="" loading="lazy" decoding="async" />
+    ) : (
+      <MediaPlaceholder compact label="الصورة الشخصية" hint={name} />
+    )}
+  </div>
+  <h3>{name}</h3>
+  <span class="faculty-card__title">{title}</span>
+  <p class="faculty-card__meta">
+    <span>درجة: {degree}</span>
+    <span>تخصص: {specialty}</span>
+    <span>{dept}</span>
+  </p>
+  <div class="faculty-card__footer">
+    <span>{progCount} برنامج</span>
+    <span>عضو هيئة تدريس معتمد</span>
+  </div>
+</article>
+
+<style>
+  .faculty-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-2);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: var(--spacing-5);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+  .faculty-card:hover {
+    box-shadow: 0 12px 28px rgba(7, 123, 67, 0.1);
+    transform: translateY(-3px);
+  }
+  .faculty-card__avatar {
+    width: 100%;
+    height: 118px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+  .faculty-card__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .faculty-card h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--color-text);
+  }
+  .faculty-card__title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-accent-dark);
+    background: var(--color-accent-light);
+    padding: 2px 10px;
+    border-radius: 999px;
+  }
+  .faculty-card__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    color: var(--color-text-secondary);
+    font-size: 0.84rem;
+  }
+  .faculty-card__footer {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-2);
+    width: 100%;
+    border-top: 1px dashed var(--color-border);
+    padding-top: var(--spacing-3);
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+  }
+</style>

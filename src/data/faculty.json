@@ -1,0 +1,122 @@
+[
+  {
+    "slug": "fc-1",
+    "name": "أ.د. عبدالرحمن المخلافي",
+    "department": "ec-administration",
+    "title": "أستاذ الإدارة العامة",
+    "degree": "دكتوراه - الإدارة العامة",
+    "image": "",
+    "specialty": "قيادة وتنظيم",
+    "email": "a.makhlafi@nias-ye.academy"
+  },
+  {
+    "slug": "fc-2",
+    "name": "أ.د. سميرة الوزير",
+    "department": "ec-hr",
+    "title": "أستاذ إدارة الموارد البشرية",
+    "degree": "دكتوراه - إدارة الأعمال",
+    "image": "",
+    "specialty": "موارد بشرية",
+    "email": "s.alwazir@nias-ye.academy"
+  },
+  {
+    "slug": "fc-3",
+    "name": "أ.د. طه المهدي",
+    "department": "ec-accounting",
+    "title": "أستاذ المحاسبة المالية",
+    "degree": "دكتوراه - محاسبة",
+    "image": "",
+    "specialty": "معايير IFRS",
+    "email": "t.almahdi@nias-ye.academy"
+  },
+  {
+    "slug": "fc-4",
+    "name": "د. نجيب السامعي",
+    "department": "ec-governance",
+    "title": "أستاذ مشارك الحوكمة",
+    "degree": "دكتوراه - إدارة عامة",
+    "image": "",
+    "specialty": "حوكمة محلية",
+    "email": "n.alsame'i@nias-ye.academy"
+  },
+  {
+    "slug": "fc-5",
+    "name": "د. ريان البحري",
+    "department": "ec-banking",
+    "title": "أستاذ مشارك الصيرفة",
+    "degree": "دكتوراه - مصرفية إسلامية",
+    "image": "",
+    "specialty": "تمويل إسلامي",
+    "email": "r.albahri@nias-ye.academy"
+  },
+  {
+    "slug": "fc-6",
+    "name": "د. نائل الجماعي",
+    "department": "ec-mis",
+    "title": "أستاذ مشارك نظم المعلومات",
+    "degree": "دكتوراه - نظم معلومات",
+    "image": "",
+    "specialty": "تحول رقمي",
+    "email": "n.aljomai@nias-ye.academy"
+  },
+  {
+    "slug": "fc-7",
+    "name": "د. أيمن الشرعبي",
+    "department": "ec-data",
+    "title": "أستاذ مشارك البيانات والذكاء الاصطناعي",
+    "degree": "دكتوراه - علم البيانات",
+    "image": "",
+    "specialty": "ذكاء اصطناعي",
+    "email": "a.alsharabi@nias-ye.academy"
+  },
+  {
+    "slug": "fc-8",
+    "name": "د. بسام عبدالله",
+    "department": "ec-cyber",
+    "title": "أستاذ مساعد أمن سيبراني",
+    "degree": "دكتوراه - أمن معلومات",
+    "image": "",
+    "specialty": "أمن سيبراني",
+    "email": "b.abdullah@nias-ye.academy"
+  },
+  {
+    "slug": "fc-9",
+    "name": "د. خالد بادويلان",
+    "department": "ec-governance",
+    "title": "أستاذ مساعد داخلية",
+    "degree": "دكتوراه - تنمية محلية",
+    "image": "",
+    "specialty": "مشاريع تنموية",
+    "email": "k.badoelan@nias-ye.academy"
+  },
+  {
+    "slug": "fc-10",
+    "name": "أ. لمياء حداد",
+    "department": "ec-digital-marketing",
+    "title": "محاضر أول تسويق رقمي",
+    "degree": "ماجستير - تسويق",
+    "image": "",
+    "specialty": "تسويق رقمي",
+    "email": "l.haddad@nias-ye.academy"
+  },
+  {
+    "slug": "fc-11",
+    "name": "د. فاطمة العريقي",
+    "department": "ec-audit",
+    "title": "أستاذ مساعد رقابة مالية",
+    "degree": "دكتوراه - محاسبة ورقابة",
+    "image": "",
+    "specialty": "تدقيق ورقابة",
+    "email": "f.alariqi@nias-ye.academy"
+  },
+  {
+    "slug": "fc-12",
+    "name": "د. يحيى الشامي",
+    "department": "ec-banking",
+    "title": "مدير فرع ذمار",
+    "degree": "دكتوراه - تمويل",
+    "image": "",
+    "specialty": "إدارة فروع",
+    "email": "y.alshami@nias-ye.academy"
+  }
+]

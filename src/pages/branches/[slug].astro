@@ -1,0 +1,297 @@
+---
+import BranchLayout from '../../layouts/BranchLayout.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
+import ProgramCard from '../../components/ProgramCard.astro';
+import NewsCard from '../../components/NewsCard.astro';
+import Icon from '../../components/Icon.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import { branches, programs, newsItems } from '../../lib/data';
+import { toArabicNumerals } from '../../lib/format';
+
+export function getStaticPaths() {
+  return branches.map((branch) => ({
+    params: { slug: branch.slug },
+    props: { branch },
+  }));
+}
+
+const { branch } = Astro.props;
+
+const branchPrograms = branch.featuredPrograms
+  ? programs.filter((p) => (branch.featuredPrograms ?? []).includes(p.slug))
+  : programs;
+
+const branchNews = newsItems.filter((n) => n.branch === branch.slug);
+const googleMapsUrl = `https://www.google.com/maps?q=${branch.gps.lat},${branch.gps.lng}`;
+---
+
+<BranchLayout branch={branch} hasNews={branchNews.length > 0}>
+  <div class="branch-view" data-view="home" id="home">
+    <div class="overview">
+      <SectionHeader icon="landmark" title={`فرع ${branch.name}`} subtitle={branch.description} />
+      <div class="overview__stats">
+        <div class="overview__stat">
+          <strong>{toArabicNumerals(branch.extra.staffCount)}</strong>
+          <span>موظف وعضو هيئة تدريس</span>
+        </div>
+        <div class="overview__stat">
+          <strong>{toArabicNumerals(branch.extra.programCount)}</strong>
+          <span>برنامج تدريبي</span>
+        </div>
+        <div class="overview__stat">
+          <strong>{toArabicNumerals(branch.established)}</strong>
+          <span>عام التأسيس</span>
+        </div>
+      </div>
+      {branch.image && (
+        <figure class="img-frame overview__photo">
+          <img src={branch.image} alt={`فرع ${branch.name}`} loading="lazy" decoding="async" />
+          <figcaption class="img-frame__caption">مبنى فرع {branch.name}</figcaption>
+        </figure>
+      )}
+    </div>
+
+    <section class="services" aria-label="خدمات الفرع">
+      <h2 class="block-title">ماذا يقدم فرع {branch.name}؟</h2>
+      <ul class="services__list">
+        {branch.services.map((s) => (
+          <li>
+            <Icon name="check" size={18} />
+            {s}
+          </li>
+        ))}
+      </ul>
+    </section>
+  </div>
+
+  <section id="programs" class="programs branch-view" data-view="programs">
+    <SectionHeader
+      icon="graduation"
+      title="برامج متاحة في الفرع"
+      subtitle={branch.featuredPrograms ? `مجموعة مختارة من برامج المعهد متاحة في ${branch.name}.` : 'جميع برامج المعهد متاحة في المقر الرئيسي.'}
+      more={{ href: '/media/programs', label: 'جميع البرامج' }}
+    />
+    {branchPrograms.length > 0 ? (
+      <div class="programs__grid">
+        {branchPrograms.map((p) => <ProgramCard program={p} />)}
+      </div>
+    ) : (
+      <EmptyState title="لا توجد برامج معلنة حاليًا" message="يمكنك الاطلاع على برامج المعهد العامة من صفحة البرامج." action={{ label: 'تصفح البرامج', href: '/media/programs' }} />
+    )}
+  </section>
+
+  {branchNews.length > 0 && (
+    <section id="news" class="news branch-view" data-view="news">
+      <SectionHeader icon="newspaper" title={`آخر أخبار فرع ${branch.name}`} more={{ href: '/media', label: 'كل الأخبار' }} />
+      <div class="news__grid">
+        {branchNews.map((n) => (
+          <NewsCard title={n.title} date={n.date} category={n.category} summary={n.summary} slug={n.slug} readingMinutes={n.readingMinutes} image={n.image} />
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section id="contact" class="contact branch-view" data-view="contact">
+    <SectionHeader icon="map-pin" title={`التواصل مع فرع ${branch.name}`} />
+    <div class="contact__card">
+      <ul class="contact__items">
+        <li>
+          <Icon name="map-pin" size={19} />
+          <div>
+            <strong>العنوان</strong>
+            <span>{branch.address}</span>
+          </div>
+        </li>
+        <li>
+          <Icon name="phone" size={19} />
+          <div>
+            <strong>الهاتف</strong>
+            <a href={`tel:${branch.phone.replace(/[^0-9+]/g, '')}`} dir="ltr">{branch.phone}</a>
+          </div>
+        </li>
+        <li>
+          <Icon name="mail" size={19} />
+          <div>
+            <strong>البريد الإلكتروني</strong>
+            <a href={`mailto:${branch.email}`}>{branch.email}</a>
+          </div>
+        </li>
+        <li>
+          <Icon name="user" size={19} />
+          <div>
+            <strong>الإشراف</strong>
+            <span>{branch.extra.head}</span>
+          </div>
+        </li>
+      </ul>
+      <div class="contact__map">
+        <a class="contact__map-btn" href={googleMapsUrl} target="_blank" rel="noopener noreferrer">
+          <Icon name="map-pin" size={18} />
+          افتح الموقع على خرائط جوجل
+          <Icon name="external" size={15} />
+        </a>
+        <p>الإحداثيات: <span dir="ltr">{branch.gps.lat}, {branch.gps.lng}</span></p>
+      </div>
+    </div>
+  </section>
+</BranchLayout>
+
+<style>
+.overview__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-5);
+  }
+  .overview__photo {
+    height: 320px;
+    margin-top: var(--spacing-6);
+  }
+  .overview__stat {
+    text-align: center;
+    background: var(--color-primary-light);
+    border-radius: 14px;
+    padding: var(--spacing-4);
+  }
+  .overview__stat strong {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--color-primary);
+  }
+  .overview__stat span {
+    color: var(--color-text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .services {
+    margin-top: var(--spacing-5);
+  }
+  .block-title {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--color-primary-dark);
+    margin-bottom: var(--spacing-3);
+  }
+  .services__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--spacing-4);
+  }
+  .services__list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: var(--spacing-3) var(--spacing-4);
+    font-size: 0.92rem;
+    color: var(--color-text);
+  }
+  .services__list li svg {
+    color: var(--color-success);
+    flex-shrink: 0;
+  }
+
+  .programs {
+    margin-top: var(--spacing-7);
+  }
+  .programs__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-4);
+  }
+
+  .news {
+    margin-top: var(--spacing-7);
+  }
+  .news__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--spacing-4);
+  }
+
+  .contact {
+    margin-top: var(--spacing-7);
+  }
+  .contact__card {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: var(--spacing-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: var(--spacing-6);
+  }
+  .contact__items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-4);
+  }
+  .contact__items li {
+    display: flex;
+    gap: var(--spacing-4);
+    align-items: flex-start;
+  }
+  .contact__items li > svg {
+    color: var(--color-primary);
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .contact__items strong {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .contact__items span,
+  .contact__items a {
+    color: var(--color-text);
+    font-size: 0.92rem;
+  }
+  .contact__items a:hover {
+    color: var(--color-primary);
+  }
+  .contact__map {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--spacing-4);
+    background: var(--color-primary-light);
+    border-radius: 14px;
+    padding: var(--spacing-5);
+    text-align: center;
+  }
+  .contact__map p {
+    color: var(--color-text-secondary);
+    font-size: 0.84rem;
+  }
+  .contact__map-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.92rem;
+    padding: 12px 18px;
+    border-radius: 12px;
+    transition: background 0.2s ease;
+  }
+  .contact__map-btn:hover {
+    background: var(--color-primary-dark);
+  }
+
+  @media (max-width: 900px) {
+    .contact__card {
+      grid-template-columns: 1fr;
+    }
+    .contact__items {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

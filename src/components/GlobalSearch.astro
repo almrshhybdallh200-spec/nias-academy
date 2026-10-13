@@ -1,0 +1,214 @@
+---
+import Icon from './Icon.astro';
+import { branches, programs, newsItems, colleges } from '../lib/data';
+
+interface Props {
+  hideTrigger?: boolean;
+}
+
+const { hideTrigger = false } = Astro.props;
+
+const pages = [
+  { t: 'صفحة', l: 'الصفحة الرئيسية', s: 'الرئيسية NIAS', h: '/' },
+  { t: 'صفحة', l: 'عن المعهد', s: 'الرسالة والرؤية والعمادة والكليات', h: '/about' },
+  { t: 'صفحة', l: 'فروع المعهد', s: 'فروع المحافظات', h: '/branches' },
+  { t: 'صفحة', l: 'المركز الإعلامي', s: 'الأخبار والإعلانات والفعاليات', h: '/media' },
+  { t: 'صفحة', l: 'البرامج والدبلومات', s: 'الدبلومات والدورات التدريبية', h: '/media/programs' },
+  { t: 'صفحة', l: 'تواصل معنا', s: 'اتصل بنا والعنوان وساعات العمل', h: '/contact' },
+  { t: 'صفحة', l: 'البوابة الإلكترونية', s: 'التسجيل والخدمات', h: '/portal' },
+];
+
+const branchesIdx = branches.map((b) => ({ t: 'فرع', l: `فرع ${b.name}`, s: `${b.city} - ${b.typeLabel}`, h: `/branches/${b.slug}` }));
+const programsIdx = programs.map((p) => ({ t: p.typeLabel, l: p.name, s: `برنامج ${p.department}`, h: `/media/programs/${p.slug}` }));
+const newsIdx = newsItems.map((n) => ({ t: 'خبر', l: n.title, s: n.category, h: `/media/news/${n.slug}` }));
+const collegesIdx = colleges.map((c) => ({ t: 'كلية', l: c.name, s: c.description, h: `/about#${c.slug}` }));
+
+const items = [...pages, ...branchesIdx, ...programsIdx, ...newsIdx, ...collegesIdx];
+---
+
+<div class="global-search">
+  {!hideTrigger && (
+    <button class="global-search__trigger" type="button" data-global-search-open aria-label="بحث في الموقع" aria-haspopup="dialog">
+      <Icon name="search" size={18} />
+    </button>
+  )}
+
+  <div class="search-overlay" data-global-search-overlay aria-hidden="true">
+    <div class="search-panel" role="dialog" aria-modal="true" aria-label="بحث في الموقع">
+      <div class="search-panel__input-wrap">
+        <Icon name="search" size={22} />
+        <input
+          class="search-panel__input"
+          type="search"
+          placeholder="اكتب كلمة مفتاحية: برنامج، فرع، خبر، كلية، صفحة ..."
+          autocomplete="off"
+          aria-label="بحث في الموقع"
+        />
+        <button class="search-panel__close" type="button" data-global-search-close aria-label="إغلاق البحث">
+          <Icon name="x" size={20} />
+        </button>
+      </div>
+      <div class="search-panel__results" role="listbox" aria-label="نتائج البحث"></div>
+    </div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ N_NIAS_INDEX: items }}>
+  const normalize = (s) =>
+    String(s || '')
+      .toLowerCase()
+      .replace(/[\u064B-\u065F\u0670]/g, '')
+      .replace(/[أإآٱ]/g, 'ا')
+      .replace(/ة/g, 'ه')
+      .replace(/ى/g, 'ي')
+      .replace(/\u0640/g, '')
+      .trim();
+
+  (() => {
+    const root = document.querySelector('[data-global-search-overlay]');
+    const closeBtn = root.querySelector('[data-global-search-close]');
+    const input = root.querySelector('.search-panel__input');
+    const results = root.querySelector('.search-panel__results');
+
+    let active = -1;
+    let anchors = [];
+    let lastTrigger = null;
+
+    const pre = N_NIAS_INDEX.map((it) => ({ ...it, _b: `${normalize(it.l)} ${normalize(it.s)} ${normalize(it.t)}` }));
+
+    function setMark(node, text, q) {
+      const i = text.toLowerCase().indexOf(q.toLowerCase());
+      node.textContent = text;
+      if (i < 0) return;
+      node.innerHTML = '';
+      const mark = document.createElement('mark');
+      mark.textContent = text.slice(i, i + q.length);
+      node.append(text.slice(0, i), mark, text.slice(i + q.length));
+    }
+
+    function open(btn) {
+      lastTrigger = btn;
+      root.classList.add('open');
+      root.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      input.focus();
+    }
+
+    function close() {
+      root.classList.remove('open');
+      root.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      input.value = '';
+      active = -1;
+      anchors = [];
+      results.innerHTML = '';
+      (lastTrigger || document.querySelector('[data-global-search-open]'))?.focus();
+    }
+
+    function render() {
+      const q = input.value.trim();
+      results.innerHTML = '';
+      anchors = [];
+      active = -1;
+      if (q.length < 2) return;
+
+      const nq = normalize(q);
+      const tokens = nq.split(' ').filter(Boolean);
+      const found = pre.filter((it) => tokens.every((t) => it._b.includes(t))).slice(0, 8);
+
+      if (found.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'search-empty';
+        empty.textContent = 'لا توجد نتائج مطابقة';
+        results.appendChild(empty);
+        return;
+      }
+
+      found.forEach((it, i) => {
+        const a = document.createElement('a');
+        a.className = 'search-result-item';
+        a.setAttribute('role', 'option');
+        a.setAttribute('tabindex', '-1');
+        a.href = it.h;
+        const title = document.createElement('span');
+        title.className = 'search-result-item__title';
+        setMark(title, it.l, q);
+        const type = document.createElement('small');
+        type.className = 'search-result-item__type';
+        type.textContent = it.t;
+        a.append(title, type);
+        a.addEventListener('mousemove', () => setActive(i));
+        a.addEventListener('click', () => close());
+        results.appendChild(a);
+        anchors.push(a);
+      });
+    }
+
+    function setActive(i) {
+      active = i;
+      anchors.forEach((a, idx) => a.classList.toggle('is-active', idx === i));
+      anchors[i]?.scrollIntoView({ block: 'nearest' });
+    }
+
+    input.addEventListener('input', render);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (anchors.length) setActive((active + 1) % anchors.length);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (anchors.length) setActive((active - 1 + anchors.length) % anchors.length);
+      } else if (e.key === 'Enter') {
+        if (active >= 0 && anchors[active]) {
+          e.preventDefault();
+          anchors[active].click();
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        close();
+      }
+    });
+
+    const bindTrigger = (t) => {
+      if (t.__niasGs) return;
+      t.__niasGs = true;
+      t.addEventListener('click', () => open(t));
+    };
+    const bindAll = () => Array.from(document.querySelectorAll('[data-global-search-open]')).forEach(bindTrigger);
+    bindAll();
+    document.addEventListener('DOMContentLoaded', bindAll);
+    closeBtn.addEventListener('click', close);
+    root.addEventListener('click', (e) => {
+      if (e.target === root) close();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || '');
+      if (!typing && (e.key === '/' || e.key === 'Slash')) {
+        e.preventDefault();
+        open();
+      } else if (!typing && e.key === 'Escape') {
+        close();
+      }
+    });
+  })();
+</script>
+
+<style>
+  .global-search__trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    color: var(--color-text);
+    transition: all 0.2s ease;
+  }
+  .global-search__trigger:hover {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    border-color: var(--color-primary);
+  }
+</style>

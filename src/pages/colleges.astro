@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import CollegeCard from '../components/CollegeCard.astro';
+import { colleges } from '../lib/data';
+
+const crumbs = [{ label: 'الرئيسية', href: '/' }, { label: 'الكليات' }];
+---
+
+<BaseLayout title="الكليات" description="كليات المعهد الوطني للعلوم الإدارية وأقسامها وبرامجها" hideFooter={false}>
+  <PageHero title="كليات المعهد" subtitle="تسلسل هرمي أكاديمي واضح يربط الكلية بالأقسام والبرامج" crumbs={crumbs} />
+  <section class="section">
+    <div class="container colleges-grid">
+      {colleges.map((c, i) => (
+        <CollegeCard slug={c.slug} name={c.name} description={c.description} icon={c.icon} image={c.image} index={i+1} />
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+.section{padding-block:var(--spacing-8)}
+.colleges-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:var(--spacing-5)}
+</style>

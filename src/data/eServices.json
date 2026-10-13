@@ -1,0 +1,14 @@
+[
+  { "id": "s01", "name": "البوابة الأكاديمية", "description": "التسجيل والملفات والنتائج للطلاب والمتدربين", "href": "/portal", "icon": "book" },
+  { "id": "s02", "name": "نظام شؤون الموظفين", "description": "الاستعلام عن المرتبات والأجازات والترقيات", "href": "/portal", "icon": "user" },
+  { "id": "s03", "name": "منصة التدريب عن بُعد", "description": "دورات أونلاين بشهادات معتمدة", "href": "/training", "icon": "monitor" },
+  { "id": "s04", "name": "طلب شهادة معتمدة", "description": "إصدار شهادات الدبلوم مصدّقة وموثقة بترميز QR", "href": "/portal", "icon": "award" },
+  { "id": "s05", "name": "عقود المناقصات", "description": "متابعة المناقصات والعطاءات الخاصة بالمعهد", "href": "/media#announcements", "icon": "gavel" },
+  { "id": "s06", "name": "قاعة المؤتمرات والحجز", "description": "حجز القاعات للمؤتمرات والورش الخارجية", "href": "/portal", "icon": "calendar" },
+  { "id": "s07", "name": "مكتبة المعهد الرقمية", "description": "المقنيات والمذكرات ورشيف الأبحاث الإدارية", "href": "/about#library", "icon": "library" },
+  { "id": "s08", "name": "جهة الاتصال / للتواصل مع الإدارة", "description": "استفسارات المراجعين والرودود على البلاغات", "href": "/contact", "icon": "phone" },
+  { "id": "s09", "name": "إيداع الوثائق والأرشيف", "description": "أرشفة الوثائق الوزارية إلكترونيًا", "href": "/portal", "icon": "folder" },
+  { "id": "s10", "name": "خدمات الهيئة التدريسية", "description": "الجداول والقاعات والأفرازات الأكاديمية", "href": "/portal", "icon": "university" },
+  { "id": "s11", "name": "الاستعلام عن نتائج القبول", "description": "التحقق من نتيجة القبول برقم الهوية", "href": "/portal", "icon": "search-check" },
+  { "id": "s12", "name": "الاستعلام الإلكتروني", "description": "عموم الاستعلامات الإدارية عبر قناة واحدة", "href": "/portal", "icon": "info" }
+]

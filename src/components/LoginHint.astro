@@ -1,0 +1,220 @@
+---
+import Icon from './Icon.astro';
+---
+
+<div class="alert" hidden data-login-alert>
+  <span class="alert__ring" data-alert-ring aria-hidden="true">
+    <i class="alert__corner alert__corner--tl"></i>
+    <i class="alert__corner alert__corner--tr"></i>
+    <i class="alert__corner alert__corner--br"></i>
+    <i class="alert__corner alert__corner--bl"></i>
+  </span>
+
+  <div class="alert__box" data-alert-box role="status" aria-live="polite">
+    <button class="alert__x" type="button" aria-label="إغلاق" data-alert-close>
+      <Icon name="x" size={14} />
+    </button>
+    <strong>قم بتسجيل الدخول</strong>
+    <p>لإكمال التسجيل في البرنامج أو الدورة عبر بوابة المعهد.</p>
+    <a href="/portal" class="alert__cta">تسجيل الدخول</a>
+  </div>
+</div>
+
+<style>
+  .alert {
+    position: fixed;
+    inset: 0;
+    z-index: 230;
+    pointer-events: none;
+  }
+
+  /* إطار من أربعة أقواس تلتف بأركان البطاقة، مقاسه يتبع البطاقة تلقائيًا */
+  .alert__ring {
+    --arm: 22px;
+    --thick: 3px;
+    --gap: 6px;
+    --red: #e03131;
+    --tilt: 0.7deg;
+    position: absolute;
+    pointer-events: none;
+  }
+  .alert__corner {
+    position: absolute;
+    width: var(--arm);
+    height: var(--arm);
+  }
+  .alert__corner::before,
+  .alert__corner::after {
+    content: '';
+    position: absolute;
+    background: var(--red);
+    border-radius: 99px;
+    box-shadow: 0 0 9px rgba(224, 49, 49, 0.5);
+  }
+  /* الذراع الأفقي ثم الرأسي، فيلتقيان في زاوية واحدة */
+  .alert__corner::before {
+    width: var(--arm);
+    height: var(--thick);
+  }
+  .alert__corner::after {
+    width: var(--thick);
+    height: var(--arm);
+  }
+
+  .alert__corner--tl {
+    top: calc(-1 * var(--gap));
+    left: calc(-1 * var(--gap));
+    transform: rotate(var(--tilt));
+  }
+  .alert__corner--tl::before { top: 0; left: 0; }
+  .alert__corner--tl::after { top: 0; left: 0; }
+
+  .alert__corner--tr {
+    top: calc(-1 * var(--gap));
+    right: calc(-1 * var(--gap));
+    transform: rotate(var(--tilt));
+  }
+  .alert__corner--tr::before { top: 0; right: 0; }
+  .alert__corner--tr::after { top: 0; right: 0; }
+
+  .alert__corner--br {
+    bottom: calc(-1 * var(--gap));
+    right: calc(-1 * var(--gap));
+    transform: rotate(var(--tilt));
+  }
+  .alert__corner--br::before { bottom: 0; right: 0; }
+  .alert__corner--br::after { bottom: 0; right: 0; }
+
+  .alert__corner--bl {
+    bottom: calc(-1 * var(--gap));
+    left: calc(-1 * var(--gap));
+    transform: rotate(var(--tilt));
+  }
+  .alert__corner--bl::before { bottom: 0; left: 0; }
+  .alert__corner--bl::after { bottom: 0; left: 0; }
+
+  @keyframes corner-in {
+    from {
+      opacity: 0;
+      transform: scale(1.45) rotate(var(--tilt));
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) rotate(var(--tilt));
+    }
+  }
+  .alert.is-open .alert__corner {
+    animation: corner-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .alert.is-open .alert__corner--tr { animation-delay: 0.06s; }
+  .alert.is-open .alert__corner--br { animation-delay: 0.12s; }
+  .alert.is-open .alert__corner--bl { animation-delay: 0.18s; }
+
+  /* التنبيه الصغير أسفل البطاقة، ورأسه يشير إلى منتصفها */
+  .alert__box {
+    position: absolute;
+    width: max-content;
+    min-width: 210px;
+    max-width: 268px;
+    background: var(--color-surface);
+    border: 1px solid #f3c1c1;
+    border-radius: 14px;
+    box-shadow: 0 16px 36px rgba(224, 49, 49, 0.2);
+    padding: 10px 13px 11px;
+    text-align: start;
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  .alert__box::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: calc(50% + var(--arrow-shift, 0px));
+    top: -6px;
+    width: 11px;
+    height: 11px;
+    background: var(--color-surface);
+    border-inline-start: 1px solid #f3c1c1;
+    border-top: 1px solid #f3c1c1;
+    border-radius: 3px;
+    transform: translateX(-50%) rotate(45deg);
+  }
+  .alert__box.is-above::before {
+    top: auto;
+    bottom: -6px;
+    border: 0;
+    border-inline-end: 1px solid #f3c1c1;
+    border-bottom: 1px solid #f3c1c1;
+    border-radius: 0 0 3px 0;
+  }
+
+  .alert.is-open .alert__box {
+    animation: alert-up 0.28s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+  }
+  @keyframes alert-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .alert__box strong {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 900;
+    color: #c92a2a;
+    padding-inline-end: 20px;
+    line-height: 1.5;
+  }
+  .alert__box p {
+    font-size: 0.75rem;
+    line-height: 1.65;
+    color: var(--color-text-secondary);
+    margin: 2px 0 9px;
+  }
+  .alert__cta {
+    display: inline-flex;
+    align-items: center;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #fff;
+    background: #e03131;
+    border-radius: 9px;
+    padding: 7px 14px;
+    box-shadow: 0 4px 14px rgba(224, 49, 49, 0.32);
+    transition: filter 0.2s ease;
+  }
+  .alert__cta:hover {
+    filter: brightness(1.08);
+  }
+  .alert__x {
+    position: absolute;
+    inset-inline-end: 6px;
+    top: 6px;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+  .alert__x:hover {
+    background: #fdecec;
+    color: #c92a2a;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .alert.is-open .alert__box,
+    .alert.is-open .alert__corner {
+      animation: none;
+    }
+  }
+</style>
