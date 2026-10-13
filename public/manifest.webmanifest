@@ -1,0 +1,16 @@
+{
+  "name": "NIAS — المعهد الوطني للعلوم الإدارية",
+  "short_name": "NIAS",
+  "description": "المعهد الوطني للعلوم الإدارية — دبلومات ودورات مهنية في الإدارة والمالية والتحول الرقمي",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBFAF7",
+  "theme_color": "#077B43",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "192x192", "type": "image/png", "purpose": "any" }
+  ]
+}
